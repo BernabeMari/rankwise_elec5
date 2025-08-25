@@ -5,6 +5,11 @@
 {% block content %}
 <div class="row">
     <div class="col-12 mb-3">
+        {% if student_name or student_id %}
+            <div class="mb-2 text-muted">
+                <strong>Student:</strong> {{ student_name or 'Unknown' }}{% if student_id %} <span class="ms-2 small">({{ student_id }})</span>{% endif %}
+            </div>
+        {% endif %}
         {% if badges and badges|length > 0 %}
             <div class="d-flex align-items-center flex-wrap gap-2">
                 {% for b in badges %}

@@ -42,6 +42,7 @@ class Question(db.Model):
 class Response(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     form_id = db.Column(db.Integer, db.ForeignKey('form.id'), nullable=False)
+    submitted_by = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     answers = db.relationship('Answer', backref='response', lazy=True, cascade="all, delete-orphan")
     

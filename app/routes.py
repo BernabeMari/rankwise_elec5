@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session
 from app import db
 from app.models.models import Form, Question, Response, Answer
-from app.models.users import login_required, admin_required, get_user
+from app.models.users import login_required, admin_required, get_user, get_all_students
+from sqlalchemy import text
 import json
 from datetime import datetime
 import requests
@@ -21,6 +22,23 @@ import platform
 from subprocess import Popen, PIPE
 
 main = Blueprint('main', __name__)
+
+# Ensure DB schema compatibility (add submitted_by to response if missing)
+def _ensure_response_schema():
+    try:
+        result = db.session.execute(text("PRAGMA table_info(response);"))
+        cols = [row[1] for row in result]
+        if 'submitted_by' not in cols:
+            db.session.execute(text("ALTER TABLE response ADD COLUMN submitted_by VARCHAR(100);"))
+            db.session.commit()
+    except Exception:
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
+
+# Run once on import
+_ensure_response_schema()
 
 # Define compiler paths with defaults
 C_COMPILER_PATH = 'gcc'
@@ -518,7 +536,7 @@ def generate_ai_question_standalone():
             - Keep the problem clear and self-contained.
             """
         
-        ai_prompt = f"""You are an teacher generating student friendly questions about {prompt}.
+        ai_prompt = f"""You are a teacher generating student friendly questions about {prompt}.
 
 Create a {question_type} question about '{prompt}' following these guidelines:
 
@@ -618,7 +636,7 @@ def submit_form(form_id):
     form = Form.query.get_or_404(form_id)
     
     # Create a new response
-    response = Response(form_id=form_id)
+    response = Response(form_id=form_id, submitted_by=session.get('user_id'))
     db.session.add(response)
     db.session.flush()  # To get the response ID
     
@@ -700,6 +718,7 @@ def submit_form(form_id):
 @main.route('/form/<int:form_id>/responses', methods=['GET'])
 @admin_required
 def view_responses(form_id):
+    _ensure_response_schema()
     form = Form.query.get_or_404(form_id)
     # Fetch responses for the form
     responses = Response.query.filter_by(form_id=form_id).order_by(Response.created_at.asc()).all()
@@ -741,6 +760,7 @@ def view_responses(form_id):
 
 @main.route('/response/<int:response_id>', methods=['GET'])
 def view_response(response_id):
+    _ensure_response_schema()
     response = Response.query.get_or_404(response_id)
     form = Form.query.get_or_404(response.form_id)
     # Compute overall earned points and percentage
@@ -779,7 +799,18 @@ def view_response(response_id):
         if speed_ratio >= 0.5:
             badges.append({'name': 'Speed', 'image': url_for('static', filename='images/speed.png')})
     
-    return render_template('view_response.html', form=form, response=response, overall_pct=overall_pct, badges=badges)
+    # Resolve student display name
+    student_id = response.submitted_by
+    student_name = None
+    try:
+        if student_id:
+            for s in get_all_students():
+                if s.student_id == student_id:
+                    student_name = s.fullname or student_id
+                    break
+    except Exception:
+        student_name = student_id
+    return render_template('view_response.html', form=form, response=response, overall_pct=overall_pct, badges=badges, student_name=student_name, student_id=student_id)
 
 @main.route('/form/test-lm-studio', methods=['GET'])
 def test_lm_studio_connection():

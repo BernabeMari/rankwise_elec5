@@ -12,6 +12,20 @@ def create_app():
     
     db.init_app(app)
     
+    # Attempt lightweight migration: add submitted_by column to Response if missing
+    with app.app_context():
+        try:
+            from sqlalchemy import text
+            from sqlalchemy.engine import Engine
+            engine: Engine = db.get_engine()
+            # Check if column exists
+            result = engine.execute(text("PRAGMA table_info(response);"))
+            cols = [row[1] for row in result]
+            if 'submitted_by' not in cols:
+                engine.execute(text("ALTER TABLE response ADD COLUMN submitted_by VARCHAR(100);"))
+        except Exception:
+            pass
+
     # Initialize the auth blueprint
     from app.auth import auth
     app.register_blueprint(auth, url_prefix='/auth')
