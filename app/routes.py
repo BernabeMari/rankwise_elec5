@@ -3,23 +3,9 @@ from app import db
 from app.models.models import Form, Question, Response, Answer
 from app.models.users import login_required, admin_required, get_user, get_all_students
 from sqlalchemy import text
-import json
 from datetime import datetime
 import requests
-import os
 import time
-import subprocess
-import tempfile
-import uuid
-import sys
-import re
-import threading
-import queue
-import shlex
-import signal
-import pandas as pd
-import platform
-from subprocess import Popen, PIPE
 
 main = Blueprint('main', __name__)
 
@@ -40,14 +26,6 @@ def _ensure_response_schema():
 # Run once on import
 _ensure_response_schema()
 
-# Define compiler paths with defaults
-C_COMPILER_PATH = 'gcc'
-CPP_COMPILER_PATH = 'g++'
-CSHARP_COMPILER_PATH = 'csc'
-VB_COMPILER_PATH = 'vbc'
-
-# Dictionary to store active execution processes
-active_executions = {}
 
 @main.route('/')
 @login_required
@@ -227,178 +205,60 @@ def clean_short_answer(raw_answer: str, question_text: str = "") -> str:
 
 def parse_ai_response(content, question_type):
     """
-    Parse the AI model response into a structured question format
-    Optimized for DeepSeek Coder 7b Instruct v1.5
+    Parse the AI model response into a structured question format in a concise way.
     """
     try:
-        # Default structure
-        question_data = {
-            'text': '',
-            'question_type': question_type
-        }
-        
-        # For demonstration, we'll try to extract information from the AI response
-        lines = content.strip().split('\n')
-        
-        # Find the question text - look for the first paragraph before options or answers
-        question_text_lines = []
-        found_answer_line = False
-        answer_line_index = -1
-        
-        # First, locate the answer line to properly separate question from answer
-        for i, line in enumerate(lines):
-            if line.strip() and ("correct answer" in line.lower() or "answer:" in line.lower()):
-                found_answer_line = True
-                answer_line_index = i
+        import re
+        lines = [ln.strip() for ln in content.strip().splitlines() if ln.strip()]
+        lower_lines = [ln.lower() for ln in lines]
+        ans_idx = next((i for i, l in enumerate(lower_lines) if l.startswith("answer") or "correct answer" in l), None)
+        # Build question text from leading lines before options/answer
+        qtext_parts = []
+        for i, ln in enumerate(lines):
+            if question_type == 'multiple_choice' and re.match(r'^[A-D][.).]\s+', ln):
                 break
-        
-        # Now extract question text - everything before the answer line
-        for i, line in enumerate(lines):
-            if line.strip():
-                # Stop when we hit what looks like an option in multiple choice or an answer
-                if (question_type == 'multiple_choice' and 
-                    (line.strip().startswith('A)') or line.strip().startswith('A.') or 
-                     line.strip().startswith('B)') or line.strip().startswith('B.') or
-                     line.strip().startswith('C)') or line.strip().startswith('C.') or
-                     line.strip().startswith('D)') or line.strip().startswith('D.'))):
-                    break
-                # Stop at the answer line
-                if found_answer_line and i >= answer_line_index:
-                    break
-                question_text_lines.append(line.strip())
-        
-        if question_text_lines:
-            question_data['text'] = ' '.join(question_text_lines)
-        
+            if ans_idx is not None and i >= ans_idx:
+                break
+            qtext_parts.append(ln)
+        question_text = ' '.join(qtext_parts).strip()
+        data = {'text': question_text, 'question_type': question_type}
         if question_type == 'multiple_choice':
-            options = []
-            correct_answer = None
-            
-            # Look for options in the DeepSeek Coder 7b Instruct v1.5 format (A, B, C, D)
-            option_pattern = r'^([A-D])[.):]\s+(.+)$'
-            import re
-            
-            for line in lines:
-                line = line.strip()
-                match = re.match(option_pattern, line)
-                if match:
-                    # Store just the option text without prefix and trim explanations
-                    option_text = match.group(2).strip()
-                    option_text = clean_short_answer(option_text, question_data.get('text', ''))
-                    options.append(option_text)
-            
-            # Look for the correct answer
-            correct_pattern = r'(?:correct\s+answer|answer)[:\s]+([A-D])'
-            for line in lines:
-                match = re.search(correct_pattern, line.lower())
-                if match:
-                    correct_letter = match.group(1).upper()
-                    # Convert the letter to the array index (0-3)
-                    correct_index = ord(correct_letter) - ord('A')
-                    if 0 <= correct_index < len(options):
-                        correct_answer = options[correct_index]
-                        break
-            
-            # If still no correct answer but we have options, use the first
-            if correct_answer is None and options:
-                correct_answer = options[0]
-                print("Warning: No correct answer specified in AI response for multiple choice, using first option as default")
-            
-            # Ensure we always have both options and a correct answer
+            options = [clean_short_answer(m.group(2).strip(), question_text)
+                       for m in re.finditer(r'^([A-D])[.).]\s+(.+)$', content, flags=re.M)]
             if not options:
                 options = ["Option A", "Option B", "Option C", "Option D"]
-                print("Warning: No options found in AI response, using default options")
-            
-            if correct_answer is None:
-                correct_answer = options[0]
-                print("Warning: No correct answer could be determined, using first option as default")
-            
-            # Final trim of correct answer
-            correct_answer = clean_short_answer(correct_answer, question_data.get('text', ''))
-            
-            question_data['options'] = options
-            question_data['correct_answer'] = correct_answer
-            
+            m = re.search(r'(?:correct\s+answer|answer)[:\s]+([A-D])', content, flags=re.I)
+            if m:
+                idx = ord(m.group(1).upper()) - ord('A')
+                correct = options[idx] if 0 <= idx < len(options) else options[0]
+            else:
+                correct = options[0]
+            data.update({'options': options, 'correct_answer': clean_short_answer(correct, question_text)})
         elif question_type == 'identification':
-            # Look for a line with "answer:" or "correct answer:"
-            answer_pattern = r'(?:correct\s+answer|answer)[:\s]+(.+)$'
-            import re
-            
-            extracted_answer = None
-            for line in lines:
-                match = re.search(answer_pattern, line.lower())
-                if match:
-                    extracted_answer = match.group(1).strip()
-                    break
-            
-            # If we didn't find a clearly marked answer, check the last non-empty line
-            if not extracted_answer:
-                for line in reversed(lines):
-                    if line.strip() and not line.lower().startswith(("question", "prompt")):
-                        extracted_answer = line.strip()
-                        break
-            
-            # Make sure there is always a correct answer
-            if not extracted_answer:
-                print("Warning: No correct answer found in AI response for identification question")
-                extracted_answer = "Please provide a correct answer for this question"
-            
-            # Make sure the correct answer isn't just repeating the question
-            cleaned = clean_short_answer(extracted_answer, question_data.get('text', ''))
-            if cleaned.lower() == (question_data.get('text', '').lower()):
-                # Try to find a different answer from content
-                for line in reversed(lines):
-                    if line.strip() and line.lower() != question_data.get('text', '').lower():
-                        cleaned = clean_short_answer(line.strip(), question_data.get('text', ''))
-                        break
-            question_data['correct_answer'] = cleaned or extracted_answer
-        
+            m = re.search(r'(?:correct\s+answer|answer)[:\s]+(.+)$', content, flags=re.I|re.M)
+            extracted = m.group(1).strip() if m else (lines[-1] if lines else "")
+            cleaned = clean_short_answer(extracted, question_text)
+            if cleaned.lower() == question_text.lower() and lines:
+                cleaned = clean_short_answer(next((ln for ln in reversed(lines) if ln.lower() != question_text.lower()), extracted), question_text)
+            data['correct_answer'] = cleaned or extracted or "Please provide a correct answer for this question"
         elif question_type == 'coding':
-            # Extract Problem: section
-            raw_text = content
-            problem_text = ''
-            try:
-                import re
-                # Capture text after 'Problem:' until a blank line or 'Sample Code:'
-                prob_match = re.search(r"Problem:\s*(.*?)\n\s*(?:Sample Code:|```|$)", raw_text, flags=re.S|re.I)
-                if prob_match:
-                    problem_text = prob_match.group(1).strip()
-                else:
-                    # Fallback: first non-empty paragraph
-                    lines_iter = [ln.strip() for ln in raw_text.split('\n')]
-                    paragraph = []
-                    for ln in lines_iter:
-                        if ln:
-                            paragraph.append(ln)
-                        elif paragraph:
-                            break
-                    problem_text = ' '.join(paragraph).strip()
-            except Exception:
-                problem_text = ''
-            if problem_text:
-                question_data['text'] = problem_text
-            
-            # Extract first code fence as sample_code (optional)
-            code_blocks = []
-            in_code_block = False
-            current_block = []
-            for line in content.split('\n'):
-                if line.strip().startswith("```"):
-                    if in_code_block:
-                        in_code_block = False
-                        if current_block:
-                            code_blocks.append("\n".join(current_block))
-                            current_block = []
-                    else:
-                        in_code_block = True
-                elif in_code_block:
-                    current_block.append(line)
-            # For coding generation, sample code must not be included
-            question_data['sample_code'] = None
-            question_data['expected_output'] = None
-        
-        return question_data
-    
+            m = re.search(r"Problem:\s*(.*?)\n\s*(?:Sample Code:|```|$)", content, flags=re.S|re.I)
+            problem = (m.group(1).strip() if m else '')
+            if not problem:
+                # Fallback: first non-empty paragraph
+                paragraph = []
+                for ln in content.split('\n'):
+                    ln = ln.strip()
+                    if ln:
+                        paragraph.append(ln)
+                    elif paragraph:
+                        break
+                problem = ' '.join(paragraph).strip()
+            if problem:
+                data['text'] = problem
+            data['sample_code'] = None
+            data['expected_output'] = None
+        return data
     except Exception as e:
         print(f"Error parsing AI response: {e}")
         return {
@@ -407,84 +267,6 @@ def parse_ai_response(content, question_type):
             'options': ["Option A", "Option B", "Option C", "Option D"] if question_type == 'multiple_choice' else None,
             'correct_answer': None
         }
-
-@main.route('/form/<int:form_id>/ai-question', methods=['POST'])
-def generate_ai_question(form_id):
-    form = Form.query.get_or_404(form_id)
-    
-    # Get the prompt from the request
-    data = request.get_json() if request.is_json else request.form
-    prompt = data.get('prompt')
-    question_type = data.get('question_type', 'multiple_choice')
-    
-    if not prompt:
-        return jsonify({'error': 'Prompt is required'}), 400
-    
-    try:
-        # Create a specific prompt for the DeepSeek Coder model
-        instructions = ""
-        if question_type == 'multiple_choice':
-            instructions = """
-            - Provide exactly 4 options labeled 1-4 or A-D
-            - Clearly indicate the correct answer
-            - Options should be distinct and unambiguous
-            - YOU MUST ALWAYS specify the correct answer - this is required
-            - The correct answer must be factually accurate
-            """
-        elif question_type == 'identification':
-            instructions = """
-            - The answer should be a specific word, phrase, or term
-            - Make the question focused and specific
-            - Clearly separate the question from the answer
-            - After writing the question, include "Correct answer: [your answer]" on a new line
-            - The answer should be different from the question itself
-            - YOU MUST ALWAYS provide the correct answer - this is required
-            - The correct answer must be factually accurate
-            - Example format:
-              What is the programming language that was created as an extension to Python 2.x in 1991?
-              Correct answer: Python++
-            """
-        elif question_type == 'coding':
-            instructions = """
-            Output EXACTLY in this format (no extra text):
-            Problem:
-            <1-2 sentence problem statement describing the required program/algorithm and expected inputs/outputs>
-    
-    
-            Rules:
-            - Do NOT include any code, sample code, solution, tests, or explanations.
-            - Keep the problem clear and self-contained in 1-2 sentences maximum.
-            """
-        
-        ai_prompt = f"""You are an expert educator creating a {question_type} question about {prompt}.
-
-Requirements:
-1. Question should be clear and specific
-2. {prompt} should be the central topic
-3. You MUST provide a factually accurate correct answer
-4. For coding questions, only include sample code if truly necessary to explain the problem
-
-For this {question_type} question:
-{instructions}
-
-Return only the question with no additional explanation. Do not include any rationale or explanation after the answer; keep the answer concise (a single term/phrase).
-
-QUESTION:
-"""
-        
-        # Call the LM Studio API
-        ai_response = query_lm_studio(ai_prompt)
-        
-        if not ai_response:
-            raise Exception("Failed to get a response from the AI model")
-        
-        # Parse the AI response into our question format
-        question_data = parse_ai_response(ai_response, question_type)
-        
-        return jsonify(question_data)
-    
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 @main.route('/form/ai-question', methods=['POST'])
 def generate_ai_question_standalone():
@@ -845,178 +627,39 @@ def test_lm_studio_connection():
 
 def evaluate_code_with_ai(code_answer, expected_output, question_text):
     """
-    Use the AI model to evaluate a code answer
-    Returns (bool, float, str): (is_correct, score_percentage, explanation)
+    Evaluate code with AI and return (is_correct, score_percentage, explanation).
+    This optimized version requests only a verdict and omits long explanations.
     """
     try:
-        # Create a prompt for code evaluation that ensures the question is sent exactly as is
-        ai_prompt = f"""You are an expert programming teacher evaluating a student's code.
-
-IMPORTANT: First, carefully read and understand the question before evaluating the student's code.
-
-Question (EVALUATE EXACTLY AS WRITTEN): {question_text}
-
-CRITICAL INSTRUCTION: Do NOT modify, simplify, or reinterpret the question above. Use the EXACT question as provided to evaluate the student's code. The question should be taken verbatim as written above.
-
-STUDENT-FRIENDLY CODE ANALYSIS: Evaluate the code fairly and encouragingly. Follow these steps:
-
-1. Check if the code successfully meets the task requirements
-2. Look for understanding of the problem and appropriate solution approach
-3. Consider effort and attempt to solve the problem
-4. Mentally trace through the code execution to verify it works
-5. Check for logical correctness and proper implementation
-6. Recognize good programming practices and problem-solving skills
-7. Be encouraging while still being honest about issues
-
-Student's Code:
+        prompt = f"""You are a programming evaluator.
+Question: {question_text}
+StudentCode:
 {code_answer}
 
-Task: Evaluate the student's code and assign a percentage score based on code quality and correctness.
-Your evaluation should be organized as follows:
-
-1. Question Analysis: Briefly restate what the question is asking for
-2. Expected Approach: Summarize the expected solution approach
-3. Code Analysis: Evaluate the student's implementation with these criteria:
-   - Check if the code successfully addresses the problem requirements
-   - Verify the solution approach is appropriate for the task
-   - Trace through the code execution to ensure it works correctly
-   - Look for proper use of programming concepts and logic
-   - Check for good coding practices and readability
-   - Consider the student's understanding and effort level
-   - Provide constructive feedback for improvement
-
-STUDENT-FRIENDLY APPROACH: Focus on understanding and effort. If the code successfully solves the problem, award full points. Be encouraging and recognize good attempts, even if there are minor issues. The goal is to support learning and growth.
-
-Based on your evaluation, categorize the code into one of these student-friendly categories:
-- PERFECT (100% score): Code successfully meets the task requirements and produces correct output
-- MINOR_FLAW (75% score): Code meets the task but has minor errors, syntax issues, or small logical flaws
-- SO_SO (50% score): Code attempts the task but has significant issues or doesn't fully work as intended
-- EFFORT (25% score): Code shows some effort and understanding but doesn't really solve the problem
-- NO_TRY (0% score): Code shows minimal effort or doesn't attempt to solve the problem at all
-
-SCORING GUIDELINES: Be fair and encouraging while still being honest about the quality of the solution. Recognize effort and understanding, not just perfect execution.
-
-Provide your score verdict in this exact format on its own line:
-"SCORE_VERDICT: [CATEGORY]"
-
-Example: "SCORE_VERDICT: MINOR_FLAW"
-
-IMPORTANT: After your verdict, provide ONLY 1-2 sentences explaining your reasoning. Be concise and encouraging.
-Focus on the key points and provide constructive feedback.
-
-Example complete response:
-"SCORE_VERDICT: MINOR_FLAW
-The code correctly implements a binary search algorithm with the right logic but has a minor indexing error on line 5 that would cause off-by-one errors."
-
-Evaluation:
+Decide the category: PERFECT, MINOR_FLAW, SO_SO, EFFORT, or NO_TRY.
+Respond with exactly one line in this format:
+SCORE_VERDICT: <CATEGORY>
 """
-        
-        # Use the CodeLlama model path
         model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\LoneStriker\\deepseek-coder-7b-instruct-v1.5-GGUF\\deepseek-coder-7b-instruct-v1.5-Q5_K_M.gguf"
-        
-        # Include system instructions for better organization
-        system_prompt = """You are a supportive and encouraging code assessment expert. Always:
-1. Start by understanding the question exactly
-2. Use the EXACT question as provided without any modifications, simplifications, or reinterpretations
-3. Be fair and encouraging - recognize good attempts and understanding
-4. Award full points for code that successfully solves the problem
-5. Verify that code addresses the problem requirements appropriately
-6. Perform thoughtful code analysis to understand the student's approach
-7. Trace through the logic to verify correctness
-8. Provide CONSTRUCTIVE feedback - only 1-2 sentences total
-9. Focus on the most important aspects in your brief explanation
-10. Be encouraging while still being honest about issues"""
-        
-        # Prepend the system prompt to enhance the model response
-        enhanced_prompt = f"{system_prompt}\n\n{ai_prompt}"
-        
-        # Call the LM Studio API with a longer timeout for complex code analysis
-        ai_response = query_lm_studio(enhanced_prompt, max_tokens=300, timeout=120, model_path=model_path)
-        
-        if not ai_response:
-            return False, 0, "AI evaluation failed: No response from AI model"
-        
-        # Normalize response for parsing
-        raw_response = ai_response
-        ai_response = ai_response.strip()
-        upper_resp = ai_response.upper()
-        
-        # Parse score category and determine percentage
-        score_percentage = 0
-        is_correct = False
-        score_verdict_pos = upper_resp.find("SCORE_VERDICT:")
-        category = None
-        
-        def clamp_to_allowed(percent_value: int) -> int:
-            allowed = [0, 25, 50, 75, 100]
-            # Choose the closest allowed value
-            return min(allowed, key=lambda v: abs(v - percent_value))
-        
-        if score_verdict_pos >= 0:
-            # Extract the score category from the response line
-            score_line = ai_response[score_verdict_pos:].split("\n")[0].strip()
-            upper_line = score_line.upper()
-            if "PERFECT" in upper_line:
-                category = "PERFECT"; score_percentage = 100; is_correct = True
-            elif "MINOR_FLAW" in upper_line:
-                category = "MINOR_FLAW"; score_percentage = 75; is_correct = True
-            elif "SO_SO" in upper_line:
-                category = "SO_SO"; score_percentage = 50; is_correct = False
-            elif "EFFORT" in upper_line:
-                category = "EFFORT"; score_percentage = 25; is_correct = False
-            elif "NO_TRY" in upper_line:
-                category = "NO_TRY"; score_percentage = 0; is_correct = False
-        else:
-            # Fallbacks if the exact tag is missing
-            if "PERFECT" in upper_resp:
-                category = "PERFECT"; score_percentage = 100; is_correct = True
-            elif "MINOR FLAW" in upper_resp or "MINOR_FLAW" in upper_resp:
-                category = "MINOR_FLAW"; score_percentage = 75; is_correct = True
-            elif "SO-SO" in upper_resp or "SO SO" in upper_resp or "SO_SO" in upper_resp:
-                category = "SO_SO"; score_percentage = 50; is_correct = False
-            elif "EFFORT" in upper_resp:
-                category = "EFFORT"; score_percentage = 25; is_correct = False
-            elif "NO TRY" in upper_resp or "NO_TRY" in upper_resp:
-                category = "NO_TRY"; score_percentage = 0; is_correct = False
-            else:
-                # Try to parse an explicit percentage like 75% or 50 percent
-                import re
-                m = re.search(r"(100|75|50|25|0)\s*%", upper_resp)
-                if m:
-                    score_percentage = clamp_to_allowed(int(m.group(1)))
-                    is_correct = score_percentage >= 75
-                else:
-                    # Legacy binary fallback: require the whole word CORRECT and not INCORRECT
-                    has_correct = re.search(r"\bCORRECT\b", upper_resp) is not None
-                    has_incorrect = "INCORRECT" in upper_resp
-                    is_correct = has_correct and not has_incorrect
-                    score_percentage = 100 if is_correct else 0
-        
-        # Build concise explanation
-        explanation = raw_response
-        if category is not None or score_verdict_pos >= 0 or score_percentage in (0, 25, 50, 75, 100):
-            score_class = "verdict-correct" if score_percentage >= 75 else "verdict-partial" if score_percentage >= 50 else "verdict-incorrect"
-            label = f"SCORE_VERDICT: {category}" if category else "Score"
-            styled_score = f"<strong class='{score_class}'>{label} ({score_percentage}%)</strong>"
-            # Try to grab 1 short sentence after the first line, skipping boilerplate like 'Expected Approach'
-            short_explanation = ""
-            for line in ai_response.split("\n")[1:]:
-                line = line.strip()
-                if not line:
-                    continue
-                if line.lower().startswith("expected approach"):
-                    continue
-                short_explanation = line
-                break
-            explanation = f"{styled_score}<br>{short_explanation}".strip()
-        else:
-            # If we couldn't determine a category, still present a compact explanation
-            score_class = "verdict-correct" if score_percentage >= 75 else "verdict-partial" if score_percentage >= 50 else "verdict-incorrect"
-            styled_score = f"<strong class='{score_class}'>Score: {score_percentage}%</strong>"
-            explanation = f"{styled_score}"
-        
-        return is_correct, score_percentage, explanation
-    
+        ai_resp = query_lm_studio(prompt, max_tokens=20, timeout=60, model_path=model_path) or ""
+        resp = ai_resp.strip().upper()
+        category_map = {
+            'PERFECT': 100,
+            'MINOR_FLAW': 75,
+            'SO_SO': 50,
+            'EFFORT': 25,
+            'NO_TRY': 0,
+        }
+        cat = None
+        if "SCORE_VERDICT:" in resp:
+            line = resp.splitlines()[0]
+            cat = next((k for k in category_map if k in line), None)
+        if cat is None:
+            cat = next((k for k in category_map if k in resp), None)
+        score = category_map.get(cat, 0)
+        is_correct = score >= 75
+        explanation = f"SCORE_VERDICT: {cat or 'UNKNOWN'} ({score}%)"
+        return is_correct, score, explanation
     except Exception as e:
         print(f"Error evaluating code with AI: {e}")
-        return False, 0, f"AI evaluation error: {str(e)}"
+        return False, 0, "SCORE_VERDICT: NO_TRY (0%)"
