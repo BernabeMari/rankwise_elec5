@@ -1,0 +1,803 @@
+{% extends "base.html" %}
+
+{% block title %}Class Sections & Students{% endblock %}
+
+{% block head %}
+<style>
+    .table-wrapper {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    
+    .table thead {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+    }
+    
+    .table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    .student-id {
+        font-family: monospace;
+        font-weight: 600;
+    }
+    
+    .drop-zone {
+        background-color: #f8f9fa;
+        border: 3px dashed #ced4da;
+        border-radius: 1rem;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s;
+        cursor: pointer;
+        margin-bottom: 2rem;
+    }
+    
+    .drop-zone:hover, .drop-zone.active {
+        background-color: #e9ecef;
+        border-color: var(--primary-color);
+    }
+    
+    .drop-zone-prompt {
+        color: #6c757d;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .drop-zone-icon {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+    
+    .drop-zone-input {
+        display: none;
+    }
+    
+    .drop-zone-thumb {
+        width: 100%;
+        height: 100%;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .section-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .section-card {
+        flex: 0 0 calc(33.333% - 1rem);
+        background: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+    
+    .section-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .section-card.active {
+        border-color: var(--primary-color);
+        background-color: rgba(var(--primary-rgb), 0.05);
+    }
+    
+    .section-card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .section-card-count {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    
+    .section-card-icon {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+    
+    .irregular-badge {
+        background-color: #ff9800;
+    }
+    
+    .regular-badge {
+        background-color: #4caf50;
+    }
+    
+    .verification-code-value {
+        font-family: monospace;
+        letter-spacing: 1px;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-control {
+        border-radius: 0.5rem;
+    }
+    
+    .upload-btn {
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>Class Sections & Students</h1>
+        <p class="text-muted">Upload class lists and manage student records</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Forms
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Upload Class Section</h5>
+    </div>
+    <div class="card-body">
+        <p class="card-text">Upload an Excel file with student information. The spreadsheet must include the following columns: <strong>studentID</strong>, <strong>name</strong>, <strong>isRegular</strong>, <strong>gradeLevel</strong>, and <strong>email</strong>.</p>
+        
+        <form method="POST" action="{{ url_for('auth.manage_users') }}" enctype="multipart/form-data" id="upload-form">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="section_name" class="form-label">Section Name</label>
+                    <input type="text" class="form-control" id="section_name" name="section_name" placeholder="e.g., BSCS 2A" required>
+                </div>
+                
+                <div class="col-md-8">
+                    <div class="drop-zone" id="drop-zone">
+                        <div class="drop-zone-icon">
+                            <i class="bi bi-cloud-arrow-up"></i>
+                        </div>
+                        <div class="drop-zone-prompt">Drag & Drop Excel file here or click to browse</div>
+                        <input type="file" name="csv_file" id="csv_file" class="drop-zone-input" accept=".xlsx,.xls" required>
+                        <div id="file-name" class="mt-2 text-primary"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-end mt-3">
+                <button type="submit" class="btn btn-primary upload-btn">
+                    <i class="bi bi-upload"></i> Upload Section
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if sections %}
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Class Sections</h5>
+    </div>
+    <div class="card-body">
+        <div class="section-cards">
+            <a href="{{ url_for('auth.manage_users') }}" class="section-card {% if not active_section %}active{% endif %}" style="text-decoration: none; color: inherit;">
+                <div class="section-card-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="section-card-title">All Students</div>
+                <div class="section-card-count">{{ students|length }} students</div>
+            </a>
+            
+            {% for section in sections %}
+            <a href="{{ url_for('auth.manage_users', section=section.name) }}" class="section-card {% if active_section == section.name %}active{% endif %}" style="text-decoration: none; color: inherit;">
+                <div class="section-card-icon">
+                    <i class="bi bi-file-earmark-person"></i>
+                </div>
+                <div class="section-card-title">{{ section.name }}</div>
+                <div class="section-card-count">{{ section.student_count }} students</div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h5 class="mb-0">
+                    Student List
+                    {% if active_section %}
+                        <small class="text-white-50"> - {{ active_section }}</small>
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" id="studentSearch" class="form-control" placeholder="Search students..." aria-label="Search students">
+                    <span class="input-group-text bg-light">
+                        <i class="bi bi-search"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div id="bulkActionsToolbar" class="bg-light p-3 border-bottom d-none">
+            <div class="d-flex align-items-center">
+                <span class="me-3">
+                    <span id="selectedCount">0</span> students selected
+                </span>
+                <button id="generateBulkCodes" class="btn btn-primary btn-sm">
+                    <i class="bi bi-shield-lock"></i> Generate Verification Codes
+                </button>
+                <button id="removeBulkCodes" class="btn btn-danger btn-sm ms-2">
+                    <i class="bi bi-trash"></i> Remove Codes
+                </button>
+                <button id="cancelSelection" class="btn btn-outline-secondary btn-sm ms-2">
+                    <i class="bi bi-x"></i> Cancel
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th width="40">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="selectAllStudents">
+                            </div>
+                        </th>
+                        <th>Student ID</th>
+                        <th>Full Name</th>
+                        <th>Status</th>
+                        <th>Grade Level</th>
+                        <th>Email</th>
+                        <th>Verification Code</th>
+                        {% if active_section %}
+                            <th>Section</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if students %}
+                        {% for student in students %}
+                        <tr class="student-row" data-student-id="{{ student.student_id }}" data-student-name="{{ student.fullname }}" data-student-email="{{ student.email }}" style="cursor: pointer;">
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input student-checkbox" type="checkbox" value="{{ student.student_id }}" data-student-name="{{ student.fullname }}">
+                                </div>
+                            </td>
+                            <td class="student-id">{{ student.student_id }}</td>
+                            <td>{{ student.fullname }}</td>
+                            <td>
+                                <span class="badge {% if student.is_irregular == 'Yes' %}irregular-badge{% else %}regular-badge{% endif %}">
+                                    {% if student.is_irregular == 'Yes' %}Irregular{% else %}Regular{% endif %}
+                                </span>
+                            </td>
+                            <td>{{ student.grade_level }}</td>
+                            <td>{{ student.email }}</td>
+                            <td class="verification-code-cell" data-student-id="{{ student.student_id }}">
+                                <span class="verification-code-placeholder">Not generated</span>
+                                <span class="verification-code-value d-none"></span>
+                                <button class="btn btn-sm btn-outline-primary generate-code-btn ms-2" data-student-id="{{ student.student_id }}">
+                                    <i class="bi bi-shield-lock"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger remove-code-btn ms-1 d-none" data-student-id="{{ student.student_id }}">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </td>
+                            {% if active_section %}
+                                <td>{{ student.section }}</td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="{% if active_section %}8{% else %}7{% endif %}" class="text-center">
+                                <em>No students found</em>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="text-muted mt-3">
+    <small>
+        <i class="bi bi-info-circle"></i> Students can log in using their student ID as username and verification code as password
+    </small>
+</div>
+
+<!-- Student Verification Modal -->
+<div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="studentModalLabel">Student Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="student-details mb-4">
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Student ID:</div>
+                        <div class="col-md-8" id="modalStudentId"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Name:</div>
+                        <div class="col-md-8" id="modalStudentName"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Email:</div>
+                        <div class="col-md-8" id="modalStudentEmail"></div>
+                    </div>
+                    <div class="row" id="verificationCodeRow" style="display: none;">
+                        <div class="col-md-4 fw-bold">Verification Code:</div>
+                        <div class="col-md-8">
+                            <span id="verificationCode" class="badge bg-success fs-6 p-2"></span>
+                            <small class="d-block mt-1 text-muted">The student will use this code to log in</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-grid">
+                    <button type="button" id="generateVerificationBtn" class="btn btn-primary">
+                        <i class="bi bi-shield-lock"></i> Generate Verification Code
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('csv_file');
+        const fileName = document.getElementById('file-name');
+        const studentSearch = document.getElementById('studentSearch');
+        const studentRows = document.querySelectorAll('.student-row');
+        const studentModal = new bootstrap.Modal(document.getElementById('studentModal'));
+        const generateVerificationBtn = document.getElementById('generateVerificationBtn');
+        
+        // File Upload Functions
+        // ====================
+        
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        // Highlight drop zone when dragging over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+        
+        // Remove highlight when dragging leaves
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+        
+        // Handle dropped files
+        dropZone.addEventListener('drop', handleDrop, false);
+        
+        // Click to browse files
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // Handle file selection
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                updateFileNameDisplay(fileInput.files[0]);
+            }
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        function highlight() {
+            dropZone.classList.add('active');
+        }
+        
+        function unhighlight() {
+            dropZone.classList.remove('active');
+        }
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length) {
+                fileInput.files = files;
+                updateFileNameDisplay(files[0]);
+            }
+        }
+        
+        function updateFileNameDisplay(file) {
+            // Display file name
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            
+            if (fileExtension !== 'xlsx' && fileExtension !== 'xls') {
+                fileName.innerHTML = `<span class="text-danger">Invalid file type. Please select an Excel file (.xlsx or .xls).</span>`;
+                return;
+            }
+            
+            fileName.innerHTML = `<i class="bi bi-file-earmark-text me-1"></i> ${file.name}`;
+            
+            // Update form validation
+            fileInput.setCustomValidity('');
+        }
+        
+        // Student Checklist and Verification Code Functions
+        // ===========================================
+        
+        // Initial load - check for existing verification codes
+        fetchExistingVerificationCodes();
+        
+        // Click on student row
+        studentRows.forEach(row => {
+            row.addEventListener('click', function(e) {
+                // Ignore clicks on the checkbox or buttons
+                if (e.target.closest('.form-check') || e.target.closest('button')) {
+                    return;
+                }
+                
+                const studentId = this.dataset.studentId;
+                const studentName = this.dataset.studentName;
+                const studentEmail = this.dataset.studentEmail;
+                
+                // Set modal content
+                document.getElementById('modalStudentId').textContent = studentId;
+                document.getElementById('modalStudentName').textContent = studentName;
+                document.getElementById('modalStudentEmail').textContent = studentEmail;
+                
+                // Check if this student has a verification code
+                const codeCell = document.querySelector(`.verification-code-cell[data-student-id="${studentId}"]`);
+                const codeValue = codeCell.querySelector('.verification-code-value').textContent;
+                
+                if (codeValue && !codeCell.querySelector('.verification-code-value').classList.contains('d-none')) {
+                    document.getElementById('verificationCode').textContent = codeValue;
+                    document.getElementById('verificationCodeRow').style.display = 'flex';
+                    generateVerificationBtn.disabled = true;
+                    generateVerificationBtn.innerHTML = '<i class="bi bi-check-circle"></i> Verification Code Generated';
+                } else {
+                    document.getElementById('verificationCodeRow').style.display = 'none';
+                    generateVerificationBtn.disabled = false;
+                    generateVerificationBtn.innerHTML = '<i class="bi bi-shield-lock"></i> Generate Verification Code';
+                }
+                
+                // Show modal
+                studentModal.show();
+            });
+        });
+        
+        // Search functionality
+        studentSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            studentRows.forEach(row => {
+                const studentId = row.querySelector('.student-id').textContent.toLowerCase();
+                const studentName = row.dataset.studentName.toLowerCase();
+                const studentEmail = row.dataset.studentEmail.toLowerCase();
+                
+                if (studentId.includes(searchTerm) || 
+                    studentName.includes(searchTerm) || 
+                    studentEmail.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+        
+        // Select all students checkbox
+        const selectAllCheckbox = document.getElementById('selectAllStudents');
+        const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+        const bulkActionsToolbar = document.getElementById('bulkActionsToolbar');
+        const selectedCountElement = document.getElementById('selectedCount');
+        const generateBulkCodesBtn = document.getElementById('generateBulkCodes');
+        const removeBulkCodesBtn = document.getElementById('removeBulkCodes');
+        const cancelSelectionBtn = document.getElementById('cancelSelection');
+        
+        // Modal verification code generation
+        generateVerificationBtn.addEventListener('click', function() {
+            const studentId = document.getElementById('modalStudentId').textContent;
+            generateVerificationCodeForStudent(studentId);
+            
+            // Update modal display
+            document.getElementById('verificationCode').textContent = '...generating...';
+        });
+        
+        // Select all checkbox
+        selectAllCheckbox.addEventListener('change', function() {
+            const isChecked = this.checked;
+            
+            studentCheckboxes.forEach(checkbox => {
+                // Only check visible rows
+                if (checkbox.closest('tr').style.display !== 'none') {
+                    checkbox.checked = isChecked;
+                }
+            });
+            
+            updateBulkActionsToolbar();
+        });
+        
+        // Individual checkboxes
+        studentCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateBulkActionsToolbar();
+                
+                // Update select all checkbox
+                selectAllCheckbox.checked = Array.from(studentCheckboxes)
+                    .filter(cb => cb.closest('tr').style.display !== 'none')
+                    .every(cb => cb.checked);
+            });
+        });
+        
+        // Update bulk actions toolbar
+        function updateBulkActionsToolbar() {
+            const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
+            
+            if (checkedCount > 0) {
+                bulkActionsToolbar.classList.remove('d-none');
+                selectedCountElement.textContent = checkedCount;
+            } else {
+                bulkActionsToolbar.classList.add('d-none');
+            }
+        }
+        
+        // Cancel selection
+        cancelSelectionBtn.addEventListener('click', function() {
+            studentCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            selectAllCheckbox.checked = false;
+            bulkActionsToolbar.classList.add('d-none');
+        });
+        
+        // Generate bulk verification codes
+        generateBulkCodesBtn.addEventListener('click', function() {
+            const selectedStudentIds = Array.from(document.querySelectorAll('.student-checkbox:checked'))
+                .map(checkbox => checkbox.value);
+            
+            if (selectedStudentIds.length === 0) {
+                alert('Please select at least one student');
+                return;
+            }
+            
+            // Show confirmation
+            if (!confirm(`Generate verification codes for ${selectedStudentIds.length} selected students?`)) {
+                return;
+            }
+            
+            // Make AJAX request to generate verification codes
+            fetch('/auth/generate-bulk-verification-codes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ student_ids: selectedStudentIds }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI with generated codes
+                    data.codes.forEach(codeData => {
+                        updateVerificationCodeUI(codeData.student_id, codeData.verification_code);
+                    });
+                    
+                    // Reset selection
+                    cancelSelectionBtn.click();
+                    
+                    alert(`Successfully generated verification codes for ${data.codes.length} students.`);
+                } else {
+                    alert('Error generating verification codes: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error generating verification codes. Please try again.');
+            });
+        });
+        
+        // Remove bulk verification codes
+        removeBulkCodesBtn.addEventListener('click', function() {
+            const selectedStudentIds = Array.from(document.querySelectorAll('.student-checkbox:checked'))
+                .map(checkbox => checkbox.value);
+            
+            if (selectedStudentIds.length === 0) {
+                alert('Please select at least one student');
+                return;
+            }
+            
+            // Show confirmation
+            if (!confirm(`Remove verification codes for ${selectedStudentIds.length} selected students?`)) {
+                return;
+            }
+            
+            // Make AJAX request to remove verification codes
+            fetch('/auth/remove-verification-codes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ student_ids: selectedStudentIds }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI
+                    selectedStudentIds.forEach(studentId => {
+                        resetVerificationCodeUI(studentId);
+                    });
+                    
+                    // Reset selection
+                    cancelSelectionBtn.click();
+                    
+                    alert(`Successfully removed verification codes for ${selectedStudentIds.length} students.`);
+                } else {
+                    alert('Error removing verification codes: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error removing verification codes. Please try again.');
+            });
+        });
+        
+        // Individual generate code buttons
+        document.querySelectorAll('.generate-code-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent row click
+                
+                const studentId = this.dataset.studentId;
+                generateVerificationCodeForStudent(studentId);
+            });
+        });
+        
+        // Individual remove code buttons
+        document.querySelectorAll('.remove-code-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent row click
+                
+                const studentId = this.dataset.studentId;
+                removeVerificationCodeForStudent(studentId);
+            });
+        });
+        
+        // Generate verification code for a single student
+        function generateVerificationCodeForStudent(studentId) {
+            // Make AJAX request to generate verification code
+            fetch('/auth/generate-verification-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ student_id: studentId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI
+                    updateVerificationCodeUI(studentId, data.verification_code);
+                } else {
+                    alert('Error generating verification code: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error generating verification code. Please try again.');
+            });
+        }
+        
+        // Remove verification code for a single student
+        function removeVerificationCodeForStudent(studentId) {
+            // Make AJAX request to remove verification code
+            fetch('/auth/remove-verification-codes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ student_ids: [studentId] }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI
+                    resetVerificationCodeUI(studentId);
+                } else {
+                    alert('Error removing verification code: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error removing verification code. Please try again.');
+            });
+        }
+        
+        // Update verification code UI
+        function updateVerificationCodeUI(studentId, code) {
+            const cell = document.querySelector(`.verification-code-cell[data-student-id="${studentId}"]`);
+            if (cell) {
+                const placeholder = cell.querySelector('.verification-code-placeholder');
+                const value = cell.querySelector('.verification-code-value');
+                const generateBtn = cell.querySelector('.generate-code-btn');
+                const removeBtn = cell.querySelector('.remove-code-btn');
+                
+                placeholder.classList.add('d-none');
+                value.classList.remove('d-none');
+                value.textContent = code;
+                value.classList.add('badge', 'bg-success', 'fs-6', 'p-2');
+                
+                generateBtn.classList.add('d-none');
+                removeBtn.classList.remove('d-none');
+            }
+        }
+        
+        // Reset verification code UI
+        function resetVerificationCodeUI(studentId) {
+            const cell = document.querySelector(`.verification-code-cell[data-student-id="${studentId}"]`);
+            if (cell) {
+                const placeholder = cell.querySelector('.verification-code-placeholder');
+                const value = cell.querySelector('.verification-code-value');
+                const generateBtn = cell.querySelector('.generate-code-btn');
+                const removeBtn = cell.querySelector('.remove-code-btn');
+                
+                placeholder.classList.remove('d-none');
+                value.classList.add('d-none');
+                value.textContent = '';
+                
+                generateBtn.classList.remove('d-none');
+                removeBtn.classList.add('d-none');
+            }
+        }
+        
+        // Fetch existing verification codes
+        function fetchExistingVerificationCodes() {
+            fetch('/auth/get-verification-codes')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        data.codes.forEach(codeData => {
+                            updateVerificationCodeUI(codeData.student_id, codeData.verification_code);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching verification codes:', error);
+                });
+        }
+    });
+</script>
+{% endblock %} 

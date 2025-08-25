@@ -1,0 +1,773 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Form: {{ form.title }}{% endblock %}
+
+{% block head %}
+<style>
+    /* AI Generator styles */
+    .ai-generator-btn {
+        position: relative;
+        margin-top: 20px;
+        padding: 15px;
+        background: linear-gradient(135deg, #9c57d3, #5a40b0);
+        border-radius: 12px;
+        color: white;
+        text-align: center;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(123, 76, 160, 0.3);
+        overflow: hidden;
+    }
+    
+    .ai-generator-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(123, 76, 160, 0.4);
+    }
+    
+    .ai-generator-btn img {
+        height: 30px;
+        margin-right: 10px;
+        filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
+    }
+    
+    .ai-generator-btn::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.3) 50%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        transform: rotate(30deg);
+        animation: shine 3s infinite;
+    }
+    
+    @keyframes shine {
+        0% { transform: translateX(-100%) rotate(30deg); }
+        100% { transform: translateX(100%) rotate(30deg); }
+    }
+    
+    /* Modal styles */
+    .ai-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+    }
+    
+    .ai-modal-content {
+        position: relative;
+        background: white;
+        margin: 5% auto;
+        padding: 25px;
+        border-radius: 12px;
+        width: 80%;
+        max-width: 600px;
+        box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+        animation: modalFadeIn 0.3s ease;
+    }
+    
+    @keyframes modalFadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .ai-modal-header {
+        background: linear-gradient(135deg, #9c57d3, #5a40b0);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px 8px 0 0;
+        margin: -25px -25px 20px -25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .ai-modal-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+    
+    .ai-close {
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .ai-close:hover {
+        transform: scale(1.2);
+    }
+    
+    .ai-form-group {
+        margin-bottom: 20px;
+    }
+    
+    .ai-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .ai-input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s;
+    }
+    
+    .ai-input:focus {
+        border-color: #9c57d3;
+        box-shadow: 0 0 0 3px rgba(156, 87, 211, 0.2);
+        outline: none;
+    }
+    
+    .ai-btn {
+        background: linear-gradient(135deg, #9c57d3, #5a40b0);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .ai-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(156, 87, 211, 0.3);
+    }
+    
+    .ai-btn i {
+        margin-right: 8px;
+    }
+    
+    .ai-loading {
+        display: none;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .ai-loading .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 4px solid #9c57d3;
+        width: 40px;
+        height: 40px;
+        margin: 0 auto 15px auto;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .ai-result {
+        display: none;
+        background: #f8f0ff;
+        border-left: 4px solid #9c57d3;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>Edit Form: {{ form.title }}</h1>
+        <p class="text-muted">{{ form.description or "No description" }}</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('main.view_form', form_id=form.id) }}" class="btn btn-success">
+            <i class="bi bi-eye"></i> Preview Form
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="card sticky-top" style="top: 20px; z-index: 100;">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Add Question</h5>
+            </div>
+            <div class="card-body">
+                <form id="questionForm" method="POST" action="{{ url_for('main.add_question', form_id=form.id) }}">
+                    <div class="mb-3">
+                        <label for="question_text" class="form-label">Question</label>
+                        <textarea class="form-control" id="question_text" name="question_text" rows="2" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="question_type" class="form-label">Question Type</label>
+                        <select class="form-select" id="question_type" name="question_type" required>
+                            <option value="" selected disabled>Select question type</option>
+                            <option value="multiple_choice">Multiple Choice</option>
+                            <option value="identification">Identification</option>
+                            <option value="coding">Coding</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="points" class="form-label">Points</label>
+                        <input type="number" class="form-control" id="points" name="points" min="1" value="1" required>
+                        <div class="form-text">Number of points this question is worth.</div>
+                    </div>
+                    
+                    <!-- Multiple Choice Options (initially hidden) -->
+                    <div id="multipleChoiceOptions" class="mb-3" style="display: none;">
+                        <label class="form-label">Options</label>
+                        <div class="options-container">
+                            <div class="option-item">
+                                <input type="text" class="form-control" name="options[]" placeholder="Option 1">
+                                <span class="remove-option"><i class="bi bi-x-circle"></i></span>
+                            </div>
+                        </div>
+                        <button type="button" id="addOption" class="btn btn-sm btn-outline-secondary mt-2">
+                            <i class="bi bi-plus"></i> Add Option
+                        </button>
+                        
+                        <div class="mt-3">
+                            <label for="correct_answer_mc" class="form-label">Correct Answer</label>
+                            <select class="form-select" id="correct_answer_mc" name="correct_answer">
+                                <option value="" selected disabled>Select correct option</option>
+                            </select>
+                            <div class="form-text">This will be used to check if the respondent's answer is correct.</div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <label for="sample_code_mc" class="form-label">Sample Code (Optional)</label>
+                            <textarea class="form-control code-editor" id="sample_code_mc" name="sample_code" rows="5"></textarea>
+                            <div class="form-text">Optional code that will be displayed to the respondent.</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Identification Question Fields (initially hidden) -->
+                    <div id="identificationFields" class="mb-3" style="display: none;">
+                        <label for="correct_answer_id" class="form-label">Correct Answer</label>
+                        <input type="text" class="form-control" id="correct_answer_id" name="correct_answer" placeholder="Enter the correct answer">
+                        <div class="form-text">This will be used to check if the respondent's answer is correct.</div>
+                        
+                        <div class="mt-3">
+                            <label for="sample_code_id" class="form-label">Sample Code (Optional)</label>
+                            <textarea class="form-control code-editor" id="sample_code_id" name="sample_code" rows="5"></textarea>
+                            <div class="form-text">Optional code that will be displayed to the respondent.</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Coding Question Fields (initially hidden) -->
+                    <div id="codingFields" class="mb-3" style="display: none;">
+                        <div class="mb-3">
+                            <label for="sample_code" class="form-label">Sample Code</label>
+                            <textarea class="form-control code-editor" id="sample_code" name="sample_code" rows="5"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="expected_output" class="form-label">Expected Solution Approach</label>
+                            <textarea class="form-control" id="expected_output" name="expected_output" rows="2"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Add Question
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- AI Question Generator Button -->
+                <div class="ai-generator-btn" id="aiGeneratorBtn">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" style="margin-right: 10px; filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));">
+                        <path d="M12 2C11.0111 2 10.0444 2.29324 9.22215 2.84265C8.3999 3.39206 7.75904 4.17295 7.3806 5.08658C7.00216 6.00021 6.90315 7.00555 7.09607 7.97545C7.289 8.94536 7.76521 9.83627 8.46447 10.5355C9.16373 11.2348 10.0546 11.711 11.0245 11.9039C11.9945 12.0969 12.9998 11.9978 13.9134 11.6194C14.827 11.241 15.6079 10.6001 16.1573 9.77785C16.7068 8.95561 17 7.98891 17 7C17 5.67392 16.4732 4.40215 15.5355 3.46447C14.5979 2.52678 13.3261 2 12 2ZM12 10C11.4067 10 10.8266 9.82405 10.3333 9.49441C9.83994 9.16476 9.45542 8.69623 9.22836 8.14805C9.0013 7.59987 8.94189 6.99667 9.05764 6.41473C9.1734 5.83279 9.45912 5.29824 9.87868 4.87868C10.2982 4.45912 10.8328 4.1734 11.4147 4.05764C11.9967 3.94189 12.5999 4.0013 13.1481 4.22836C13.6962 4.45542 14.1648 4.83994 14.4944 5.33329C14.8241 5.82664 15 6.40666 15 7C15 7.79565 14.6839 8.55871 14.1213 9.12132C13.5587 9.68393 12.7956 10 12 10ZM21 21V20C21 18.1435 20.2625 16.363 18.9497 15.0503C17.637 13.7375 15.8565 13 14 13H10C8.14348 13 6.36301 13.7375 5.05025 15.0503C3.7375 16.363 3 18.1435 3 20V21H5V20C5 18.6739 5.52678 17.4021 6.46447 16.4645C7.40215 15.5268 8.67392 15 10 15H14C15.3261 15 16.5979 15.5268 17.5355 16.4645C18.4732 17.4021 19 18.6739 19 20V21H21Z"/>
+                    </svg>
+                    <span>Generate Questions with AI</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <h3>Questions</h3>
+        
+        {% if questions %}
+            {% for question in questions %}
+                <div class="question-card">
+                    <div class="d-flex justify-content-between mb-2">
+                        <div class="d-flex align-items-center">
+                            <span class="badge question-type-badge badge-{{ question.question_type }} me-2">
+                                {% if question.question_type == 'multiple_choice' %}
+                                    <i class="bi bi-list-check"></i> Multiple Choice
+                                {% elif question.question_type == 'identification' %}
+                                    <i class="bi bi-input-cursor-text"></i> Identification
+                                {% elif question.question_type == 'coding' %}
+                                    <i class="bi bi-code-square"></i> Coding
+                                {% endif %}
+                            </span>
+                            <span class="badge bg-info">
+                                <i class="bi bi-award"></i> {{ question.points }} point{{ 's' if question.points != 1 else '' }}
+                            </span>
+                        </div>
+                        <div>
+                            <a href="{{ url_for('main.edit_question_form', question_id=question.id) }}" class="btn btn-sm btn-outline-primary me-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form action="{{ url_for('main.delete_question', question_id=question.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this question?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <h5>{{ question.question_text }}</h5>
+                    
+                    {% if question.question_type == 'multiple_choice' and question.options %}
+                        <div class="mt-3">
+                            <strong>Options:</strong>
+                            <ul class="list-group mt-2">
+                                {% for option in question.get_options() %}
+                                    <li class="list-group-item {% if option == question.correct_answer %}list-group-item-success{% endif %}">
+                                        {{ option }}
+                                        {% if option == question.correct_answer %}
+                                            <span class="badge bg-success float-end">Correct Answer</span>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        
+                        {% if question.sample_code %}
+                            <div class="mt-3">
+                                <strong>Sample Code:</strong>
+                                <pre class="code-editor mt-2">{{ question.sample_code }}</pre>
+                            </div>
+                        {% endif %}
+                    {% elif question.question_type == 'identification' %}
+                        {% if question.correct_answer %}
+                            <div class="mt-3">
+                                <strong>Correct Answer:</strong>
+                                <div class="correct-answer">{{ question.correct_answer }}</div>
+                            </div>
+                        {% endif %}
+                        
+                        {% if question.sample_code %}
+                            <div class="mt-3">
+                                <strong>Sample Code:</strong>
+                                <pre class="code-editor mt-2">{{ question.sample_code }}</pre>
+                            </div>
+                        {% endif %}
+                    {% elif question.question_type == 'coding' %}
+                        {% if question.sample_code %}
+                            <div class="mt-3">
+                                <strong>Sample Code:</strong>
+                                <pre class="code-editor mt-2">{{ question.sample_code }}</pre>
+                            </div>
+                        {% endif %}
+                        
+                        {% if question.expected_output %}
+                            <div class="mt-3">
+                                <strong>Expected Solution Approach:</strong>
+                                <pre class="mt-2">{{ question.expected_output }}</pre>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> No questions added yet. Add your first question using the form on the left.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- AI Question Generator Modal -->
+<div id="aiModal" class="ai-modal">
+    <div class="ai-modal-content">
+        <div class="ai-modal-header">
+            <h3><i class="bi bi-robot"></i> DeepSeek Coder AI Question Generator</h3>
+            <span class="ai-close">&times;</span>
+        </div>
+        <div id="aiInputForm">
+            <div class="ai-form-group">
+                <label class="ai-label" for="aiPrompt">What kind of question do you want DeepSeek Coder to generate?</label>
+                <input type="text" id="aiPrompt" class="ai-input" placeholder="e.g., A science question about photosynthesis">
+                <small class="form-text text-muted">This prompt will be sent to the DeepSeek Coder 6.7B model to generate a question</small>
+            </div>
+            <div class="ai-form-group">
+                <label class="ai-label" for="aiQuestionType">Question Type</label>
+                <select id="aiQuestionType" class="ai-input">
+                    <option value="multiple_choice">Multiple Choice</option>
+                    <option value="identification">Identification</option>
+                    <option value="coding">Coding</option>
+                </select>
+            </div>
+            <div class="ai-form-group">
+                <label class="ai-label" for="aiCount">How many questions?</label>
+                <input type="number" id="aiCount" class="ai-input" value="1" min="1" max="20">
+                <small class="form-text text-muted">Up to 20 at a time. Exact duplicates are automatically removed.</small>
+            </div>
+            <button id="aiGenerateBtn" class="ai-btn">
+                <i class="bi bi-magic"></i> Generate with DeepSeek Coder AI
+            </button>
+            <div class="ai-error-container"></div>
+        </div>
+        
+        <div id="aiLoading" class="ai-loading">
+            <div class="spinner"></div>
+            <p>DeepSeek Coder AI is thinking about your question...</p>
+            <small>Using model: deepseek-coder-6.7b-instruct-q4_k_m.gguf</small>
+        </div>
+        
+        <div id="aiResult" class="ai-result">
+            <div id="aiQuestionPreview"></div>
+            <button id="aiAddQuestion" class="ai-btn">
+                <i class="bi bi-plus-circle"></i> Add This Question
+            </button>
+            <button id="aiAddSelected" class="ai-btn" style="display:none;">
+                <i class="bi bi-plus-circle"></i> Add Selected Questions
+            </button>
+            <button id="aiGenerateAnother" class="ai-btn ai-btn-secondary">
+                <i class="bi bi-arrow-clockwise"></i> Generate Again
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Show/hide fields based on question type
+        $('#question_type').change(function() {
+            const questionType = $(this).val();
+            
+            // Hide all question-specific fields
+            $('#multipleChoiceOptions, #identificationFields, #codingFields').hide();
+            
+            // Show fields based on question type
+            if (questionType === 'multiple_choice') {
+                $('#multipleChoiceOptions').show();
+            } else if (questionType === 'identification') {
+                $('#identificationFields').show();
+            } else if (questionType === 'coding') {
+                $('#codingFields').show();
+            }
+        });
+        
+        // Add option for multiple choice
+        $('#addOption').click(function() {
+            const optionsCount = $('.option-item').length;
+            const newOption = `
+                <div class="option-item">
+                    <input type="text" class="form-control" name="options[]" placeholder="Option ${optionsCount + 1}">
+                    <span class="remove-option"><i class="bi bi-x-circle"></i></span>
+                </div>
+            `;
+            $('.options-container').append(newOption);
+            updateCorrectAnswerOptions();
+        });
+        
+        // Remove option for multiple choice
+        $(document).on('click', '.remove-option', function() {
+            if ($('.option-item').length > 1) {
+                $(this).parent().remove();
+                
+                // Update placeholders
+                $('.option-item').each(function(index) {
+                    $(this).find('input').attr('placeholder', `Option ${index + 1}`);
+                });
+                
+                updateCorrectAnswerOptions();
+            }
+        });
+        
+        // Update correct answer dropdown when options change
+        $(document).on('input', 'input[name="options[]"]', function() {
+            updateCorrectAnswerOptions();
+        });
+        
+        // Function to update the correct answer dropdown
+        function updateCorrectAnswerOptions() {
+            const $correctAnswerSelect = $('#correct_answer_mc');
+            const currentValue = $correctAnswerSelect.val();
+            
+            // Clear existing options except the first
+            $correctAnswerSelect.find('option:not(:first)').remove();
+            
+            // Add new options
+            $('input[name="options[]"]').each(function(index) {
+                const optionValue = $(this).val();
+                if (optionValue) {
+                    $correctAnswerSelect.append(`<option value="${optionValue}">${optionValue}</option>`);
+                }
+            });
+            
+            // Restore selection if possible
+            if (currentValue) {
+                $correctAnswerSelect.val(currentValue);
+            }
+        }
+        
+        // Add animation effects
+        $('.question-card').each(function(index) {
+            $(this).css('animation-delay', `${index * 0.1}s`);
+        });
+        
+        // AI Generator Modal
+        const aiModal = document.getElementById('aiModal');
+        const aiGeneratorBtn = document.getElementById('aiGeneratorBtn');
+        const closeBtn = document.querySelector('.ai-close');
+        const aiGenerateBtn = document.getElementById('aiGenerateBtn');
+        const aiInputForm = document.getElementById('aiInputForm');
+        const aiLoading = document.getElementById('aiLoading');
+        const aiResult = document.getElementById('aiResult');
+        const aiAddQuestionBtn = document.getElementById('aiAddQuestion');
+        const aiAddSelectedBtn = document.getElementById('aiAddSelected');
+        const aiQuestionPreview = document.getElementById('aiQuestionPreview');
+        const aiPrompt = document.getElementById('aiPrompt');
+        const aiQuestionType = document.getElementById('aiQuestionType');
+        const aiCount = document.getElementById('aiCount');
+        
+        // Open modal
+        aiGeneratorBtn.onclick = function() {
+            aiModal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+            aiInputForm.style.display = 'block';
+            aiLoading.style.display = 'none';
+            aiResult.style.display = 'none';
+        }
+        
+        // Close modal
+        closeBtn.onclick = function() {
+            aiModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target == aiModal) {
+                aiModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+        
+        // Fuzzy text normalizer for de-duplication (case-insensitive, strip punctuation/extra spaces)
+        function normalizeText(t) {
+            // Exact-ish: ignore leading/trailing/multiple spaces and case only
+            return (t || '')
+                .toLowerCase()
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+        
+        // Generate question(s) with AI
+        aiGenerateBtn.addEventListener('click', async function() {
+            const promptValue = aiPrompt.value.trim();
+            const typeValue = aiQuestionType.value;
+            const count = Math.max(1, Math.min(parseInt(aiCount.value || '1', 10), 20));
+            
+            if (!promptValue) {
+                const errorContainer = document.querySelector('.ai-error-container');
+                errorContainer.innerHTML = `
+                    <div class="ai-error">
+                        <strong>Error:</strong> Please enter a prompt for the question generation
+                    </div>
+                `;
+                return;
+            }
+            
+            // Clear any previous errors
+            const errorContainer = document.querySelector('.ai-error-container');
+            errorContainer.innerHTML = '';
+            
+            // Show loading screen
+            aiInputForm.style.display = 'none';
+            aiLoading.style.display = 'flex';
+            aiAddSelectedBtn.style.display = 'none';
+            aiAddQuestionBtn.style.display = 'inline-block';
+            
+            try {
+                const tasks = [];
+                for (let i = 0; i < count; i++) {
+                    const variantPrompt = `${promptValue} (Variant ${i + 1})`;
+                    tasks.push(window.aiConnector.generateQuestion(variantPrompt, typeValue));
+                }
+                const results = await Promise.allSettled(tasks);
+                
+                // Dedupe by normalized question text
+                const unique = [];
+                const seen = new Set();
+                results.forEach(r => {
+                    if (r.status === 'fulfilled' && r.value && r.value.text) {
+                        const key = normalizeText(r.value.text);
+                        if (key && !seen.has(key)) {
+                            seen.add(key);
+                            unique.push(r.value);
+                        }
+                    }
+                });
+                
+                // Display the result
+                aiLoading.style.display = 'none';
+                aiResult.style.display = 'block';
+                
+                // Store the data for later use
+                aiResult.dataset.questionData = unique.length === 1 ? JSON.stringify(unique[0]) : '';
+                aiResult.dataset.questionList = unique.length > 1 ? JSON.stringify(unique) : '';
+                
+                // Create the preview HTML
+                let previewHtml = '';
+                if (unique.length <= 1) {
+                    const data = unique[0];
+                    previewHtml += `
+                        <div class="ai-question-card">
+                            <h4>${data.text}</h4>
+                    `;
+                    if (typeValue === 'multiple_choice' && data.options) {
+                        previewHtml += '<ul class="ai-options-list">';
+                        data.options.forEach(function(option) {
+                            const isCorrect = option === data.correct_answer;
+                            previewHtml += `
+                                <li class="ai-option-item ${isCorrect ? 'correct' : ''}">
+                                    ${option}
+                                    ${isCorrect ? '<span class="badge bg-success float-end">Correct Answer</span>' : ''}
+                                </li>
+                            `;
+                        });
+                        previewHtml += '</ul>';
+                        previewHtml += `<p><strong>Correct Answer:</strong> <span class="badge bg-success">${data.correct_answer || 'Not specified'}</span></p>`;
+                    } else if (typeValue === 'identification') {
+                        previewHtml += `<p><strong>Correct Answer:</strong> <span class="badge bg-success">${data.correct_answer || 'Not specified'}</span></p>`;
+                    } else if (typeValue === 'coding') {
+                        if (data.sample_code) {
+                            previewHtml += `
+                                <div class="mb-3">
+                                    <h5>Sample Code:</h5>
+                                    <pre class="p-3 bg-light border rounded"><code>${data.sample_code}</code></pre>
+                                </div>`;
+                        }
+                    }
+                    previewHtml += '</div>';
+                    aiAddSelectedBtn.style.display = 'none';
+                    aiAddQuestionBtn.style.display = 'inline-block';
+                } else {
+                    previewHtml += `<div class="mb-2"><strong>${unique.length}</strong> unique questions generated (duplicates removed):</div>`;
+                    unique.forEach((q, idx) => {
+                        previewHtml += `
+                            <div class="ai-question-card">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="${idx}" id="qsel_${idx}" checked>
+                                    <label class="form-check-label" for="qsel_${idx}"><strong>${q.text}</strong></label>
+                                </div>
+                                ${q.question_type === 'multiple_choice' && q.options ? `
+                                    <ul class="ai-options-list">
+                                        ${q.options.map(o => `<li class=\"ai-option-item ${o===q.correct_answer ? 'correct' : ''}\">${o}${o===q.correct_answer ? '<span class=\"badge bg-success float-end\">Correct</span>' : ''}</li>`).join('')}
+                                    </ul>` : ''}
+                            </div>
+                        `;
+                    });
+                    aiAddSelectedBtn.style.display = 'inline-block';
+                    aiAddQuestionBtn.style.display = 'none';
+                }
+                aiQuestionPreview.innerHTML = previewHtml;
+            } catch (error) {
+                aiLoading.style.display = 'none';
+                aiInputForm.style.display = 'block';
+                const errorContainer = document.querySelector('.ai-error-container');
+                errorContainer.innerHTML = `
+                    <div class="ai-error">
+                        <strong>Error:</strong> ${error.message || 'Failed to generate questions'}
+                        <p class="mt-2 small">Make sure LM Studio is running with the DeepSeek Coder model loaded.</p>
+                    </div>
+                `;
+            }
+        });
+        
+        // Add a single AI-generated question to the form
+        aiAddQuestionBtn.addEventListener('click', function() {
+            const questionData = JSON.parse(aiResult.dataset.questionData || '{}');
+            if (!questionData || !questionData.text) return;
+            submitQuestion(questionData);
+        });
+        
+        // Generate again with same inputs
+        document.getElementById('aiGenerateAnother').addEventListener('click', function() {
+            // Show input form again with current values intact
+            aiInputForm.style.display = 'block';
+            aiResult.style.display = 'none';
+            // Trigger generation with current inputs
+            aiGenerateBtn.click();
+        });
+        
+        // Add selected questions (batch)
+        aiAddSelectedBtn.addEventListener('click', function() {
+            const list = JSON.parse(aiResult.dataset.questionList || '[]');
+            if (!Array.isArray(list) || list.length === 0) return;
+            // Get selected indices
+            const selected = [];
+            list.forEach((q, idx) => {
+                const cb = document.getElementById(`qsel_${idx}`);
+                if (cb && cb.checked) selected.push(q);
+            });
+            if (selected.length === 0) return;
+            // Submit sequentially
+            (async function submitAll() {
+                for (const q of selected) {
+                    await submitQuestion(q);
+                }
+                // Close modal after adding
+                aiModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                // Reload to show new questions
+                window.location.reload();
+            })();
+        });
+        
+        function submitQuestion(questionData) {
+            return new Promise(async (resolve) => {
+                try {
+                    const fd = new FormData();
+                    const addField = (k, v) => fd.append(k, v == null ? '' : v);
+                    addField('question_text', questionData.text || '');
+                    addField('question_type', questionData.question_type || 'multiple_choice');
+                    addField('points', '1');
+                    if (questionData.correct_answer) addField('correct_answer', questionData.correct_answer);
+                    if (questionData.question_type === 'multiple_choice' && Array.isArray(questionData.options)) {
+                        questionData.options.forEach(o => fd.append('options[]', o));
+                    }
+                    if (questionData.question_type === 'coding') {
+                        if (questionData.sample_code) addField('sample_code', questionData.sample_code);
+                        if (questionData.expected_output) addField('expected_output', questionData.expected_output);
+                    }
+                    await fetch(`/form/{{ form.id }}/question/new`, { method: 'POST', body: fd });
+                } catch (e) {
+                    console.error('Add question error', e);
+                } finally {
+                    resolve();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Question{% endblock %}
+
+{% block styles %}
+<style>
+    .question-card {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeIn 0.5s forwards;
+    }
+
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .option-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        position: relative;
+    }
+
+    .option-item input {
+        flex-grow: 1;
+    }
+
+    .option-item .remove-option {
+        cursor: pointer;
+        color: #dc3545;
+        margin-left: 10px;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+
+    .option-item .remove-option:hover {
+        opacity: 1;
+    }
+
+    .question-type-badge {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+        border-radius: 30px;
+        margin-bottom: 10px;
+    }
+
+    .badge-multiple_choice {
+        background-color: #4caf50;
+        color: white;
+    }
+
+    .badge-identification {
+        background-color: #2196f3;
+        color: white;
+    }
+
+    .badge-coding {
+        background-color: #ff9800;
+        color: white;
+    }
+
+    .code-editor {
+        font-family: 'Courier New', monospace;
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px;
+        white-space: pre-wrap;
+        font-size: 0.9rem;
+    }
+
+    .form-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Edit Question</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('main.edit_form', form_id=question.form_id) }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Form
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Edit Question</h5>
+                </div>
+                <div class="card-body">
+                    <form id="questionForm" method="POST" action="{{ url_for('main.edit_question', question_id=question.id) }}">
+                        <div class="mb-3">
+                            <label for="question_text" class="form-label">Question</label>
+                            <textarea class="form-control" id="question_text" name="question_text" rows="2" required>{{ question.question_text }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="question_type" class="form-label">Question Type</label>
+                            <input type="text" class="form-control" value="{{ question.question_type|capitalize }}" disabled>
+                            <!-- Hidden field to pass the question type -->
+                            <input type="hidden" name="question_type" value="{{ question.question_type }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="points" class="form-label">Points</label>
+                            <input type="number" class="form-control" id="points" name="points" min="1" value="{{ question.points }}" required>
+                            <div class="form-text">Number of points this question is worth.</div>
+                        </div>
+                        
+                        <!-- Multiple Choice Options -->
+                        {% if question.question_type == 'multiple_choice' %}
+                            <div id="multipleChoiceOptions" class="mb-3">
+                                <label class="form-label">Options</label>
+                                <div class="options-container">
+                                    {% for option in question.get_options() %}
+                                        <div class="option-item">
+                                            <input type="text" class="form-control" name="options[]" value="{{ option }}">
+                                            <span class="remove-option"><i class="bi bi-x-circle"></i></span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <button type="button" id="addOption" class="btn btn-sm btn-outline-secondary mt-2">
+                                    <i class="bi bi-plus"></i> Add Option
+                                </button>
+                                
+                                <div class="mt-3">
+                                    <label for="correct_answer_mc" class="form-label">Correct Answer</label>
+                                    <select class="form-select" id="correct_answer_mc" name="correct_answer">
+                                        {% for option in question.get_options() %}
+                                            <option value="{{ option }}" {% if option == question.correct_answer %}selected{% endif %}>{{ option }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text">This will be used to check if the respondent's answer is correct.</div>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <label for="sample_code_mc" class="form-label">Sample Code (Optional)</label>
+                                    <textarea class="form-control code-editor" id="sample_code_mc" name="sample_code" rows="5">{{ question.sample_code or "" }}</textarea>
+                                    <div class="form-text">Optional code that will be displayed to the respondent.</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Identification Question Fields -->
+                        {% if question.question_type == 'identification' %}
+                            <div id="identificationFields" class="mb-3">
+                                <label for="correct_answer_id" class="form-label">Correct Answer</label>
+                                <input type="text" class="form-control" id="correct_answer_id" name="correct_answer" placeholder="Enter the correct answer" value="{{ question.correct_answer or "" }}">
+                                <div class="form-text">This will be used to check if the respondent's answer is correct.</div>
+                                
+                                <div class="mt-3">
+                                    <label for="sample_code_id" class="form-label">Sample Code (Optional)</label>
+                                    <textarea class="form-control code-editor" id="sample_code_id" name="sample_code" rows="5">{{ question.sample_code or "" }}</textarea>
+                                    <div class="form-text">Optional code that will be displayed to the respondent.</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Coding Question Fields -->
+                        {% if question.question_type == 'coding' %}
+                            <div id="codingFields" class="mb-3">
+                                <div class="mb-3">
+                                    <label for="sample_code" class="form-label">Sample Code</label>
+                                    <textarea class="form-control code-editor" id="sample_code" name="sample_code" rows="5">{{ question.sample_code or "" }}</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="expected_output" class="form-label">Expected Solution Approach</label>
+                                    <textarea class="form-control" id="expected_output" name="expected_output" rows="5">{{ question.expected_output or "" }}</textarea>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                            <a href="{{ url_for('main.edit_form', form_id=question.form_id) }}" class="btn btn-secondary">
+                                <i class="bi bi-x"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Add option for multiple choice
+        $('#addOption').click(function() {
+            const optionsCount = $('.option-item').length;
+            const newOption = `
+                <div class="option-item">
+                    <input type="text" class="form-control" name="options[]" placeholder="Option ${optionsCount + 1}">
+                    <span class="remove-option"><i class="bi bi-x-circle"></i></span>
+                </div>
+            `;
+            $('.options-container').append(newOption);
+            updateCorrectAnswerOptions();
+        });
+        
+        // Remove option functionality
+        $(document).on('click', '.remove-option', function() {
+            const optionText = $(this).siblings('input').val();
+            $(this).parent().remove();
+            updateCorrectAnswerOptions();
+            
+            // If the removed option was the selected correct answer, reset the correct answer selector
+            const correctAnswerSelect = $('#correct_answer_mc');
+            if (correctAnswerSelect.val() === optionText) {
+                correctAnswerSelect.val('');
+            }
+        });
+        
+        // Update correct answer dropdown when options change
+        function updateCorrectAnswerOptions() {
+            const correctAnswerSelect = $('#correct_answer_mc');
+            const selectedValue = correctAnswerSelect.val();
+            correctAnswerSelect.empty();
+            
+            // Add a default option
+            correctAnswerSelect.append('<option value="" selected disabled>Select correct option</option>');
+            
+            // Add an option for each input field
+            $('.option-item input').each(function() {
+                const optionText = $(this).val();
+                if (optionText) {
+                    const option = $('<option></option>').val(optionText).text(optionText);
+                    correctAnswerSelect.append(option);
+                    
+                    // Re-select the previously selected value if it still exists
+                    if (optionText === selectedValue) {
+                        correctAnswerSelect.val(optionText);
+                    }
+                }
+            });
+        }
+        
+        // Update correct answer options when option text changes
+        $(document).on('input', '.option-item input', function() {
+            const index = $(this).parent().index();
+            const newText = $(this).val();
+            updateCorrectAnswerOptions();
+        });
+    });
+</script>
+{% endblock %} 
