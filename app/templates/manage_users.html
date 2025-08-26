@@ -208,13 +208,21 @@
             </a>
             
             {% for section in sections %}
-            <a href="{{ url_for('auth.manage_users', section=section.name) }}" class="section-card {% if active_section == section.name %}active{% endif %}" style="text-decoration: none; color: inherit;">
-                <div class="section-card-icon">
-                    <i class="bi bi-file-earmark-person"></i>
-                </div>
-                <div class="section-card-title">{{ section.name }}</div>
-                <div class="section-card-count">{{ section.student_count }} students</div>
-            </a>
+            <div class="section-card {% if active_section == section.name %}active{% endif %}" style="position: relative;">
+                <a href="{{ url_for('auth.manage_users', section=section.name) }}" style="text-decoration: none; color: inherit; display: block;">
+                    <div class="section-card-icon">
+                        <i class="bi bi-file-earmark-person"></i>
+                    </div>
+                    <div class="section-card-title">{{ section.name }}</div>
+                    <div class="section-card-count">{{ section.student_count }} students</div>
+                </a>
+                <button class="btn btn-sm btn-outline-danger delete-section-btn" 
+                        data-section-name="{{ section.name }}" 
+                        style="position: absolute; top: 5px; right: 5px; z-index: 10;"
+                        title="Delete Section">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
             {% endfor %}
         </div>
     </div>
@@ -224,7 +232,7 @@
 <div class="card">
     <div class="card-header bg-primary text-white">
         <div class="row align-items-center">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <h5 class="mb-0">
                     Student List
                     {% if active_section %}
@@ -232,13 +240,18 @@
                     {% endif %}
                 </h5>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="input-group">
                     <input type="text" id="studentSearch" class="form-control" placeholder="Search students..." aria-label="Search students">
                     <span class="input-group-text bg-light">
                         <i class="bi bi-search"></i>
                     </span>
                 </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-success" id="addStudentBtn">
+                    <i class="bi bi-person-plus"></i> Add Student
+                </button>
             </div>
         </div>
     </div>
@@ -277,6 +290,7 @@
                         {% if active_section %}
                             <th>Section</th>
                         {% endif %}
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -310,11 +324,29 @@
                             {% if active_section %}
                                 <td>{{ student.section }}</td>
                             {% endif %}
+                            <td>
+                                {% if student.is_irregular == 'Yes' %}
+                                    <button class="btn btn-sm btn-outline-primary move-student-btn me-1" 
+                                            data-student-id="{{ student.student_id }}" 
+                                            data-student-name="{{ student.fullname }}"
+                                            data-section-name="{{ student.section or active_section }}"
+                                            title="Move Student">
+                                        <i class="bi bi-arrow-right"></i>
+                                    </button>
+                                {% endif %}
+                                <button class="btn btn-sm btn-outline-danger delete-student-btn" 
+                                        data-student-id="{{ student.student_id }}" 
+                                        data-student-name="{{ student.fullname }}"
+                                        data-section-name="{{ student.section or active_section }}"
+                                        title="Delete Student">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
                         </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="{% if active_section %}8{% else %}7{% endif %}" class="text-center">
+                            <td colspan="{% if active_section %}9{% else %}8{% endif %}" class="text-center">
                                 <em>No students found</em>
                             </td>
                         </tr>
@@ -373,6 +405,113 @@
         </div>
     </div>
 </div>
+
+<!-- Move Student Modal -->
+<div class="modal fade" id="moveStudentModal" tabindex="-1" aria-labelledby="moveStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="moveStudentModalLabel">Move Student to Different Section</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="student-details mb-4">
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Student ID:</div>
+                        <div class="col-md-8" id="moveStudentId"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Name:</div>
+                        <div class="col-md-8" id="moveStudentName"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Current Section:</div>
+                        <div class="col-md-8" id="moveCurrentSection"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Move to Section:</div>
+                        <div class="col-md-8">
+                            <select id="moveToSection" class="form-select">
+                                <option value="">Select destination section...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-grid">
+                    <button type="button" id="confirmMoveBtn" class="btn btn-primary">
+                        <i class="bi bi-arrow-right"></i> Move Student
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Student Modal -->
+<div class="modal fade" id="addStudentModal" tabindex="-1" aria-labelledby="addStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="addStudentModalLabel">Add New Student</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addStudentForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="newStudentId" class="form-label">Student ID *</label>
+                            <input type="text" class="form-control" id="newStudentId" required>
+                            <div class="form-text">Unique identifier for the student</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="newStudentName" class="form-label">Full Name *</label>
+                            <input type="text" class="form-control" id="newStudentName" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="newStudentEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="newStudentEmail">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="newStudentGrade" class="form-label">Grade Level</label>
+                            <input type="text" class="form-control" id="newStudentGrade" placeholder="e.g., 1-4">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="newStudentSection" class="form-label">Section *</label>
+                            <select class="form-select" id="newStudentSection" required>
+                                <option value="">Select section...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Status</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="newStudentIrregular">
+                                <label class="form-check-label" for="newStudentIrregular">
+                                    Irregular Student
+                                </label>
+                            </div>
+                            <div class="form-text">Irregular students can be moved between sections</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmAddStudentBtn">
+                    <i class="bi bi-person-plus"></i> Add Student
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -384,6 +523,8 @@
         const studentSearch = document.getElementById('studentSearch');
         const studentRows = document.querySelectorAll('.student-row');
         const studentModal = new bootstrap.Modal(document.getElementById('studentModal'));
+        const moveStudentModal = new bootstrap.Modal(document.getElementById('moveStudentModal'));
+        const addStudentModal = new bootstrap.Modal(document.getElementById('addStudentModal'));
         const generateVerificationBtn = document.getElementById('generateVerificationBtn');
         
         // File Upload Functions
@@ -797,6 +938,280 @@
                 .catch(error => {
                     console.error('Error fetching verification codes:', error);
                 });
+        }
+        
+        // Add Student Functionality
+        // =======================
+        
+        // Add event listener for add student button
+        document.getElementById('addStudentBtn').addEventListener('click', function() {
+            // Load sections for dropdown
+            loadSectionsForAddStudent();
+            // Show modal
+            addStudentModal.show();
+        });
+        
+        // Load sections for add student dropdown
+        function loadSectionsForAddStudent() {
+            fetch('/auth/get-sections')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const select = document.getElementById('newStudentSection');
+                        select.innerHTML = '<option value="">Select section...</option>';
+                        
+                        data.sections.forEach(section => {
+                            const option = document.createElement('option');
+                            option.value = section;
+                            option.textContent = section;
+                            select.appendChild(option);
+                        });
+                    } else {
+                        alert('Error loading sections: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading sections. Please try again.');
+                });
+        }
+        
+        // Confirm add student button
+        document.getElementById('confirmAddStudentBtn').addEventListener('click', function() {
+            const studentId = document.getElementById('newStudentId').value.trim();
+            const fullname = document.getElementById('newStudentName').value.trim();
+            const email = document.getElementById('newStudentEmail').value.trim();
+            const gradeLevel = document.getElementById('newStudentGrade').value.trim();
+            const sectionName = document.getElementById('newStudentSection').value;
+            const isIrregular = document.getElementById('newStudentIrregular').checked;
+            
+            // Validate required fields
+            if (!studentId || !fullname || !sectionName) {
+                alert('Please fill in all required fields (Student ID, Full Name, and Section).');
+                return;
+            }
+            
+            // Add student
+            addSingleStudent(studentId, fullname, isIrregular, email, gradeLevel, sectionName);
+        });
+        
+        // Add single student function
+        function addSingleStudent(studentId, fullname, isIrregular, email, gradeLevel, sectionName) {
+            fetch('/auth/add-single-student', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    student_id: studentId,
+                    fullname: fullname,
+                    is_irregular: isIrregular,
+                    email: email,
+                    grade_level: gradeLevel,
+                    section_name: sectionName
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Student added successfully!');
+                    addStudentModal.hide();
+                    // Reset form
+                    document.getElementById('addStudentForm').reset();
+                    // Reload page to show new student
+                    window.location.reload();
+                } else {
+                    alert('Error adding student: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error adding student. Please try again.');
+            });
+        }
+        
+        // Delete Section Functionality
+        // ===========================
+        
+        // Add event listeners for delete section buttons
+        document.querySelectorAll('.delete-section-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const sectionName = this.getAttribute('data-section-name');
+                if (confirm(`Are you sure you want to delete the section "${sectionName}"? This will also delete all students in this section.`)) {
+                    deleteSection(sectionName);
+                }
+            });
+        });
+        
+        // Delete section function
+        function deleteSection(sectionName) {
+            fetch('/auth/delete-section', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ section_name: sectionName }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Section deleted successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Error deleting section: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting section. Please try again.');
+            });
+        }
+        
+        // Delete Student Functionality
+        // ============================
+        
+        // Add event listeners for delete student buttons
+        document.querySelectorAll('.delete-student-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const studentId = this.getAttribute('data-student-id');
+                const studentName = this.getAttribute('data-student-name');
+                const sectionName = this.getAttribute('data-section-name');
+                
+                if (confirm(`Are you sure you want to delete student "${studentName}" (${studentId}) from section "${sectionName}"?`)) {
+                    deleteStudent(studentId, sectionName);
+                }
+            });
+        });
+        
+        // Delete student function
+        function deleteStudent(studentId, sectionName) {
+            fetch('/auth/delete-student', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    student_id: studentId,
+                    section_name: sectionName 
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Student deleted successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Error deleting student: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting student. Please try again.');
+            });
+        }
+        
+        // Move Student Functionality
+        // ==========================
+        
+        // Add event listeners for move student buttons
+        document.querySelectorAll('.move-student-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const studentId = this.getAttribute('data-student-id');
+                const studentName = this.getAttribute('data-student-name');
+                const currentSection = this.getAttribute('data-section-name');
+                
+                // Populate modal with student details
+                document.getElementById('moveStudentId').textContent = studentId;
+                document.getElementById('moveStudentName').textContent = studentName;
+                document.getElementById('moveCurrentSection').textContent = currentSection;
+                
+                // Load available sections
+                loadAvailableSections(currentSection);
+                
+                // Show modal
+                moveStudentModal.show();
+            });
+        });
+        
+        // Load available sections for dropdown
+        function loadAvailableSections(currentSection) {
+            fetch('/auth/get-sections')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const select = document.getElementById('moveToSection');
+                        select.innerHTML = '<option value="">Select destination section...</option>';
+                        
+                        data.sections.forEach(section => {
+                            if (section !== currentSection) {
+                                const option = document.createElement('option');
+                                option.value = section;
+                                option.textContent = section;
+                                select.appendChild(option);
+                            }
+                        });
+                    } else {
+                        alert('Error loading sections: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading sections. Please try again.');
+                });
+        }
+        
+        // Confirm move button
+        document.getElementById('confirmMoveBtn').addEventListener('click', function() {
+            const studentId = document.getElementById('moveStudentId').textContent;
+            const currentSection = document.getElementById('moveCurrentSection').textContent;
+            const toSection = document.getElementById('moveToSection').value;
+            
+            if (!toSection) {
+                alert('Please select a destination section.');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to move student "${document.getElementById('moveStudentName').textContent}" from "${currentSection}" to "${toSection}"?`)) {
+                moveStudent(studentId, currentSection, toSection);
+            }
+        });
+        
+        // Move student function
+        function moveStudent(studentId, fromSection, toSection) {
+            fetch('/auth/move-student', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    student_id: studentId,
+                    from_section: fromSection,
+                    to_section: toSection
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Student moved successfully!');
+                    moveStudentModal.hide();
+                    window.location.reload();
+                } else {
+                    alert('Error moving student: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error moving student. Please try again.');
+            });
         }
     });
 </script>

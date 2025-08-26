@@ -4,7 +4,9 @@ import string
 from app.models.users import (
     authenticate_user, register_user, get_user, initialize_users_file, 
     initialize_students_dir, initialize_sections_file, get_all_sections, 
-    get_all_students, save_section_from_excel, hash_password
+    get_all_students, save_section_from_excel, hash_password, delete_section,
+    delete_student_from_section, student_id_exists, move_student_to_section,
+    get_all_section_names, add_single_student
 )
 
 auth = Blueprint('auth', __name__)
@@ -290,4 +292,104 @@ def get_verification_codes():
     return jsonify({
         'success': True,
         'codes': codes
+    })
+
+@auth.route('/delete-section', methods=['POST'])
+def delete_section_route():
+    # Admin check
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return jsonify({'success': False, 'error': 'Unauthorized access'}), 403
+    
+    data = request.get_json()
+    section_name = data.get('section_name')
+    
+    if not section_name:
+        return jsonify({'success': False, 'error': 'Section name is required'}), 400
+    
+    success, message = delete_section(section_name)
+    
+    return jsonify({
+        'success': success,
+        'message': message
+    })
+
+@auth.route('/move-student', methods=['POST'])
+def move_student_route():
+    # Admin check
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return jsonify({'success': False, 'error': 'Unauthorized access'}), 403
+    
+    data = request.get_json()
+    student_id = data.get('student_id')
+    from_section = data.get('from_section')
+    to_section = data.get('to_section')
+    
+    if not student_id or not from_section or not to_section:
+        return jsonify({'success': False, 'error': 'Student ID, from section, and to section are required'}), 400
+    
+    if from_section == to_section:
+        return jsonify({'success': False, 'error': 'Source and destination sections must be different'}), 400
+    
+    success, message = move_student_to_section(student_id, from_section, to_section)
+    
+    return jsonify({
+        'success': success,
+        'message': message
+    })
+
+@auth.route('/get-sections', methods=['GET'])
+def get_sections_route():
+    # Admin check
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return jsonify({'success': False, 'error': 'Unauthorized access'}), 403
+    
+    sections = get_all_section_names()
+    
+    return jsonify({
+        'success': True,
+        'sections': sections
+    })
+
+@auth.route('/add-single-student', methods=['POST'])
+def add_single_student_route():
+    # Admin check
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return jsonify({'success': False, 'error': 'Unauthorized access'}), 403
+    
+    data = request.get_json()
+    student_id = data.get('student_id')
+    fullname = data.get('fullname')
+    is_irregular = data.get('is_irregular', False)
+    email = data.get('email', '')
+    grade_level = data.get('grade_level', '')
+    section_name = data.get('section_name')
+    
+    if not student_id or not fullname or not section_name:
+        return jsonify({'success': False, 'error': 'Student ID, full name, and section are required'}), 400
+    
+    success, message = add_single_student(student_id, fullname, is_irregular, email, grade_level, section_name)
+    
+    return jsonify({
+        'success': success,
+        'message': message
+    })
+
+@auth.route('/delete-student', methods=['POST'])
+def delete_student_route():
+    # Admin check
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return jsonify({'success': False, 'error': 'Unauthorized access'}), 403
+    
+    data = request.get_json()
+    section_name = data.get('section_name')
+    student_id = data.get('student_id')
+    
+    if not section_name or not student_id:
+        return jsonify({'success': False, 'error': 'Section name and student ID are required'}), 400
+    
+    success, message = delete_student_from_section(section_name, student_id)
+    
+    return jsonify({
+        'success': success,
+        'message': message
     }) 

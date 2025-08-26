@@ -2,29 +2,10 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from app import db
 from app.models.models import Form, Question, Response, Answer
 from app.models.users import login_required, admin_required, get_user, get_all_students
-from sqlalchemy import text
 from datetime import datetime
-import requests
-import time
+import requests, time
 
 main = Blueprint('main', __name__)
-
-# Ensure DB schema compatibility (add submitted_by to response if missing)
-def _ensure_response_schema():
-    try:
-        result = db.session.execute(text("PRAGMA table_info(response);"))
-        cols = [row[1] for row in result]
-        if 'submitted_by' not in cols:
-            db.session.execute(text("ALTER TABLE response ADD COLUMN submitted_by VARCHAR(100);"))
-            db.session.commit()
-    except Exception:
-        try:
-            db.session.rollback()
-        except Exception:
-            pass
-
-# Run once on import
-_ensure_response_schema()
 
 
 @main.route('/')
@@ -500,7 +481,6 @@ def submit_form(form_id):
 @main.route('/form/<int:form_id>/responses', methods=['GET'])
 @admin_required
 def view_responses(form_id):
-    _ensure_response_schema()
     form = Form.query.get_or_404(form_id)
     # Fetch responses for the form
     responses = Response.query.filter_by(form_id=form_id).order_by(Response.created_at.asc()).all()
@@ -542,7 +522,6 @@ def view_responses(form_id):
 
 @main.route('/response/<int:response_id>', methods=['GET'])
 def view_response(response_id):
-    _ensure_response_schema()
     response = Response.query.get_or_404(response_id)
     form = Form.query.get_or_404(response.form_id)
     # Compute overall earned points and percentage

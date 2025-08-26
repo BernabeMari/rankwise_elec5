@@ -161,6 +161,26 @@
         margin-right: 8px;
     }
     
+    .ai-btn-secondary {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .ai-btn-secondary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        background: linear-gradient(135deg, #5a6268, #343a40);
+    }
+    
     .ai-loading {
         display: none;
         text-align: center;
@@ -196,7 +216,12 @@
 {% block content %}
 <div class="row mb-4">
     <div class="col-md-8">
-        <h1>Edit Form: {{ form.title }}</h1>
+        <div class="d-flex align-items-center">
+            <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary me-3">
+                <i class="bi bi-arrow-left"></i> Back to Forms
+            </a>
+            <h1 class="mb-0">Edit Form: {{ form.title }}</h1>
+        </div>
         <p class="text-muted">{{ form.description or "No description" }}</p>
     </div>
     <div class="col-md-4 text-end">
@@ -411,7 +436,7 @@
         <div id="aiInputForm">
             <div class="ai-form-group">
                 <label class="ai-label" for="aiPrompt">What kind of question do you want DeepSeek Coder to generate?</label>
-                <input type="text" id="aiPrompt" class="ai-input" placeholder="e.g., A science question about photosynthesis">
+                <input type="text" id="aiPrompt" class="ai-input" placeholder="e.g., Python question about loops">
                 <small class="form-text text-muted">This prompt will be sent to the DeepSeek Coder 6.7B model to generate a question</small>
             </div>
             <div class="ai-form-group">
@@ -436,7 +461,6 @@
         <div id="aiLoading" class="ai-loading">
             <div class="spinner"></div>
             <p>DeepSeek Coder AI is thinking about your question...</p>
-            <small>Using model: deepseek-coder-6.7b-instruct-q4_k_m.gguf</small>
         </div>
         
         <div id="aiResult" class="ai-result">
@@ -705,10 +729,48 @@
         });
         
         // Add a single AI-generated question to the form
-        aiAddQuestionBtn.addEventListener('click', function() {
+        aiAddQuestionBtn.addEventListener('click', async function() {
             const questionData = JSON.parse(aiResult.dataset.questionData || '{}');
             if (!questionData || !questionData.text) return;
-            submitQuestion(questionData);
+            
+            // Show loading state
+            aiAddQuestionBtn.disabled = true;
+            aiAddQuestionBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Adding...';
+            
+            try {
+                await submitQuestion(questionData);
+                
+                // Show success message and options
+                aiAddQuestionBtn.innerHTML = '<i class="bi bi-check-circle"></i> Question Added!';
+                aiAddQuestionBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                
+                // Add a "View Form" button temporarily
+                const viewFormBtn = document.createElement('button');
+                viewFormBtn.className = 'ai-btn ai-btn-secondary ms-2';
+                viewFormBtn.innerHTML = '<i class="bi bi-eye"></i> View Form';
+                viewFormBtn.onclick = () => {
+                    aiModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    window.location.reload();
+                };
+                aiAddQuestionBtn.parentNode.insertBefore(viewFormBtn, aiAddQuestionBtn.nextSibling);
+                
+                // Auto-close after 3 seconds if user doesn't click
+                setTimeout(() => {
+                    if (aiModal.style.display !== 'none') {
+                        aiModal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                        window.location.reload();
+                    }
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Error adding question:', error);
+                // Reset button state
+                aiAddQuestionBtn.disabled = false;
+                aiAddQuestionBtn.innerHTML = '<i class="bi bi-plus-circle"></i> Add This Question';
+                aiAddQuestionBtn.style.background = 'linear-gradient(135deg, #9c57d3, #5a40b0)';
+            }
         });
         
         // Generate again with same inputs

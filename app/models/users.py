@@ -288,6 +288,20 @@ def save_section_from_excel(section_name, excel_file):
         # Create new dataframe with only the columns we need
         new_df = pd.DataFrame(columns_to_extract)
         
+        # Check for duplicate student IDs
+        duplicate_students = []
+        for student_id in new_df['student_id']:
+            if student_id_exists(student_id):
+                duplicate_students.append(student_id)
+        
+        if duplicate_students:
+            # Clean up temporary files
+            if os.path.exists(temp_excel_path):
+                os.remove(temp_excel_path)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            return False, f"Duplicate student IDs found: {', '.join(duplicate_students)}. Student IDs must be unique across all sections."
+        
         # Save as CSV
         new_df.to_csv(file_path, index=False)
         
@@ -316,6 +330,19 @@ def save_section_from_excel(section_name, excel_file):
     
     return True, "Section added successfully"
 
+# Check if student ID already exists across all sections
+def student_id_exists(student_id):
+    """Check if a student ID already exists in any section"""
+    if not student_id:
+        return False
+    
+    sections = get_all_sections()
+    for section in sections:
+        for student in section.students:
+            if student.student_id == student_id:
+                return True
+    return False
+
 # Register students from a section as users
 def register_students_from_section(section_name):
     section = get_section(section_name)
@@ -332,6 +359,201 @@ def register_students_from_section(section_name):
             register_user(student.student_id, student.student_id, 'student')
     
     return True
+
+# Delete a section and all its students
+def delete_section(section_name):
+    """Delete a section and all its students"""
+    try:
+        # Find the section
+        sections = get_all_sections()
+        section_to_delete = None
+        
+        for section in sections:
+            if section.name == section_name:
+                section_to_delete = section
+                break
+        
+        if not section_to_delete:
+            return False, "Section not found"
+        
+        # Delete the CSV file
+        file_path = os.path.join(STUDENTS_DIR, section_to_delete.file_name)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        
+        # Remove from sections CSV
+        temp_file = os.path.join(os.path.dirname(SECTIONS_FILE), 'temp_sections.csv')
+        
+        with open(SECTIONS_FILE, 'r', newline='') as file, open(temp_file, 'w', newline='') as temp:
+            reader = csv.DictReader(file)
+            writer = csv.DictWriter(temp, fieldnames=reader.fieldnames)
+            writer.writeheader()
+            
+            for row in reader:
+                if row['section_name'] != section_name:
+                    writer.writerow(row)
+        
+        # Replace the original file
+        os.replace(temp_file, SECTIONS_FILE)
+        
+        return True, f"Section '{section_name}' deleted successfully"
+        
+    except Exception as e:
+        return False, f"Error deleting section: {str(e)}"
+
+# Delete a specific student from a section
+def delete_student_from_section(section_name, student_id):
+    """Delete a specific student from a section"""
+    try:
+        # Find the section
+        section = get_section(section_name)
+        if not section:
+            return False, "Section not found"
+        
+        # Read the current CSV file
+        file_path = os.path.join(STUDENTS_DIR, section.file_name)
+        if not os.path.exists(file_path):
+            return False, "Section file not found"
+        
+        temp_file = os.path.join(STUDENTS_DIR, f'temp_{section.file_name}')
+        
+        with open(file_path, 'r', newline='') as file, open(temp_file, 'w', newline='') as temp:
+            reader = csv.DictReader(file)
+            writer = csv.DictWriter(temp, fieldnames=reader.fieldnames)
+            writer.writeheader()
+            
+            student_found = False
+            for row in reader:
+                if row['student_id'] != student_id:
+                    writer.writerow(row)
+                else:
+                    student_found = True
+            
+            if not student_found:
+                os.remove(temp_file)
+                return False, "Student not found in section"
+        
+        # Replace the original file
+        os.replace(temp_file, file_path)
+        
+        return True, f"Student '{student_id}' deleted from section '{section_name}'"
+        
+    except Exception as e:
+        return False, f"Error deleting student: {str(e)}"
+
+# Move a student to a different section
+def move_student_to_section(student_id, from_section_name, to_section_name):
+    """Move a student from one section to another"""
+    try:
+        # Check if student exists in the source section
+        from_section = get_section(from_section_name)
+        if not from_section:
+            return False, "Source section not found"
+        
+        # Check if destination section exists
+        to_section = get_section(to_section_name)
+        if not to_section:
+            return False, "Destination section not found"
+        
+        # Find the student in the source section
+        student_to_move = None
+        for student in from_section.students:
+            if student.student_id == student_id:
+                student_to_move = student
+                break
+        
+        if not student_to_move:
+            return False, "Student not found in source section"
+        
+        # Check if student is irregular (only irregular students can be moved)
+        if student_to_move.is_irregular != 'Yes':
+            return False, "Only irregular students can be moved between sections"
+        
+        # Check if student ID already exists in destination section
+        for student in to_section.students:
+            if student.student_id == student_id:
+                return False, "Student ID already exists in destination section"
+        
+        # Remove student from source section
+        success, message = delete_student_from_section(from_section_name, student_id)
+        if not success:
+            return False, f"Error removing student from source section: {message}"
+        
+        # Add student to destination section
+        file_path = os.path.join(STUDENTS_DIR, to_section.file_name)
+        
+        with open(file_path, 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([
+                student_to_move.student_id,
+                student_to_move.fullname,
+                student_to_move.is_irregular,
+                student_to_move.email,
+                student_to_move.grade_level
+            ])
+        
+        return True, f"Student '{student_id}' moved from '{from_section_name}' to '{to_section_name}' successfully"
+        
+    except Exception as e:
+        return False, f"Error moving student: {str(e)}"
+
+# Get all sections for dropdown
+def get_all_section_names():
+    """Get a list of all section names"""
+    sections = get_all_sections()
+    return [section.name for section in sections]
+
+# Add a single student manually
+def add_single_student(student_id, fullname, is_irregular, email, grade_level, section_name):
+    """Add a single student to a specific section"""
+    try:
+        # Validate required fields
+        if not student_id or not fullname or not section_name:
+            return False, "Student ID, full name, and section are required"
+        
+        # Check if student ID already exists
+        if student_id_exists(student_id):
+            return False, f"Student ID '{student_id}' already exists in another section"
+        
+        # Check if section exists
+        section = get_section(section_name)
+        if not section:
+            return False, f"Section '{section_name}' not found"
+        
+        # Check if student ID already exists in the target section
+        for student in section.students:
+            if student.student_id == student_id:
+                return False, f"Student ID '{student_id}' already exists in section '{section_name}'"
+        
+        # Prepare student data
+        student_data = {
+            'student_id': student_id,
+            'fullname': fullname,
+            'is_irregular': 'Yes' if is_irregular else 'No',
+            'email': email or '',
+            'grade_level': grade_level or ''
+        }
+        
+        # Add student to the section's CSV file
+        file_path = os.path.join(STUDENTS_DIR, section.file_name)
+        
+        with open(file_path, 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([
+                student_data['student_id'],
+                student_data['fullname'],
+                student_data['is_irregular'],
+                student_data['email'],
+                student_data['grade_level']
+            ])
+        
+        # Register the student as a user
+        register_user(student_id, student_id, 'student')
+        
+        return True, f"Student '{fullname}' (ID: {student_id}) added to section '{section_name}' successfully"
+        
+    except Exception as e:
+        return False, f"Error adding student: {str(e)}"
 
 # Decorator for requiring login
 def login_required(f):
