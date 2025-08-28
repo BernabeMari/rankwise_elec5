@@ -2,6 +2,30 @@
 
 {% block title %}Python Forms - Home{% endblock %}
 
+{% block scripts %}
+<script>
+function deleteForm(formId, formTitle) {
+    if (confirm(`Are you sure you want to delete the form "${formTitle}"? This action cannot be undone and will delete all questions and responses.`)) {
+        // Create a form to submit the delete request
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/form/${formId}/delete`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function toggleVisibility(formId) {
+    // Create a form to submit the toggle request
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/form/${formId}/toggle-visibility`;
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <div class="row mb-4">
     <div class="col-md-8">
@@ -30,6 +54,23 @@
         {% for form in forms %}
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        {% if session.role == 'admin' %}
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="visibility_{{ form.id }}" 
+                                       {% if form.is_visible %}checked{% endif %}
+                                       onchange="toggleVisibility({{ form.id }})">
+                                <label class="form-check-label" for="visibility_{{ form.id }}">
+                                    <i class="bi bi-eye"></i> Visible
+                                </label>
+                            </div>
+                        {% else %}
+                            <span class="badge {% if form.is_visible %}bg-success{% else %}bg-secondary{% endif %}">
+                                <i class="bi bi-eye"></i> 
+                                {% if form.is_visible %}Visible{% else %}Hidden{% endif %}
+                            </span>
+                        {% endif %}
+                    </div>
                     <div class="card-body">
                         <h5 class="card-title">{{ form.title }}</h5>
                         <p class="card-text text-muted">
@@ -55,6 +96,10 @@
                                 <a href="{{ url_for('main.view_responses', form_id=form.id) }}" class="btn btn-outline-info">
                                     <i class="bi bi-list-check"></i> Responses
                                 </a>
+                                <button type="button" class="btn btn-outline-danger" 
+                                        onclick="deleteForm({{ form.id }}, '{{ form.title }}')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
                             {% endif %}
                         </div>
                     </div>

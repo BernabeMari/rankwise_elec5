@@ -70,7 +70,12 @@ def calculate_identification_score(student_answer, correct_answer):
 @main.route('/')
 @login_required
 def index():
-    forms = Form.query.order_by(Form.created_at.desc()).all()
+    # Show all forms for admins, only visible forms for regular users
+    if session.get('role') == 'admin':
+        forms = Form.query.order_by(Form.created_at.desc()).all()
+    else:
+        forms = Form.query.filter_by(is_visible=True).order_by(Form.created_at.desc()).all()
+    
     user = get_user(session['user_id'])
     return render_template('index.html', forms=forms, user=user)
 
@@ -441,9 +446,39 @@ def delete_question(question_id):
     
     return redirect(url_for('main.edit_form', form_id=form_id))
 
+@main.route('/form/<int:form_id>/delete', methods=['POST'])
+@admin_required
+def delete_form(form_id):
+    form = Form.query.get_or_404(form_id)
+    
+    # Delete all related data (cascade will handle questions and responses)
+    db.session.delete(form)
+    db.session.commit()
+    
+    flash('Form deleted successfully!', 'success')
+    return redirect(url_for('main.index'))
+
+@main.route('/form/<int:form_id>/toggle-visibility', methods=['POST'])
+@admin_required
+def toggle_form_visibility(form_id):
+    form = Form.query.get_or_404(form_id)
+    form.is_visible = not form.is_visible
+    
+    status = "visible" if form.is_visible else "hidden"
+    db.session.commit()
+    
+    flash(f'Form is now {status}!', 'success')
+    return redirect(url_for('main.index'))
+
 @main.route('/form/<int:form_id>/view', methods=['GET'])
 def view_form(form_id):
     form = Form.query.get_or_404(form_id)
+    
+    # Check if form is visible for non-admin users
+    if not form.is_visible and session.get('role') != 'admin':
+        flash('This form is not currently available.', 'warning')
+        return redirect(url_for('main.index'))
+    
     questions = Question.query.filter_by(form_id=form_id).order_by(Question.order).all()
     # Record start time for speed badge
     try:
@@ -456,6 +491,11 @@ def view_form(form_id):
 @main.route('/form/<int:form_id>/submit', methods=['POST'])
 def submit_form(form_id):
     form = Form.query.get_or_404(form_id)
+    
+    # Check if form is visible for non-admin users
+    if not form.is_visible and session.get('role') != 'admin':
+        flash('This form is not currently available for submission.', 'warning')
+        return redirect(url_for('main.index'))
     
     # Create a new response
     response = Response(form_id=form_id, submitted_by=session.get('user_id'))

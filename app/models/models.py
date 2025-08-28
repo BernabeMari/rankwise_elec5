@@ -7,6 +7,7 @@ class Form(db.Model):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_visible = db.Column(db.Boolean, default=True)  # Toggle for form visibility
     questions = db.relationship('Question', backref='form', lazy=True, cascade="all, delete-orphan")
     
     def __repr__(self):
