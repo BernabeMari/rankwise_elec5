@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 from os import path
 db = SQLAlchemy()
 
@@ -19,10 +18,5 @@ def create_app():
     # Initialize the main routes
     from app.routes import main
     app.register_blueprint(main)
-    
-    # Register context processors
-    @app.context_processor
-    def inject_now():
-        return {'now': datetime.now()}
     
     return app

@@ -14,18 +14,12 @@ auth = Blueprint('auth', __name__)
 # Dictionary to store student verification codes
 student_verification_codes = {}
 
-@auth.route('/login', methods=['GET', 'POST'])
+@auth.route('/login', methods = ['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        
-        if not username or not password:
-            flash('Please enter both username and password', 'danger')
-            return redirect(url_for('auth.login'))
-        
         user = authenticate_user(username, password)
-        
         if user:
             session['user_id'] = user.username
             session['role'] = user.role
@@ -34,10 +28,6 @@ def login():
         else:
             flash('Invalid username or password', 'danger')
             return redirect(url_for('auth.login'))
-    
-    # Ensure users file exists with default admin
-    initialize_users_file()
-    
     return render_template('login.html')
 
 @auth.route('/logout')

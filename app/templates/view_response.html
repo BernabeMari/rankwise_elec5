@@ -110,9 +110,58 @@
                                 <strong>Answer:</strong> {{ answer.answer_text }}
                             </div>
                             
-                            {% if answer.question.correct_answer and not answer.is_correct %}
+                            {% if answer.question.correct_answer %}
                                 <div class="answer-block answer-correct mt-3">
                                     <strong>Correct Answer:</strong> {{ answer.question.correct_answer }}
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Fuzzy Matching Results -->
+                            {% if answer.score_percentage is defined %}
+                                <div class="fuzzy-evaluation mt-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6>Fuzzy Matching Result</h6>
+                                        <div>
+                                            {% set score_class = 'score-perfect' if answer.score_percentage >= 95 else 'score-high' if answer.score_percentage >= 70 else 'score-medium' if answer.score_percentage >= 40 else 'score-low' %}
+                                            <span class="score-badge {{ score_class }}">
+                                                {% if answer.score_percentage >= 95 %}
+                                                    <i class="bi bi-trophy"></i>
+                                                {% elif answer.score_percentage >= 70 %}
+                                                    <i class="bi bi-check-circle"></i>
+                                                {% elif answer.score_percentage >= 40 %}
+                                                    <i class="bi bi-exclamation-circle"></i>
+                                                {% else %}
+                                                    <i class="bi bi-x-circle"></i>
+                                                {% endif %}
+                                                {{ answer.score_percentage|int }}% of {{ answer.question.points }} points
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Show earned points -->
+                                    <div class="mt-2 mb-3">
+                                        {% set earned_points = (answer.question.points * answer.score_percentage / 100)|round(2) %}
+                                        <div class="progress" style="height: 25px;">
+                                            <div class="progress-bar 
+                                                {% if answer.score_percentage >= 95 %}bg-success
+                                                {% elif answer.score_percentage >= 70 %}bg-info
+                                                {% elif answer.score_percentage >= 40 %}bg-warning
+                                                {% else %}bg-danger{% endif %}" 
+                                                role="progressbar" 
+                                                style="width: {{ answer.score_percentage }}%;" 
+                                                aria-valuenow="{{ answer.score_percentage }}" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="100">
+                                                {{ earned_points }} / {{ answer.question.points }} points
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if answer.feedback %}
+                                        <div class="mt-3">
+                                            <strong>Feedback:</strong> {{ answer.feedback|safe }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             {% endif %}
                         </div>

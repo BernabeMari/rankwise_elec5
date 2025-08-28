@@ -4,8 +4,67 @@ from app.models.models import Form, Question, Response, Answer
 from app.models.users import login_required, admin_required, get_user, get_all_students
 from datetime import datetime
 import requests, time
+from fuzzywuzzy import fuzz
 
 main = Blueprint('main', __name__)
+
+
+def calculate_identification_score(student_answer, correct_answer):
+    """
+    Calculate score for identification questions using fuzzy matching.
+    Returns a tuple of (is_correct, score_percentage, feedback).
+    
+    Scoring rules:
+    - 100% for exact match (case-insensitive)
+    - 90% for very high similarity (90-99%)
+    - 80% for high similarity (80-89%)
+    - 70% for medium similarity (70-79%)
+    - 60% for low similarity (60-69%)
+    - 0% for very low similarity (<60%)
+    """
+    if not student_answer or not correct_answer:
+        return False, 0, "No answer provided"
+    
+    # Clean and normalize both answers
+    student_clean = student_answer.lower().strip()
+    correct_clean = correct_answer.lower().strip()
+    
+    # Check for exact match first (case-insensitive)
+    if student_clean == correct_clean:
+        return True, 100, "Perfect match!"
+    
+    # Calculate fuzzy similarity using different algorithms
+    ratio = fuzz.ratio(student_clean, correct_clean)
+    partial_ratio = fuzz.partial_ratio(student_clean, correct_clean)
+    token_sort_ratio = fuzz.token_sort_ratio(student_clean, correct_clean)
+    
+    # Use the highest similarity score
+    best_similarity = max(ratio, partial_ratio, token_sort_ratio)
+    
+    # Determine score based on similarity
+    if best_similarity == 100:
+        score = 100
+        feedback = f"Perfect match! Similarity: {best_similarity}%"
+    elif best_similarity >= 90:
+        score = 90
+        feedback = f"Very close! Similarity: {best_similarity}% (minor spelling error)"
+    elif best_similarity >= 80:
+        score = 80
+        feedback = f"Good attempt! Similarity: {best_similarity}% (some spelling errors)"
+    elif best_similarity >= 70:
+        score = 70
+        feedback = f"Fair attempt! Similarity: {best_similarity}% (several spelling errors)"
+    elif best_similarity >= 60:
+        score = 60
+        feedback = f"Partial credit! Similarity: {best_similarity}% (many spelling errors)"
+    else:
+        score = 0
+        feedback = f"Not close enough. Similarity: {best_similarity}%"
+    
+    # Consider it correct if score is 70% or higher
+    is_correct = score >= 70
+    
+    return is_correct, score, feedback
 
 
 @main.route('/')
@@ -429,13 +488,15 @@ def submit_form(form_id):
             
             # Check if answer is correct
             if question.question_type in ['multiple_choice', 'identification'] and question.correct_answer:
-                # Case-insensitive comparison for identification
                 if question.question_type == 'identification':
-                    is_correct = answer_text and answer_text.lower().strip() == question.correct_answer.lower().strip()
+                    # Use fuzzy matching for identification questions
+                    is_correct, score_percentage, explanation = calculate_identification_score(
+                        answer_text, question.correct_answer
+                    )
                 else:
+                    # Multiple choice questions use exact matching
                     is_correct = answer_text == question.correct_answer
-                # Set percentage for non-coding questions
-                score_percentage = 100 if is_correct else 0
+                    score_percentage = 100 if is_correct else 0
             
             # For coding questions, use AI to evaluate the answer
             elif question.question_type == 'coding' and answer_text:
@@ -455,11 +516,13 @@ def submit_form(form_id):
                 print(f"Score percentage: {score_percentage}%")
                 print(f"Explanation: {explanation}")
         
-        # For coding questions, calculate points based on the percentage score
+        # Calculate earned points based on question type and score percentage
         earned_points = 0
-        if question.question_type == 'coding' and answer_text:
+        if question.question_type in ['coding', 'identification'] and answer_text:
+            # Both coding and identification questions use percentage-based scoring
             earned_points = (score_percentage / 100) * question.points
         else:
+            # Multiple choice questions use binary scoring
             earned_points = question.points if is_correct else 0
             
         answer = Answer(
