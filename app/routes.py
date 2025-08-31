@@ -4,7 +4,7 @@ from app.models.models import Form, Question, Response, Answer
 from app.models.users import login_required, admin_required, get_user, get_all_students
 from datetime import datetime
 import requests, time
-from fuzzywuzzy import fuzz
+from rapidfuzz import fuzz
 
 main = Blueprint('main', __name__)
 
