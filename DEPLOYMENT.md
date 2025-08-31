@@ -10,7 +10,7 @@
 The following files have been created/updated for Render deployment:
 
 - `requirements.txt` - Updated with compatible package versions
-- `runtime.txt` - Specifies Python 3.11.18
+- `runtime.txt` - Specifies Python 3.11.9
 - `render.yaml` - Render deployment configuration
 - `Procfile` - Alternative deployment configuration
 - `.python-version` - Python version specification
@@ -65,7 +65,7 @@ python test_rapidfuzz.py
 ### 7. Common Issues and Solutions
 
 #### Issue: Build fails with package installation errors
-**Solution:** Ensure you're using Python 3.11 (specified in runtime.txt)
+**Solution:** Ensure you're using Python 3.11.9 (specified in runtime.txt)
 
 #### Issue: App starts but crashes
 **Solution:** Check Render logs for specific error messages
