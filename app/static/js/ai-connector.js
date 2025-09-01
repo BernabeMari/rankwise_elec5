@@ -122,64 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(() => console.log("AI Connector initialized successfully"))
         .catch(error => console.error("Error initializing AI Connector:", error));
 
-    // Add error handling for the AI button
-    const aiGenerateBtn = document.getElementById('aiGenerateBtn');
-    if (aiGenerateBtn) {
-        aiGenerateBtn.addEventListener('click', async () => {
-            const promptInput = document.getElementById('aiPrompt');
-            const typeSelect = document.getElementById('aiQuestionType');
-            const aiInputForm = document.getElementById('aiInputForm');
-            const aiLoading = document.getElementById('aiLoading');
-            const errorElem = document.querySelector('.ai-error');
-            
-            if (errorElem) errorElem.remove(); // Clear previous errors
-            
-            if (!promptInput.value.trim()) {
-                const error = document.createElement('div');
-                error.className = 'ai-error';
-                error.textContent = 'Please enter a prompt for the question';
-                aiInputForm.appendChild(error);
-                return;
-            }
-            
-            // Show loading state
-            aiInputForm.style.display = 'none';
-            aiLoading.style.display = 'flex';
-            
-            try {
-                await window.aiConnector.generateQuestion(promptInput.value, typeSelect.value);
-            } catch (error) {
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'ai-error';
-                
-                // Provide more specific error messages
-                if (error.message.includes("timed out")) {
-                    errorDiv.innerHTML = `
-                        <strong>Connection Timed Out</strong><br>
-                        The request to LM Studio took too long. Please check that:<br>
-                        1. LM Studio is running<br>
-                        2. The DeepSeek Coder model is loaded<br>
-                        3. API server is enabled in LM Studio settings<br>
-                        4. Your model isn't too large for your hardware
-                    `;
-                } else if (error.message.includes("Failed to connect")) {
-                    errorDiv.innerHTML = `
-                        <strong>Connection Failed</strong><br>
-                        Could not connect to LM Studio. Please check that:<br>
-                        1. LM Studio is running on localhost:1234<br>
-                        2. API server is enabled in LM Studio settings<br>
-                        3. The DeepSeek Coder model is loaded
-                    `;
-                } else {
-                    errorDiv.textContent = `Error: ${error.message || 'Failed to generate question'}`;
-                }
-                
-                aiInputForm.appendChild(errorDiv);
-                
-                // Hide loading, show form again
-                aiLoading.style.display = 'none';
-                aiInputForm.style.display = 'block';
-            }
-        });
-    }
+    // Note: Event listener for aiGenerateBtn is handled in edit_form.html
+    // to avoid duplicate event handlers that cause multiple requests
 }); 

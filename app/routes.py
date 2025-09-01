@@ -214,9 +214,10 @@ def query_lm_studio(prompt, max_tokens=1500, timeout=60, model_path=None):
             print(f"Retry {current_retry}/{max_retries} due to: {e}")
             time.sleep(2)  # Wait 2 seconds before retrying
 
-def clean_short_answer(raw_answer: str, question_text: str = "") -> str:
+def clean_short_answer(raw_answer: str, question_text: str = "", preserve_full: bool = False) -> str:
     """Return a concise, answer-only string by stripping explanations.
     Uses simple heuristics plus fuzzy overlap checks against the question text.
+    If preserve_full is True, keeps the full answer without truncation.
     """
     try:
         import re
@@ -235,15 +236,19 @@ def clean_short_answer(raw_answer: str, question_text: str = "") -> str:
         sentence = re.sub(r"\([^)]*\)", "", sentence)
         # Remove trailing punctuation and extra spaces
         sentence = re.sub(r"[\s,;:]+$", "", sentence).strip()
-        # If still very long, keep up to first 6 words
-        words = sentence.split()
-        if len(words) > 6:
-            sentence = " ".join(words[:6])
-        # Avoid repeating the question; if 80%+ similar to question, attempt to trim trailing words
-        if question_text:
-            ratio = SequenceMatcher(None, sentence.lower(), question_text.lower()).ratio()
-            if ratio > 0.8 and len(words) > 1:
-                sentence = words[-1]
+        
+        # If preserve_full is True, don't truncate (for multiple choice options)
+        if not preserve_full:
+            # If still very long, keep up to first 6 words
+            words = sentence.split()
+            if len(words) > 6:
+                sentence = " ".join(words[:6])
+            # Avoid repeating the question; if 80%+ similar to question, attempt to trim trailing words
+            if question_text:
+                ratio = SequenceMatcher(None, sentence.lower(), question_text.lower()).ratio()
+                if ratio > 0.8 and len(words) > 1:
+                    sentence = words[-1]
+        
         return sentence.strip()
     except Exception:
         return raw_answer.strip()
@@ -268,7 +273,7 @@ def parse_ai_response(content, question_type):
         question_text = ' '.join(qtext_parts).strip()
         data = {'text': question_text, 'question_type': question_type}
         if question_type == 'multiple_choice':
-            options = [clean_short_answer(m.group(2).strip(), question_text)
+            options = [clean_short_answer(m.group(2).strip(), question_text, preserve_full=True)
                        for m in re.finditer(r'^([A-D])[.).]\s+(.+)$', content, flags=re.M)]
             if not options:
                 options = ["Option A", "Option B", "Option C", "Option D"]
@@ -278,7 +283,7 @@ def parse_ai_response(content, question_type):
                 correct = options[idx] if 0 <= idx < len(options) else options[0]
             else:
                 correct = options[0]
-            data.update({'options': options, 'correct_answer': clean_short_answer(correct, question_text)})
+            data.update({'options': options, 'correct_answer': clean_short_answer(correct, question_text, preserve_full=True)})
         elif question_type == 'identification':
             m = re.search(r'(?:correct\s+answer|answer)[:\s]+(.+)$', content, flags=re.I|re.M)
             extracted = m.group(1).strip() if m else (lines[-1] if lines else "")
