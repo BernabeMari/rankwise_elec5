@@ -16,11 +16,10 @@ def calculate_identification_score(student_answer, correct_answer):
     
     Scoring rules:
     - 100% for exact match (case-insensitive)
-    - 90% for very high similarity (90-99%)
-    - 80% for high similarity (80-89%)
-    - 70% for medium similarity (70-79%)
-    - 60% for low similarity (60-69%)
-    - 0% for very low similarity (<60%)
+    - 95% for very high similarity (95-99%) - only for minor typos
+    - 85% for high similarity (85-94%) - only for close spelling
+    - 70% for medium similarity (70-84%) - only for reasonable attempts
+    - 0% for low similarity (<70%) - no partial credit for poor matches
     """
     if not student_answer or not correct_answer:
         return False, 0, "No answer provided"
@@ -33,33 +32,35 @@ def calculate_identification_score(student_answer, correct_answer):
     if student_clean == correct_clean:
         return True, 100, "Perfect match!"
     
-    # Calculate fuzzy similarity using different algorithms
+    # For identification questions, use more strict matching
+    # Use ratio (overall similarity) as primary, with stricter thresholds
     ratio = fuzz.ratio(student_clean, correct_clean)
-    partial_ratio = fuzz.partial_ratio(student_clean, correct_clean)
-    token_sort_ratio = fuzz.token_sort_ratio(student_clean, correct_clean)
     
-    # Use the highest similarity score
-    best_similarity = max(ratio, partial_ratio, token_sort_ratio)
+    # Use partial_ratio only if the student answer is not significantly longer
+    # This prevents "defended" from matching "def" with high scores
+    length_ratio = len(student_clean) / len(correct_clean) if len(correct_clean) > 0 else 1
     
-    # Determine score based on similarity
-    if best_similarity == 100:
-        score = 100
-        feedback = f"Perfect match! Similarity: {best_similarity}%"
-    elif best_similarity >= 90:
-        score = 90
-        feedback = f"Very close! Similarity: {best_similarity}% (minor spelling error)"
-    elif best_similarity >= 80:
-        score = 80
-        feedback = f"Good attempt! Similarity: {best_similarity}% (some spelling errors)"
-    elif best_similarity >= 70:
+    # If student answer is much longer than correct answer, penalize heavily
+    if length_ratio > 1.5:  # Student answer is 50% longer
+        ratio = ratio * 0.7  # Reduce similarity score
+    
+    # If student answer is much shorter, also penalize
+    if length_ratio < 0.7:  # Student answer is 30% shorter
+        ratio = ratio * 0.8  # Reduce similarity score
+    
+    # Determine score based on similarity with stricter thresholds
+    if ratio >= 95 and length_ratio >= 0.8 and length_ratio <= 1.2:
+        score = 95
+        feedback = f"Excellent! Similarity: {ratio:.1f}% (minor typo)"
+    elif ratio >= 85 and length_ratio >= 0.7 and length_ratio <= 1.3:
+        score = 85
+        feedback = f"Very good! Similarity: {ratio:.1f}% (close spelling)"
+    elif ratio >= 70 and length_ratio >= 0.6 and length_ratio <= 1.4:
         score = 70
-        feedback = f"Fair attempt! Similarity: {best_similarity}% (several spelling errors)"
-    elif best_similarity >= 60:
-        score = 60
-        feedback = f"Partial credit! Similarity: {best_similarity}% (many spelling errors)"
+        feedback = f"Good attempt! Similarity: {ratio:.1f}% (reasonable match)"
     else:
         score = 0
-        feedback = f"Not close enough. Similarity: {best_similarity}%"
+        feedback = f"Not close enough. Similarity: {ratio:.1f}% (length difference: {length_ratio:.1f}x)"
     
     # Consider it correct if score is 70% or higher
     is_correct = score >= 70
