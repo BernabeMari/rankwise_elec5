@@ -151,7 +151,6 @@ def add_question(form_id):
     # Handle coding question fields
     if question_type == 'coding':
         question.sample_code = request.form.get('sample_code')
-        question.expected_output = request.form.get('expected_output')
     
     # Handle sample code for identification questions
     if question_type == 'identification':
@@ -432,7 +431,6 @@ def edit_question(question_id):
     
     if question.question_type == 'coding':
         question.sample_code = request.form.get('sample_code')
-        question.expected_output = request.form.get('expected_output')
         
     if question.question_type == 'identification':
         question.sample_code = request.form.get('sample_code')
@@ -552,7 +550,6 @@ def submit_form(form_id):
                 # Let the AI evaluate the code
                 is_correct, score_percentage, explanation = evaluate_code_with_ai(
                     code_answer=answer_text,
-                    expected_output=question.expected_output or "",
                     question_text=question.question_text
                 )
                 
@@ -713,7 +710,7 @@ def test_lm_studio_connection():
             "message": "Failed to connect to LM Studio. Make sure it's running with the DeepSeek Coder model loaded."
         })
 
-def evaluate_code_with_ai(code_answer, expected_output, question_text):
+def evaluate_code_with_ai(code_answer, question_text):
     """
     Evaluate code with AI and return (is_correct, score_percentage, explanation).
     This optimized version requests only a verdict and omits long explanations.
@@ -724,12 +721,20 @@ Question: {question_text}
 StudentCode:
 {code_answer}
 
-Decide the category: PERFECT, MINOR_FLAW, SO_SO, EFFORT, or NO_TRY.
+Scoring policy:
+- PERFECT (100): The code solves the task and would run as-is (no syntax or name errors). Do NOT penalize for stylistic differences, formatting/whitespace, comments/docstrings, or type hints.
+- MINOR_FLAW (75): The intended logic is correct but there is a small issue that is trivial to fix, such as a variable naming/casing mismatch (e.g., using 'num1' once instead of 'num'), a missing import for an obvious builtin, a tiny typo, or similarly minor slip that could be corrected in seconds.
+- SO_SO (50): Multiple issues; partial logic correct but fails on key cases.
+- EFFORT (25): Attempted but largely incorrect.
+- NO_TRY (0): No meaningful attempt.
+
+If there is any minor syntactic or name error like referencing the wrong variable name once (e.g., 'num1' vs 'num') or wrong letter case, choose MINOR_FLAW.
+
 Respond with exactly one line in this format:
 SCORE_VERDICT: <CATEGORY>
 """
         model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\LoneStriker\\deepseek-coder-7b-instruct-v1.5-GGUF\\deepseek-coder-7b-instruct-v1.5-Q5_K_M.gguf"
-        ai_resp = query_lm_studio(prompt, max_tokens=20, timeout=60, model_path=model_path) or ""
+        ai_resp = query_lm_studio(prompt, max_tokens=200, timeout=60, model_path=model_path) or ""
         resp = ai_resp.strip().upper()
         category_map = {
             'PERFECT': 100,
