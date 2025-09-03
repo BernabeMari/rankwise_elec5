@@ -545,7 +545,7 @@ def submit_form(form_id):
             # For coding questions, use AI to evaluate the answer
             elif question.question_type == 'coding' and answer_text:
                 # Use the CodeLlama model path provided by the user
-                model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\LoneStriker\\deepseek-coder-7b-instruct-v1.5-GGUF\\deepseek-coder-7b-instruct-v1.5-Q5_K_M.gguf"
+                model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\LoneStriker\\CodeLlama-13B-Instruct-GGUF\\codellama-13b-instruct.Q5_K_M.gguf"
                 
                 # Let the AI evaluate the code
                 is_correct, score_percentage, explanation = evaluate_code_with_ai(
@@ -679,37 +679,6 @@ def view_response(response_id):
         student_name = student_id
     return render_template('view_response.html', form=form, response=response, overall_pct=overall_pct, badges=badges, student_name=student_name, student_id=student_id)
 
-@main.route('/form/test-lm-studio', methods=['GET'])
-def test_lm_studio_connection():
-    """
-    Test if we can connect to LM Studio
-    """
-    try:
-        # Simple connection test
-        endpoint = "http://localhost:1234/v1/completions"
-        headers = {"Content-Type": "application/json"}
-        data = {
-            "prompt": "Hello",
-            "max_tokens": 5,
-            "temperature": 0.7
-        }
-        
-        # Increased timeout to 60 seconds to match the query function
-        response = requests.post(endpoint, headers=headers, json=data, timeout=60)
-        response.raise_for_status()
-        
-        # If we got here, connection is successful
-        return jsonify({
-            "success": True,
-            "message": "Successfully connected to LM Studio"
-        })
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": str(e),
-            "message": "Failed to connect to LM Studio. Make sure it's running with the DeepSeek Coder model loaded."
-        })
-
 def evaluate_code_with_ai(code_answer, question_text):
     """
     Evaluate code with AI and return (is_correct, score_percentage, explanation).
@@ -723,7 +692,7 @@ StudentCode:
 
 Scoring policy:
 - PERFECT (100): The code solves the task and would run as-is (no syntax or name errors). Do NOT penalize for stylistic differences, formatting/whitespace, comments/docstrings, or type hints.
-- MINOR_FLAW (75): The intended logic is correct but there is a small issue that is trivial to fix, such as a variable naming/casing mismatch (e.g., using 'num1' once instead of 'num'), a missing import for an obvious builtin, a tiny typo, or similarly minor slip that could be corrected in seconds.
+- MINOR_FLAW (75): There is a small issue that is trivial to fix, such as a variable naming/mismatch
 - SO_SO (50): Multiple issues; partial logic correct but fails on key cases.
 - EFFORT (25): Attempted but largely incorrect.
 - NO_TRY (0): No meaningful attempt.
@@ -733,7 +702,7 @@ If there is any minor syntactic or name error like referencing the wrong variabl
 Respond with exactly one line in this format:
 SCORE_VERDICT: <CATEGORY>
 """
-        model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\LoneStriker\\deepseek-coder-7b-instruct-v1.5-GGUF\\deepseek-coder-7b-instruct-v1.5-Q5_K_M.gguf"
+        model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\LoneStriker\\CodeLlama-13B-Instruct-GGUF\\codellama-13b-instruct.Q5_K_M.gguf"
         ai_resp = query_lm_studio(prompt, max_tokens=200, timeout=60, model_path=model_path) or ""
         resp = ai_resp.strip().upper()
         category_map = {
