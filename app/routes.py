@@ -626,6 +626,19 @@ def view_responses(form_id):
         total_possible_points=total_possible_points
     )
 
+@main.route('/form/<int:form_id>/responses/clear', methods=['POST'])
+@admin_required
+def clear_form_responses(form_id):
+    """Delete all responses (and their answers) for the specified form."""
+    form = Form.query.get_or_404(form_id)
+    # Delete each response to ensure ORM cascades remove answers as well
+    responses = Response.query.filter_by(form_id=form_id).all()
+    for resp in responses:
+        db.session.delete(resp)
+    db.session.commit()
+    flash('All responses for this form have been cleared.', 'success')
+    return redirect(url_for('main.view_responses', form_id=form.id))
+
 @main.route('/response/<int:response_id>', methods=['GET'])
 def view_response(response_id):
     response = Response.query.get_or_404(response_id)
@@ -680,48 +693,63 @@ def view_response(response_id):
     return render_template('view_response.html', form=form, response=response, overall_pct=overall_pct, badges=badges, student_name=student_name, student_id=student_id)
 
 def evaluate_code_with_ai(code_answer, question_text):
-    """
-    Evaluate code with AI and return (is_correct, score_percentage, explanation).
-    This optimized version requests only a verdict and omits long explanations.
-    """
+    """Evaluate code with AI and return (is_correct, score_percentage, explanation)."""
     try:
         prompt = f"""You are a programming evaluator.
-Question: {question_text}
-StudentCode:
+First, analyze the student's code for the given task. Then output a single final verdict line.
+
+Question:
+{question_text}
+
+Student Code:
 {code_answer}
 
-Scoring policy:
-- PERFECT (100): The code solves the task and would run as-is (no syntax or name errors). Do NOT penalize for stylistic differences, formatting/whitespace, comments/docstrings, or type hints.
-- MINOR_FLAW (75): There is a small issue that is trivial to fix, such as a variable naming/mismatch
-- SO_SO (50): Multiple issues; partial logic correct but fails on key cases.
-- EFFORT (25): Attempted but largely incorrect.
-- NO_TRY (0): No meaningful attempt.
+Scoring rubric (pick ONE):
+- PERFECT (100): Runs correctly, fully solves the task
+- MINOR_FLAW (75): Small but real issues (naming, syntax, variables, minor logic) that a student should fix
+- SO_SO (50): Partial logic or multiple significant issues
+- EFFORT (25): Attempted but mostly wrong
+- NO_TRY (0): No meaningful attempt
 
-If there is any minor syntactic or name error like referencing the wrong variable name once (e.g., 'num1' vs 'num') or wrong letter case, choose MINOR_FLAW.
-
-Respond with exactly one line in this format:
-SCORE_VERDICT: <CATEGORY>
+Output format (exact):
+1) An "Analysis:" section (1-5 short sentences or bullets) explaining correctness and issues
+2) A single last line: SCORE_VERDICT: <PERFECT|MINOR_FLAW|SO_SO|EFFORT|NO_TRY>
 """
+        
         model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\LoneStriker\\CodeLlama-13B-Instruct-GGUF\\codellama-13b-instruct.Q5_K_M.gguf"
-        ai_resp = query_lm_studio(prompt, max_tokens=200, timeout=60, model_path=model_path) or ""
-        resp = ai_resp.strip().upper()
-        category_map = {
-            'PERFECT': 100,
-            'MINOR_FLAW': 75,
-            'SO_SO': 50,
-            'EFFORT': 25,
-            'NO_TRY': 0,
-        }
-        cat = None
-        if "SCORE_VERDICT:" in resp:
-            line = resp.splitlines()[0]
-            cat = next((k for k in category_map if k in line), None)
-        if cat is None:
-            cat = next((k for k in category_map if k in resp), None)
-        score = category_map.get(cat, 0)
-        is_correct = score >= 75
-        explanation = f"SCORE_VERDICT: {cat or 'UNKNOWN'} ({score}%)"
-        return is_correct, score, explanation
+        ai_resp = query_lm_studio(prompt, max_tokens=400, timeout=60, model_path=model_path) or ""
+        
+        scores = {'PERFECT': 100, 'MINOR_FLAW': 75, 'SO_SO': 50, 'EFFORT': 25, 'NO_TRY': 0}
+        text = (ai_resp or '').strip()
+        analysis = None
+        try:
+            import re
+            # Prefer explicit SCORE_VERDICT line; take the last occurrence if multiple
+            pattern = re.compile(r"SCORE_VERDICT\s*:\s*(PERFECT|MINOR_FLAW|SO_SO|EFFORT|NO_TRY)", re.I)
+            matches = pattern.findall(text)
+            if matches:
+                category = matches[-1].upper()
+                # Extract analysis as everything before the last verdict line
+                last_verdict_match = list(pattern.finditer(text))[-1]
+                analysis = text[:last_verdict_match.start()].strip()
+            else:
+                # Fallback: choose the category that appears latest in the text
+                upper = text.upper()
+                positions = [(upper.rfind(k), k) for k in scores.keys() if upper.rfind(k) != -1]
+                category = max(positions)[1] if positions else 'NO_TRY'
+                analysis = text.strip()
+        except Exception:
+            category = 'NO_TRY'
+            analysis = text.strip()
+        score = scores[category]
+        
+        feedback_lines = []
+        if analysis:
+            feedback_lines.append("Analysis:\n" + analysis)
+        feedback_lines.append(f"SCORE_VERDICT: {category} ({score}%)")
+        feedback = "\n\n".join(feedback_lines)
+        
+        return score >= 75, score, feedback
     except Exception as e:
-        print(f"Error evaluating code with AI: {e}")
+        print(f"Error evaluating code: {e}")
         return False, 0, "SCORE_VERDICT: NO_TRY (0%)"
