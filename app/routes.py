@@ -75,7 +75,24 @@ def index():
     if session.get('role') == 'admin':
         forms = Form.query.order_by(Form.created_at.desc()).all()
     else:
-        forms = Form.query.filter_by(is_visible=True).order_by(Form.created_at.desc()).all()
+        # For students: show only visible forms they haven't completed yet
+        user_id = session.get('user_id')
+        
+        # Get all visible forms
+        visible_forms = Form.query.filter_by(is_visible=True).order_by(Form.created_at.desc()).all()
+        
+        # Filter out forms that this student has already answered
+        forms = []
+        for form in visible_forms:
+            # Check if this student has already submitted a response for this form
+            existing_response = Response.query.filter_by(
+                form_id=form.id, 
+                submitted_by=user_id
+            ).first()
+            
+            # Only include forms that haven't been answered yet
+            if not existing_response:
+                forms.append(form)
     
     user = get_user(session['user_id'])
     return render_template('index.html', forms=forms, user=user)

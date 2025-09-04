@@ -101,6 +101,8 @@ function toggleVisibility(formId) {
                                     <i class="bi bi-trash"></i> Delete
                                 </button>
                             {% endif %}
+
+                            
                         </div>
                     </div>
                 </div>
@@ -108,9 +110,18 @@ function toggleVisibility(formId) {
         {% endfor %}
     </div>
 {% else %}
+{% if session.role == 'admin' %}
     <div class="alert alert-info">
         <i class="bi bi-info-circle"></i> No forms created yet. 
         <a href="{{ url_for('main.new_form') }}" class="alert-link">Create your first form!</a>
     </div>
+{% endif %}
+
+{% if session.role == 'student' %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No forms available. 
+        <a href="{{ url_for('main.index') }}" class="alert-link">Wait for your teacher to create a form for you.</a>
+    </div>
+{% endif %}
 {% endif %}
 {% endblock %} 

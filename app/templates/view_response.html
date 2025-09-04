@@ -4,10 +4,14 @@
 
 {% block content %}
 <div class="row">
+    <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary me-3">
+        <i class="bi bi-arrow-left"></i> Back to Forms
+    </a>
     <div class="col-12 mb-3">
         {% if student_name or student_id %}
             <div class="mb-2 text-muted">
-                <strong>Student:</strong> {{ student_name or 'Unknown' }}{% if student_id %} <span class="ms-2 small">({{ student_id }})</span>{% endif %}
+                <strong>Student:</strong> {{ student_name or 'Admin' }}{% if student_id %} <span class="ms-2 small">({{ student_id }})</span>{% endif %}
+
             </div>
         {% endif %}
         {% if badges and badges|length > 0 %}
@@ -267,4 +271,5 @@
         );
     });
 </script>
+
 {% endblock %} 
