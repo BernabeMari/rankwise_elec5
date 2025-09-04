@@ -163,7 +163,7 @@ def add_question(form_id):
 
 def query_lm_studio(prompt, max_tokens=1500, timeout=60, model_path=None):
     """
-    Query the LM Studio API with a prompt - Optimized for CodeLlama-13B-Instruct
+    Query the LM Studio API with a prompt - Optimized for DeepSeek-Coder-V2-Lite-Instruct
     """
     # Using the confirmed working endpoint
     endpoint = "http://localhost:1234/v1/completions"
@@ -360,15 +360,14 @@ def generate_ai_question_standalone():
         elif question_type == 'coding':
             instructions = """
             Output EXACTLY in this format (no extra text):
-            Problem:
-            <single-paragraph problem statement describing the required program/algorithm and inputs/outputs>
+            <single-paragraph coding problem statement describing the required program and inputs/outputs>
             
             Rules:
             - Do NOT include any code, sample code, solution, tests, or explanations.
             - Keep the problem clear and self-contained.
             """
         
-        ai_prompt = f"""You are a teacher generating student friendly questions about {prompt}.
+        ai_prompt = f"""You are a teacher generating an easy and student friendly questions about {prompt}.
 
 Create a {question_type} question about '{prompt}' following these guidelines:
 
@@ -545,7 +544,7 @@ def submit_form(form_id):
             # For coding questions, use AI to evaluate the answer
             elif question.question_type == 'coding' and answer_text:
                 # Use the CodeLlama model path provided by the user
-                model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\LoneStriker\\CodeLlama-13B-Instruct-GGUF\\codellama-13b-instruct.Q5_K_M.gguf"
+                model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\bartowski\\DeepSeek-Coder-V2-Lite-Instruct-GGUF\\DeepSeek-Coder-V2-Lite-Instruct-Q8_0_L.gguf"
                 
                 # Let the AI evaluate the code
                 is_correct, score_percentage, explanation = evaluate_code_with_ai(
@@ -698,6 +697,8 @@ def evaluate_code_with_ai(code_answer, question_text):
         prompt = f"""You are a programming evaluator.
 First, analyze the student's code for the given task. Then output a single final verdict line.
 
+IMPORTANT: Ignore naming conventions, variable names, and coding style. Focus ONLY on whether the code works and solves the task correctly.
+
 Question:
 {question_text}
 
@@ -706,26 +707,27 @@ Student Code:
 
 Scoring rubric (pick ONE):
 - PERFECT (100): Runs correctly, fully solves the task
-- MINOR_FLAW (75): Small but real issues (naming, syntax, variables, minor logic) that a student should fix
-- SO_SO (50): Partial logic or multiple significant issues
-- EFFORT (25): Attempted but mostly wrong
-- NO_TRY (0): No meaningful attempt
+- MINOR_FLAW (90): Small issues (syntax, variables, minor logic).
+- MAJOR_FLAW (70): Major issues (wrong data types).
+- SO_SO (50): Code is mostly wrong but has some correct parts.
+- EFFORT (25): Try something but mostly wrong.
+- NO_TRY (0): No meaningful attempt or literal no try.
 
 Output format (exact):
 1) An "Analysis:" section (1-5 short sentences or bullets) explaining correctness and issues
-2) A single last line: SCORE_VERDICT: <PERFECT|MINOR_FLAW|SO_SO|EFFORT|NO_TRY>
+2) A single last line: SCORE_VERDICT: <PERFECT|MINOR_FLAW|MAJOR_FLAW|SO_SO|EFFORT|NO_TRY>
 """
         
-        model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\LoneStriker\\CodeLlama-13B-Instruct-GGUF\\codellama-13b-instruct.Q5_K_M.gguf"
+        model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\bartowski\\DeepSeek-Coder-V2-Lite-Instruct-GGUF\\DeepSeek-Coder-V2-Lite-Instruct-Q8_0_L.gguf"
         ai_resp = query_lm_studio(prompt, max_tokens=400, timeout=60, model_path=model_path) or ""
         
-        scores = {'PERFECT': 100, 'MINOR_FLAW': 75, 'SO_SO': 50, 'EFFORT': 25, 'NO_TRY': 0}
+        scores = {'PERFECT': 100, 'MINOR_FLAW': 90, 'MAJOR_FLAW': 70, 'SO_SO': 50, 'EFFORT': 25, 'NO_TRY': 0}
         text = (ai_resp or '').strip()
         analysis = None
         try:
             import re
             # Prefer explicit SCORE_VERDICT line; take the last occurrence if multiple
-            pattern = re.compile(r"SCORE_VERDICT\s*:\s*(PERFECT|MINOR_FLAW|SO_SO|EFFORT|NO_TRY)", re.I)
+            pattern = re.compile(r"SCORE_VERDICT\s*:\s*(PERFECT|MINOR_FLAW|MAJOR_FLAW|SO_SO|EFFORT|NO_TRY)", re.I)
             matches = pattern.findall(text)
             if matches:
                 category = matches[-1].upper()
@@ -752,4 +754,4 @@ Output format (exact):
         return score >= 75, score, feedback
     except Exception as e:
         print(f"Error evaluating code: {e}")
-        return False, 0, "SCORE_VERDICT: NO_TRY (0%)"
+        return False, 0, "SCORE_VERDICT: N/A Please contact the coordinator."

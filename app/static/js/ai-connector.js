@@ -5,7 +5,7 @@
 
 class AIConnector {
     constructor(modelPath) {
-        this.modelPath = modelPath || "C:\\Users\\Zyb\\.lmstudio\\models\\LoneStriker\\deepseek-coder-7b-instruct-v1.5-GGUF\\deepseek-coder-7b-instruct-v1.5-Q5_K_M.gguf";
+        this.modelPath = modelPath || "C:\\Users\\Zyb\\.lmstudio\\models\\LoneStriker\\CodeLlama-13B-Instruct-GGUF\\codellama-13b-instruct.Q5_K_M.gguf";
         this.isReady = false;
         this.isLocalModelAvailable = false;
         this.lmStudioEndpoint = "http://localhost:1234/v1/completions"; // Using the confirmed working endpoint
