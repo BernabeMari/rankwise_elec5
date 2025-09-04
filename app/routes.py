@@ -707,8 +707,8 @@ Student Code:
 
 Scoring rubric (pick ONE):
 - PERFECT (100): Runs correctly, fully solves the task
-- MINOR_FLAW (90): Small issues (syntax, variables, minor logic).
-- MAJOR_FLAW (70): Major issues (wrong data types).
+- MINOR_FLAW (90): Small issues (syntax, variables, minor logic). Example: "The code runs correctly, but the variable names are not descriptive."
+- MAJOR_FLAW (70): Major issues (wrong data types). Example: "The code runs correctly, but the data types are incorrect."
 - SO_SO (50): Code is mostly wrong but has some correct parts.
 - EFFORT (25): Try something but mostly wrong.
 - NO_TRY (0): No meaningful attempt or literal no try.
