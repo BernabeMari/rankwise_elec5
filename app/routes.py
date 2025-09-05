@@ -715,7 +715,7 @@ def evaluate_code_with_ai(code_answer, question_text):
         prompt = f"""You are a programming evaluator.
 First, analyze the student's code for the given task. Then output a single final verdict line.
 
-IMPORTANT: Ignore naming conventions, use of variable names, and coding style. Focus ONLY on whether the code works and solves the task correctly.
+IMPORTANT: Ignore use of variable names, naming conventions, and coding style. Focus ONLY on whether the code works and solves the task correctly.
 
 Question:
 {question_text}
@@ -725,7 +725,7 @@ Student Code:
 
 Scoring rubric (pick ONE):
 - PERFECT (100): Runs correctly, fully solves the task
-- MINOR_FLAW (90): Small issues (syntax, variables, minor logic). Example: "The code runs correctly, but the variable names used are jumbled."
+- MINOR_FLAW (90): Small issues (syntax, variables, minor logic). Example: "The code runs correctly, but the variable names used are exchanged(Ex. instead of using num the student used num1)."
 - MAJOR_FLAW (70): Major issues (wrong data types). Example: "The code runs correctly, but the data types are incorrect."
 - SO_SO (50): Code is mostly wrong but has some correct parts.
 - EFFORT (25): Try something but mostly wrong.
