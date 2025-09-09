@@ -13,7 +13,7 @@ def create_app():
 	
 	# Ensure models are imported and tables are created on startup
 	with app.app_context():
-		from app.models import models  # noqa: F401
+		from app.models import models
 		db.create_all()
 	
 	# Initialize the auth blueprint

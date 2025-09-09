@@ -5,6 +5,7 @@ from app.models.users import login_required, admin_required, get_user, get_all_s
 from datetime import datetime
 import requests, time
 from rapidfuzz import fuzz
+import json
 
 main = Blueprint('main', __name__)
 
@@ -158,11 +159,16 @@ def add_question(form_id):
         points=points
     )
     
-    # Handle options for multiple choice
-    if question_type == 'multiple_choice':
+    # Handle options for multiple choice and checkbox
+    if question_type in ['multiple_choice', 'checkbox']:
         options = request.form.getlist('options[]')
         if options:
             question.set_options(options)
+        # For checkbox, allow multiple correct answers via correct_answer[] inputs
+        if question_type == 'checkbox':
+            correct_multi = request.form.getlist('correct_answer[]')
+            if correct_multi:
+                question.correct_answer = json.dumps(correct_multi)
         question.sample_code = request.form.get('sample_code')
     
     # Handle coding question fields
@@ -278,11 +284,11 @@ def parse_ai_response(content, question_type):
         import re
         lines = [ln.strip() for ln in content.strip().splitlines() if ln.strip()]
         lower_lines = [ln.lower() for ln in lines]
-        ans_idx = next((i for i, l in enumerate(lower_lines) if l.startswith("answer") or "correct answer" in l), None)
+        ans_idx = next((i for i, l in enumerate(lower_lines) if l.startswith("answer") or "correct answer" in l or "correct answers" in l), None)
         # Build question text from leading lines before options/answer
         qtext_parts = []
         for i, ln in enumerate(lines):
-            if question_type == 'multiple_choice' and re.match(r'^[A-D][.).]\s+', ln):
+            if question_type in ['multiple_choice', 'checkbox'] and re.match(r'^[A-D][.).]\s+', ln):
                 break
             if ans_idx is not None and i >= ans_idx:
                 break
@@ -301,6 +307,32 @@ def parse_ai_response(content, question_type):
             else:
                 correct = options[0]
             data.update({'options': options, 'correct_answer': clean_short_answer(correct, question_text, preserve_full=True)})
+        elif question_type == 'checkbox':
+            # Expect options A-D and possibly multiple correct letters like "Correct answers: A,C" or "A and C"
+            options = [clean_short_answer(m.group(2).strip(), question_text, preserve_full=True)
+                       for m in re.finditer(r'^([A-D])[.).]\s+(.+)$', content, flags=re.M)]
+            if not options:
+                options = ["Option A", "Option B", "Option C", "Option D"]
+            # Look for letters list
+            m = re.search(r'(?:correct\s+answers?|answers?)[:\s]+([A-D](?:\s*,\s*[A-D])*(?:\s*(?:and|&)\s*[A-D])?)', content, flags=re.I)
+            letters = []
+            if m:
+                raw = m.group(1)
+                # Normalize separators
+                raw = re.sub(r'\s*(?:and|&)\s*', ',', raw, flags=re.I)
+                letters = [ch.strip().upper() for ch in raw.split(',') if ch.strip()]
+            elif any("correct answer" in l for l in lower_lines):
+                # Fallback: single letter
+                m2 = re.search(r'(?:correct\s+answer|answer)[:\s]+([A-D])', content, flags=re.I)
+                if m2:
+                    letters = [m2.group(1).upper()]
+            # Map letters to option texts
+            idxs = [ord(L) - ord('A') for L in letters]
+            correct_list = [options[i] for i in idxs if 0 <= i < len(options)]
+            if not correct_list:
+                # Default to first two options as a placeholder
+                correct_list = options[:2]
+            data.update({'options': options, 'correct_answer': correct_list})
         elif question_type == 'identification':
             m = re.search(r'(?:correct\s+answer|answer)[:\s]+(.+)$', content, flags=re.I|re.M)
             extracted = m.group(1).strip() if m else (lines[-1] if lines else "")
@@ -331,8 +363,7 @@ def parse_ai_response(content, question_type):
         return {
             'text': content[:100] + "..." if len(content) > 100 else content,
             'question_type': question_type,
-            'options': ["Option A", "Option B", "Option C", "Option D"] if question_type == 'multiple_choice' else None,
-            'correct_answer': None
+            'options': ["Option A", "Option B", "Option C", "Option D"] if question_type in ['multiple_choice', 'checkbox'] else None,
         }
 
 @main.route('/form/ai-question', methods=['POST'])
@@ -373,6 +404,15 @@ def generate_ai_question_standalone():
             - Example format:
               What is the programming language that was created as an extension to Python 2.x in 1991?
               Correct answer: Python++
+            """
+        elif question_type == 'checkbox':
+            instructions = """
+            - Provide exactly 4 options labeled A, B, C, D
+            - More than one option may be correct
+            - Each option should be on its own line starting with the letter
+            - At the end, include a line like: "Correct answers: A, C" (one or more letters separated by commas or 'and')
+            - Options should be distinct and unambiguous
+            - YOU MUST ALWAYS specify at least one correct answer
             """
         elif question_type == 'coding':
             instructions = """
@@ -430,7 +470,6 @@ def edit_question(question_id):
     question = Question.query.get_or_404(question_id)
     
     question.question_text = request.form.get('question_text')
-    question.correct_answer = request.form.get('correct_answer')
     
     # Handle points
     try:
@@ -444,13 +483,25 @@ def edit_question(question_id):
     if question.question_type == 'multiple_choice':
         options = request.form.getlist('options[]')
         question.set_options(options)
+        question.correct_answer = request.form.get('correct_answer')
         question.sample_code = request.form.get('sample_code')
+    
+    if question.question_type == 'checkbox':
+        options = request.form.getlist('options[]')
+        question.set_options(options)
+        correct_multi = request.form.getlist('correct_answer[]')
+        if correct_multi:
+            question.correct_answer = json.dumps(correct_multi)
+        else:
+            question.correct_answer = json.dumps([])
     
     if question.question_type == 'coding':
         question.sample_code = request.form.get('sample_code')
+        question.correct_answer = request.form.get('correct_answer')
         
     if question.question_type == 'identification':
         question.sample_code = request.form.get('sample_code')
+        question.correct_answer = request.form.get('correct_answer')
     
     db.session.commit()
     flash('Question updated successfully!', 'success')
@@ -544,8 +595,13 @@ def submit_form(form_id):
         explanation = None
         score_percentage = 0
         
-        if question.question_type in ['multiple_choice', 'identification', 'coding']:
-            answer_text = request.form.get(f'question_{question.id}')
+        if question.question_type in ['multiple_choice', 'identification', 'coding', 'checkbox']:
+            if question.question_type == 'checkbox':
+                # Multiple selections possible
+                selections = request.form.getlist(f'question_{question.id}')
+                answer_text = json.dumps(selections)
+            else:
+                answer_text = request.form.get(f'question_{question.id}')
             
             # Check if answer is correct
             if question.question_type in ['multiple_choice', 'identification'] and question.correct_answer:
@@ -558,19 +614,32 @@ def submit_form(form_id):
                     # Multiple choice questions use exact matching
                     is_correct = answer_text == question.correct_answer
                     score_percentage = 100 if is_correct else 0
+            elif question.question_type == 'checkbox' and question.correct_answer:
+                # Checkbox scoring: percentage = intersection / union (or by number of correct answers)
+                try:
+                    selected = set(json.loads(answer_text) if answer_text else [])
+                except Exception:
+                    selected = set()
+                correct = set(question.get_correct_answers())
+                if correct:
+                    num_correct_selected = len(selected & correct)
+                    num_incorrect_selected = len(selected - correct)
+                    # Basic scoring: only correct selections count, penalize over-selections
+                    raw = (num_correct_selected / len(correct)) * 100 if correct else 0
+                    penalty = min(100, num_incorrect_selected * (100 / max(1, len(question.get_options()))))
+                    score_percentage = max(0, round(raw - penalty))
+                    is_correct = score_percentage == 100
+                else:
+                    score_percentage = 0
+                    is_correct = False
             
             # For coding questions, use AI to evaluate the answer
             elif question.question_type == 'coding' and answer_text:
-                # Use the CodeLlama model path provided by the user
                 model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\bartowski\\DeepSeek-Coder-V2-Lite-Instruct-GGUF\\DeepSeek-Coder-V2-Lite-Instruct-Q8_0_L.gguf"
-                
-                # Let the AI evaluate the code
                 is_correct, score_percentage, explanation = evaluate_code_with_ai(
                     code_answer=answer_text,
                     question_text=question.question_text
                 )
-                
-                # Log the evaluation result
                 print(f"AI Code Evaluation for Question {question.id}:")
                 print(f"Is correct: {is_correct}")
                 print(f"Score percentage: {score_percentage}%")
@@ -578,8 +647,8 @@ def submit_form(form_id):
         
         # Calculate earned points based on question type and score percentage
         earned_points = 0
-        if question.question_type in ['coding', 'identification'] and answer_text:
-            # Both coding and identification questions use percentage-based scoring
+        if question.question_type in ['coding', 'identification', 'checkbox'] and answer_text:
+            # Percentage-based scoring
             earned_points = (score_percentage / 100) * question.points
         else:
             # Multiple choice questions use binary scoring
@@ -591,7 +660,7 @@ def submit_form(form_id):
             answer_text=answer_text,
             is_correct=is_correct,
             score_percentage=score_percentage,
-            feedback=explanation  # Store AI explanation in the feedback field
+            feedback=explanation
         )
         
         db.session.add(answer)
@@ -712,10 +781,13 @@ def view_response(response_id):
 def evaluate_code_with_ai(code_answer, question_text):
     """Evaluate code with AI and return (is_correct, score_percentage, explanation)."""
     try:
+        
         prompt = f"""You are a programming evaluator.
 First, analyze the student's code for the given task. Then output a single final verdict line.
 
 IMPORTANT: Ignore use of variable names, naming conventions, and coding style. Focus ONLY on whether the code works and solves the task correctly.
+
+If the problem statement specifies a programming language (e.g., Python, JavaScript, C#, etc.) and the student's code is written in a different language, you MUST assign ZERO (0) and clearly state the mismatch in the analysis.
 
 Question:
 {question_text}
@@ -727,25 +799,25 @@ Scoring rubric (pick ONE):
 - PERFECT (100): Runs correctly, fully solves the task
 - MINOR_FLAW (90): Small issues (syntax, variables, minor logic). Example: "The code runs correctly, but the variable names used are exchanged(Ex. instead of using num the student used num1)."
 - MAJOR_FLAW (70): Major issues (wrong data types). Example: "The code runs correctly, but the data types are incorrect."
-- SO_SO (50): Code is mostly wrong but has some correct parts.
-- EFFORT (25): Try something but mostly wrong.
-- NO_TRY (0): No meaningful attempt or literal no try.
+- SO_SO (50): Code is mostly wrong but has some correct parts. 
+- EFFORT (25): Input some coding but mostly wrong. 
+- ZERO (0): No meaningful attempt OR the code is written in a different programming language than required by the problem.
 
 Output format (exact):
 1) An "Analysis:" section (1-5 short sentences or bullets) explaining correctness and issues
-2) A single last line: SCORE_VERDICT: <PERFECT|MINOR_FLAW|MAJOR_FLAW|SO_SO|EFFORT|NO_TRY>
+2) A single last line: SCORE_VERDICT: <PERFECT|MINOR_FLAW|MAJOR_FLAW|SO_SO|EFFORT|ZERO>
 """
         
         model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\bartowski\\DeepSeek-Coder-V2-Lite-Instruct-GGUF\\DeepSeek-Coder-V2-Lite-Instruct-Q8_0_L.gguf"
         ai_resp = query_lm_studio(prompt, max_tokens=400, timeout=60, model_path=model_path) or ""
         
-        scores = {'PERFECT': 100, 'MINOR_FLAW': 90, 'MAJOR_FLAW': 70, 'SO_SO': 50, 'EFFORT': 25, 'NO_TRY': 0}
+        scores = {'PERFECT': 100, 'MINOR_FLAW': 90, 'MAJOR_FLAW': 70, 'SO_SO': 50, 'EFFORT': 25, 'ZERO': 0}
         text = (ai_resp or '').strip()
         analysis = None
         try:
             import re
             # Prefer explicit SCORE_VERDICT line; take the last occurrence if multiple
-            pattern = re.compile(r"SCORE_VERDICT\s*:\s*(PERFECT|MINOR_FLAW|MAJOR_FLAW|SO_SO|EFFORT|NO_TRY)", re.I)
+            pattern = re.compile(r"SCORE_VERDICT\s*:\s*(PERFECT|MINOR_FLAW|MAJOR_FLAW|SO_SO|EFFORT|ZERO)", re.I)
             matches = pattern.findall(text)
             if matches:
                 category = matches[-1].upper()
@@ -756,10 +828,10 @@ Output format (exact):
                 # Fallback: choose the category that appears latest in the text
                 upper = text.upper()
                 positions = [(upper.rfind(k), k) for k in scores.keys() if upper.rfind(k) != -1]
-                category = max(positions)[1] if positions else 'NO_TRY'
+                category = max(positions)[1] if positions else 'ZERO'
                 analysis = text.strip()
         except Exception:
-            category = 'NO_TRY'
+            category = 'ZERO'
             analysis = text.strip()
         score = scores[category]
         

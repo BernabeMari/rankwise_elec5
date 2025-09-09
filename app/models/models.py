@@ -32,13 +32,25 @@ class Question(db.Model):
         return f"Question('{self.question_text[:20]}...')"
     
     def get_options(self):
-        if self.options and self.question_type == 'multiple_choice':
+        if self.options and self.question_type in ['multiple_choice', 'checkbox']:
             return json.loads(self.options)
         return []
     
     def set_options(self, options_list):
-        if self.question_type == 'multiple_choice':
+        if self.question_type in ['multiple_choice', 'checkbox']:
             self.options = json.dumps(options_list)
+    
+    def get_correct_answers(self):
+        """Return list of correct answers for checkbox, or single-item list for others."""
+        if not self.correct_answer:
+            return []
+        if self.question_type == 'checkbox':
+            try:
+                data = json.loads(self.correct_answer)
+                return data if isinstance(data, list) else []
+            except Exception:
+                return []
+        return [self.correct_answer]
 
 class Response(db.Model):
     id = db.Column(db.Integer, primary_key=True)

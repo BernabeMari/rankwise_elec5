@@ -251,6 +251,7 @@
                             <option value="multiple_choice">Multiple Choice</option>
                             <option value="identification">Identification</option>
                             <option value="coding">Coding</option>
+                            <option value="checkbox">Checkbox (multiple answers)</option>
                         </select>
                     </div>
                     
@@ -313,6 +314,26 @@
                         </div>
                     </div>
                     
+                    <!-- Checkbox Options (initially hidden) -->
+                    <div id="checkboxOptions" class="mb-3" style="display: none;">
+                        <label class="form-label">Options</label>
+                        <div class="options-container-checkbox">
+                            <div class="option-item">
+                                <input type="text" class="form-control" name="options[]" placeholder="Option 1">
+                                <span class="remove-option"><i class="bi bi-x-circle"></i></span>
+                            </div>
+                        </div>
+                        <button type="button" id="addOptionCheckbox" class="btn btn-sm btn-outline-secondary mt-2">
+                            <i class="bi bi-plus"></i> Add Option
+                        </button>
+                        
+                        <div class="mt-3">
+                            <label class="form-label">Correct Answers</label>
+                            <div id="correct_answers_container" class="form-check-list"></div>
+                            <div class="form-text">Select all correct options.</div>
+                        </div>
+                    </div>
+                    
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-plus-circle"></i> Add Question
@@ -346,6 +367,8 @@
                                     <i class="bi bi-input-cursor-text"></i> Identification
                                 {% elif question.question_type == 'coding' %}
                                     <i class="bi bi-code-square"></i> Coding
+                                {% elif question.question_type == 'checkbox' %}
+                                    <i class="bi bi-check2-square"></i> Checkbox
                                 {% endif %}
                             </span>
                             <span class="badge bg-info">
@@ -415,6 +438,21 @@
                                 <pre class="mt-2">{{ question.expected_output }}</pre>
                             </div>
                         {% endif %}
+                    {% elif question.question_type == 'checkbox' and question.options %}
+                        <div class="mt-3">
+                            <strong>Options:</strong>
+                            <ul class="list-group mt-2">
+                                {% set correct_list = question.get_correct_answers() %}
+                                {% for option in question.get_options() %}
+                                    <li class="list-group-item {{ option in correct_list and 'list-group-item-success' or '' }}">
+                                        {{ option }}
+                                        {% if option in correct_list %}
+                                            <span class="badge bg-success float-end">Correct Answer</span>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                     {% endif %}
                 </div>
             {% endfor %}
@@ -445,6 +483,7 @@
                     <option value="multiple_choice">Multiple Choice</option>
                     <option value="identification">Identification</option>
                     <option value="coding">Coding</option>
+                    <option value="checkbox">Checkbox</option>
                 </select>
             </div>
             <div class="ai-form-group">
@@ -487,7 +526,7 @@
             const questionType = $(this).val();
             
             // Hide all question-specific fields
-            $('#multipleChoiceOptions, #identificationFields, #codingFields').hide();
+            $('#multipleChoiceOptions, #identificationFields, #codingFields, #checkboxOptions').hide();
             
             // Show fields based on question type
             if (questionType === 'multiple_choice') {
@@ -496,6 +535,9 @@
                 $('#identificationFields').show();
             } else if (questionType === 'coding') {
                 $('#codingFields').show();
+            } else if (questionType === 'checkbox') {
+                $('#checkboxOptions').show();
+                updateCheckboxCorrectAnswers();
             }
         });
         
@@ -551,6 +593,56 @@
             if (currentValue) {
                 $correctAnswerSelect.val(currentValue);
             }
+        }
+
+        // Add option for checkbox
+        $('#addOptionCheckbox').click(function() {
+            const optionsCount = $('.options-container-checkbox .option-item').length;
+            const newOption = `
+                <div class="option-item">
+                    <input type="text" class="form-control" name="options[]" placeholder="Option ${optionsCount + 1}">
+                    <span class="remove-option"><i class="bi bi-x-circle"></i></span>
+                </div>
+            `;
+            $('.options-container-checkbox').append(newOption);
+            updateCheckboxCorrectAnswers();
+        });
+
+        // Remove option for checkbox
+        $(document).on('click', '.remove-option', function() {
+            if ($('.options-container-checkbox .option-item').length > 1) {
+                $(this).parent().remove();
+                
+                // Update placeholders
+                $('.options-container-checkbox .option-item').each(function(index) {
+                    $(this).find('input').attr('placeholder', `Option ${index + 1}`);
+                });
+                
+                updateCheckboxCorrectAnswers();
+            }
+        });
+
+        // Keep checkbox correct answers in sync
+        $(document).on('input', '#checkboxOptions input[name="options[]"]', function() {
+            updateCheckboxCorrectAnswers();
+        });
+
+        function updateCheckboxCorrectAnswers() {
+            const container = $('#correct_answers_container');
+            const current = new Set(container.find('input:checked').map(function(){return $(this).val();}).get());
+            container.empty();
+            $('#checkboxOptions input[name="options[]"]').each(function() {
+                const val = $(this).val();
+                if (!val) return;
+                const id = 'cb_ca_' + btoa(val).replace(/=/g,'');
+                const checked = current.has(val) ? 'checked' : '';
+                container.append(`
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="correct_answer[]" value="${val}" id="${id}" ${checked}>
+                        <label class="form-check-label" for="${id}">${val}</label>
+                    </div>
+                `);
+            });
         }
         
         // Add animation effects
@@ -691,6 +783,22 @@
                                     <pre class="p-3 bg-light border rounded"><code>${data.sample_code}</code></pre>
                                 </div>`;
                         }
+                    } else if (typeValue === 'checkbox' && data.options) {
+                        const correctList = Array.isArray(data.correct_answer) ? data.correct_answer : [];
+                        previewHtml += '<ul class="ai-options-list">';
+                        data.options.forEach(function(option) {
+                            const isCorrect = correctList.includes(option);
+                            previewHtml += `
+                                <li class="ai-option-item ${isCorrect ? 'correct' : ''}">
+                                    ${option}
+                                    ${isCorrect ? '<span class="badge bg-success float-end">Correct</span>' : ''}
+                                </li>
+                            `;
+                        });
+                        previewHtml += '</ul>';
+                        if (correctList.length) {
+                            previewHtml += `<p><strong>Correct Answers:</strong> ${correctList.map(c=>`<span class=\"badge bg-success me-1\">${c}</span>`).join('')}</p>`;
+                        }
                     }
                     previewHtml += '</div>';
                     aiAddSelectedBtn.style.display = 'none';
@@ -821,6 +929,14 @@
                     if (questionData.question_type === 'coding') {
                         if (questionData.sample_code) addField('sample_code', questionData.sample_code);
                         if (questionData.expected_output) addField('expected_output', questionData.expected_output);
+                    }
+                    if (questionData.question_type === 'checkbox') {
+                        if (Array.isArray(questionData.options)) {
+                            questionData.options.forEach(o => fd.append('options[]', o));
+                        }
+                        if (Array.isArray(questionData.correct_answer)) {
+                            questionData.correct_answer.forEach(ca => fd.append('correct_answer[]', ca));
+                        }
                     }
                     await fetch(`/form/{{ form.id }}/question/new`, { method: 'POST', body: fd });
                 } catch (e) {

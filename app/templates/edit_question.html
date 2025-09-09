@@ -160,6 +160,39 @@
                             </div>
                         {% endif %}
                         
+                        <!-- Checkbox Options -->
+                        {% if question.question_type == 'checkbox' %}
+                            <div id="checkboxOptions" class="mb-3">
+                                <label class="form-label">Options</label>
+                                <div class="options-container-checkbox">
+                                    {% for option in question.get_options() %}
+                                        <div class="option-item">
+                                            <input type="text" class="form-control" name="options[]" value="{{ option }}">
+                                            <span class="remove-option"><i class="bi bi-x-circle"></i></span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <button type="button" id="addOptionCheckbox" class="btn btn-sm btn-outline-secondary mt-2">
+                                    <i class="bi bi-plus"></i> Add Option
+                                </button>
+                                
+                                <div class="mt-3">
+                                    <label class="form-label">Correct Answers</label>
+                                    {% set correct_list = question.get_correct_answers() %}
+                                    <div id="correct_answers_container" class="form-check-list">
+                                        {% for option in question.get_options() %}
+                                            {% set cid = 'ca_' ~ loop.index %}
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="correct_answer[]" value="{{ option }}" id="{{ cid }}" {% if option in correct_list %}checked{% endif %}>
+                                                <label class="form-check-label" for="{{ cid }}">{{ option }}</label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="form-text">Select all correct options.</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
                         <!-- Identification Question Fields -->
                         {% if question.question_type == 'identification' %}
                             <div id="identificationFields" class="mb-3">
@@ -224,33 +257,30 @@
         // Remove option functionality
         $(document).on('click', '.remove-option', function() {
             const optionText = $(this).siblings('input').val();
+            const parentList = $(this).closest('.options-container, .options-container-checkbox');
             $(this).parent().remove();
-            updateCorrectAnswerOptions();
-            
-            // If the removed option was the selected correct answer, reset the correct answer selector
-            const correctAnswerSelect = $('#correct_answer_mc');
-            if (correctAnswerSelect.val() === optionText) {
-                correctAnswerSelect.val('');
+            if (parentList.hasClass('options-container')) {
+                updateCorrectAnswerOptions();
+                const correctAnswerSelect = $('#correct_answer_mc');
+                if (correctAnswerSelect.val() === optionText) {
+                    correctAnswerSelect.val('');
+                }
+            } else {
+                updateCheckboxCorrectAnswers();
             }
         });
         
-        // Update correct answer dropdown when options change
+        // Update correct answer dropdown when options change (MC)
         function updateCorrectAnswerOptions() {
             const correctAnswerSelect = $('#correct_answer_mc');
             const selectedValue = correctAnswerSelect.val();
             correctAnswerSelect.empty();
-            
-            // Add a default option
             correctAnswerSelect.append('<option value="" selected disabled>Select correct option</option>');
-            
-            // Add an option for each input field
-            $('.option-item input').each(function() {
+            $('.options-container .option-item input').each(function() {
                 const optionText = $(this).val();
                 if (optionText) {
                     const option = $('<option></option>').val(optionText).text(optionText);
                     correctAnswerSelect.append(option);
-                    
-                    // Re-select the previously selected value if it still exists
                     if (optionText === selectedValue) {
                         correctAnswerSelect.val(optionText);
                     }
@@ -258,11 +288,32 @@
             });
         }
         
-        // Update correct answer options when option text changes
-        $(document).on('input', '.option-item input', function() {
-            const index = $(this).parent().index();
-            const newText = $(this).val();
+        // Keep checkbox correct answers in sync with options
+        function updateCheckboxCorrectAnswers() {
+            const container = $('#correct_answers_container');
+            if (container.length === 0) return;
+            const current = new Set(container.find('input:checked').map(function(){return $(this).val();}).get());
+            container.empty();
+            $('.options-container-checkbox .option-item input').each(function(index) {
+                const val = $(this).val();
+                if (!val) return;
+                const id = 'ca_' + (index + 1);
+                const checked = current.has(val) ? 'checked' : '';
+                container.append(`
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="correct_answer[]" value="${val}" id="${id}" ${checked}>
+                        <label class="form-check-label" for="${id}">${val}</label>
+                    </div>
+                `);
+            });
+        }
+        
+        // Update lists when text changes
+        $(document).on('input', '.options-container .option-item input', function() {
             updateCorrectAnswerOptions();
+        });
+        $(document).on('input', '.options-container-checkbox .option-item input', function() {
+            updateCheckboxCorrectAnswers();
         });
     });
 </script>
