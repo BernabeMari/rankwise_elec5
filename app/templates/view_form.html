@@ -208,10 +208,8 @@
                             {% endif %}
                             
                             <label class="form-label">Your Solution:</label>
-
-
-                            <textarea class="form-control code-editor" name="question_{{ question.id }}" 
-                                id="code-{{ question.id }}" rows="6" required></textarea>
+                            <div id="editor-{{ question.id }}" class="vs-editor" style="height: 260px; border: 1px solid #2a2a2e; border-radius: 6px;"></div>
+                            <textarea name="question_{{ question.id }}" id="answer-{{ question.id }}" style="display:none;"></textarea>
                         </div>
                     {% elif question.question_type == 'checkbox' %}
                         {% if question.sample_code %}
@@ -273,9 +271,15 @@
     $(document).ready(function() {
         // Handle form submission to show loading modal
         $('.animated-form').on('submit', function(e) {
-            // Show the AI checking modal
+            // Before showing modal, sync all Monaco editors back to hidden inputs
+            if (window.__monacoEditors) {
+                Object.keys(window.__monacoEditors).forEach(function(key){
+                    const ed = window.__monacoEditors[key];
+                    const hidden = document.getElementById('answer-' + key);
+                    if (ed && hidden) hidden.value = ed.getValue();
+                });
+            }
             $('#aiCheckingModal').modal('show');
-            // Allow form submission to continue
         });
     
         // Add animation to form elements
@@ -303,6 +307,67 @@
                 $(this).css('transform', 'translateX(0)');
             }
         );
+
+        // Monaco Editor loader (VS Code-like)
+        (function loadMonaco(){
+            // Only if there is at least one coding editor container
+            if (document.querySelectorAll('.vs-editor').length === 0) return;
+            if (window.__monacoLoaded) { initMonacoEditors(); return; }
+            const loader = document.createElement('script');
+            loader.src = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs/loader.min.js';
+            loader.onload = function(){
+                window.require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.43.0/min/vs' } });
+                window.require(['vs/editor/editor.main'], function(){
+                    window.__monacoLoaded = true;
+                    initMonacoEditors();
+                });
+            };
+            document.body.appendChild(loader);
+        })();
+
+        function inferLanguageFromText(text){
+            const t = (text || '').toLowerCase();
+            if (t.includes('python')) return 'python';
+            if (t.includes('javascript') || t.includes('node')) return 'javascript';
+            if (t.includes('typescript')) return 'typescript';
+            if (t.includes('c#')) return 'csharp';
+            if (t.includes('java')) return 'java';
+            if (t.includes('c++')) return 'cpp';
+            if (t.includes('php')) return 'php';
+            if (t.includes('ruby')) return 'ruby';
+            if (t.includes('go')) return 'go';
+            if (t.includes('rust')) return 'rust';
+            return 'python';
+        }
+
+        function initMonacoEditors(){
+            if (!window.monaco) return;
+            window.__monacoEditors = window.__monacoEditors || {};
+            {% for question in questions %}
+                {% if question.question_type == 'coding' %}
+                    (function(){
+                        const id = '{{ question.id }}';
+                        const container = document.getElementById('editor-{{ question.id }}');
+                        if (!container) return;
+                        const lang = inferLanguageFromText('{{ (question.sample_code or question.expected_output or question.question_text)|e }}');
+                        const editor = monaco.editor.create(container, {
+                            value: '',
+                            language: lang,
+                            theme: 'vs-dark',
+                            automaticLayout: true,
+                            minimap: { enabled: false },
+                            fontFamily: "'Cascadia Code', 'Fira Code', Consolas, 'Courier New', monospace",
+                            fontLigatures: true,
+                            lineNumbersMinChars: 3,
+                            roundedSelection: true,
+                            scrollBeyondLastLine: false,
+                            wordWrap: 'on'
+                        });
+                        window.__monacoEditors[id] = editor;
+                    })();
+                {% endif %}
+            {% endfor %}
+        }
     });
 </script>
 {% endblock %}
