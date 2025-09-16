@@ -36,11 +36,14 @@ jobs:
       - name: Run tests
         env:
           FLASK_ENV: testing
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           pytest -q --maxfail=1 --disable-warnings --cov=app --cov-report=term-missing
 
       - name: Upload coverage to job summary
         if: success()
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           echo "## Coverage Summary" >> $GITHUB_STEP_SUMMARY
           pytest --cov=app --cov-report=term | sed -n '/^TOTAL/p' >> $GITHUB_STEP_SUMMARY 
