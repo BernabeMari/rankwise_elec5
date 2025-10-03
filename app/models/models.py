@@ -34,6 +34,8 @@ class Question(db.Model):
     def get_options(self):
         if self.options and self.question_type in ['multiple_choice', 'checkbox']:
             return json.loads(self.options)
+        if self.question_type == 'true_false':
+            return ['True', 'False']
         return []
     
     def set_options(self, options_list):
@@ -41,10 +43,10 @@ class Question(db.Model):
             self.options = json.dumps(options_list)
     
     def get_correct_answers(self):
-        """Return list of correct answers for checkbox, or single-item list for others."""
+        """Return list of correct answers for checkbox/enumeration, or single-item list for others."""
         if not self.correct_answer:
             return []
-        if self.question_type == 'checkbox':
+        if self.question_type in ['checkbox', 'enumeration']:
             try:
                 data = json.loads(self.correct_answer)
                 return data if isinstance(data, list) else []

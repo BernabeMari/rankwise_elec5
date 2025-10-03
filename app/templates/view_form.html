@@ -228,6 +228,23 @@
                                 </div>
                             {% endfor %}
                         </div>
+                    {% elif question.question_type == 'true_false' %}
+                        <div class="mb-3">
+                            <label class="custom-radio w-100 mb-3">
+                                True
+                                <input type="radio" name="question_{{ question.id }}" value="True" required>
+                                <span class="radio-checkmark"></span>
+                            </label>
+                            <label class="custom-radio w-100 mb-3">
+                                False
+                                <input type="radio" name="question_{{ question.id }}" value="False" required>
+                                <span class="radio-checkmark"></span>
+                            </label>
+                        </div>
+                    {% elif question.question_type == 'enumeration' %}
+                        <div class="mb-3">
+                            <textarea class="form-control" name="question_{{ question.id }}" rows="4" placeholder="List items separated by commas or new lines" required></textarea>
+                        </div>
                     {% endif %}
                 </div>
             {% endfor %}

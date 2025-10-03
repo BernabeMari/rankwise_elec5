@@ -126,7 +126,7 @@
                             <div class="form-text">Number of points this question is worth.</div>
                         </div>
                         
-                        <!-- Multiple Choice Options -->
+                        <!-- Type-specific fields -->
                         {% if question.question_type == 'multiple_choice' %}
                             <div id="multipleChoiceOptions" class="mb-3">
                                 <label class="form-label">Options</label>
@@ -158,10 +158,7 @@
                                     <div class="form-text">Optional code that will be displayed to the respondent.</div>
                                 </div>
                             </div>
-                        {% endif %}
-                        
-                        <!-- Checkbox Options -->
-                        {% if question.question_type == 'checkbox' %}
+                        {% elif question.question_type == 'checkbox' %}
                             <div id="checkboxOptions" class="mb-3">
                                 <label class="form-label">Options</label>
                                 <div class="options-container-checkbox">
@@ -191,10 +188,23 @@
                                     <div class="form-text">Select all correct options.</div>
                                 </div>
                             </div>
-                        {% endif %}
-                        
-                        <!-- Identification Question Fields -->
-                        {% if question.question_type == 'identification' %}
+                        {% elif question.question_type == 'true_false' %}
+                            <div id="trueFalseFields" class="mb-3">
+                                <label class="form-label">Correct Answer</label>
+                                <select class="form-select" name="correct_answer" id="correct_answer_tf">
+                                    <option value="True" {% if question.correct_answer == 'True' %}selected{% endif %}>True</option>
+                                    <option value="False" {% if question.correct_answer == 'False' %}selected{% endif %}>False</option>
+                                </select>
+                                <div class="form-text">True/False questions have fixed options.</div>
+                            </div>
+                        {% elif question.question_type == 'enumeration' %}
+                            <div id="enumerationFields" class="mb-3">
+                                <label class="form-label">Correct Answers</label>
+                                {% set correct_list = question.get_correct_answers() %}
+                                <textarea class="form-control" name="correct_answer" rows="4">{{ correct_list | join(', ') }}</textarea>
+                                <div class="form-text">Enter acceptable items separated by commas or new lines.</div>
+                            </div>
+                        {% elif question.question_type == 'identification' %}
                             <div id="identificationFields" class="mb-3">
                                 <label for="correct_answer_id" class="form-label">Correct Answer</label>
                                 <input type="text" class="form-control" id="correct_answer_id" name="correct_answer" placeholder="Enter the correct answer" value="{{ question.correct_answer or "" }}">
@@ -206,10 +216,7 @@
                                     <div class="form-text">Optional code that will be displayed to the respondent.</div>
                                 </div>
                             </div>
-                        {% endif %}
-                        
-                        <!-- Coding Question Fields -->
-                        {% if question.question_type == 'coding' %}
+                        {% elif question.question_type == 'coding' %}
                             <div id="codingFields" class="mb-3">
                                 <div class="mb-3">
                                     <label for="sample_code" class="form-label">Sample Code</label>

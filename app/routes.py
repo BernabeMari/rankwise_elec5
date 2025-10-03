@@ -171,6 +171,27 @@ def add_question(form_id):
                 question.correct_answer = json.dumps(correct_multi)
         question.sample_code = request.form.get('sample_code')
     
+    # Handle true/false question
+    if question_type == 'true_false':
+        # Ensure options are set to True/False for consistency in rendering
+        question.options = json.dumps(["True", "False"])  # fixed options
+        # Correct answer should be a single string "True" or "False"
+        ca = request.form.get('correct_answer')
+        question.correct_answer = 'True' if (ca is not None and ca.lower() in ['true', 't', '1', 'yes']) else 'False' if (ca is not None and ca.lower() in ['false', 'f', '0', 'no']) else ca
+        question.sample_code = request.form.get('sample_code')
+    
+    # Handle enumeration question (multiple expected items as correct answers)
+    if question_type == 'enumeration':
+        # Accept multiple values as correct answers
+        correct_multi = request.form.getlist('correct_answer[]')
+        if not correct_multi:
+            # Fallback: support a single textarea separated by commas/newlines
+            raw = request.form.get('correct_answer') or ''
+            parts = [p.strip() for p in (raw.replace('\n', ',').split(',')) if p.strip()]
+            correct_multi = parts
+        question.correct_answer = json.dumps(correct_multi)
+        question.sample_code = request.form.get('sample_code')
+    
     # Handle coding question fields
     if question_type == 'coding':
         question.sample_code = request.form.get('sample_code')
@@ -340,6 +361,24 @@ def parse_ai_response(content, question_type):
             if cleaned.lower() == question_text.lower() and lines:
                 cleaned = clean_short_answer(next((ln for ln in reversed(lines) if ln.lower() != question_text.lower()), extracted), question_text)
             data['correct_answer'] = cleaned or extracted or "Please provide a correct answer for this question"
+        elif question_type == 'true_false':
+            # Expect a line like "Correct answer: True" or "Correct answer: False"
+            m = re.search(r'(?:correct\s+answer|answer)[:\s]+(true|false)', content, flags=re.I)
+            ans = (m.group(1).strip().capitalize() if m else 'True')
+            data['options'] = ['True', 'False']
+            data['correct_answer'] = 'True' if ans.lower() == 'true' else 'False'
+        elif question_type == 'enumeration':
+            # Expect a line: "Correct answers: a, b, c"
+            m = re.search(r'(?:correct\s+answers?)[:\s]+(.+)$', content, flags=re.I|re.M)
+            items = []
+            if m:
+                raw = m.group(1)
+                items = [clean_short_answer(p.strip(), question_text, preserve_full=True) for p in raw.replace('\n', ',').split(',') if p.strip()]
+            if not items and lines:
+                # fallback: last non-question line split by commas
+                fallback = lines[-1]
+                items = [clean_short_answer(p.strip(), question_text, preserve_full=True) for p in fallback.split(',') if p.strip()]
+            data['correct_answer'] = items
         elif question_type == 'coding':
             m = re.search(r"Problem:\s*(.*?)\n\s*(?:Sample Code:|```|$)", content, flags=re.S|re.I)
             problem = (m.group(1).strip() if m else '')
@@ -414,6 +453,18 @@ def generate_ai_question_standalone():
             - Options should be distinct and unambiguous
             - YOU MUST ALWAYS specify at least one correct answer
             """
+        elif question_type == 'true_false':
+            instructions = """
+            - Write a statement that is clearly either True or False
+            - At the end, include a line: "Correct answer: True" or "Correct answer: False"
+            - Do NOT include multiple choice letters
+            """
+        elif question_type == 'enumeration':
+            instructions = """
+            - Ask for multiple items (e.g., list programming paradigms of Python)
+            - At the end, include a line: "Correct answers: item1, item2, item3" (comma-separated)
+            - Keep items short (single terms/short phrases)
+            """
         elif question_type == 'coding':
             instructions = """
             Output EXACTLY in this format (no extra text):
@@ -470,6 +521,7 @@ def edit_question(question_id):
     question = Question.query.get_or_404(question_id)
     
     question.question_text = request.form.get('question_text')
+    qtype = (question.question_type or '').lower()
     
     # Handle points
     try:
@@ -480,13 +532,13 @@ def edit_question(question_id):
     except (ValueError, TypeError):
         question.points = 1
     
-    if question.question_type == 'multiple_choice':
+    if qtype == 'multiple_choice':
         options = request.form.getlist('options[]')
         question.set_options(options)
         question.correct_answer = request.form.get('correct_answer')
         question.sample_code = request.form.get('sample_code')
     
-    if question.question_type == 'checkbox':
+    if qtype == 'checkbox':
         options = request.form.getlist('options[]')
         question.set_options(options)
         correct_multi = request.form.getlist('correct_answer[]')
@@ -495,13 +547,22 @@ def edit_question(question_id):
         else:
             question.correct_answer = json.dumps([])
     
-    if question.question_type == 'coding':
+    if qtype == 'true_false':
+        ca = request.form.get('correct_answer')
+        question.correct_answer = 'True' if (ca and ca.lower() in ['true', 't', '1', 'yes']) else 'False'
+    
+    if qtype == 'coding':
         question.sample_code = request.form.get('sample_code')
         question.correct_answer = request.form.get('correct_answer')
         
-    if question.question_type == 'identification':
+    if qtype == 'identification':
         question.sample_code = request.form.get('sample_code')
         question.correct_answer = request.form.get('correct_answer')
+    
+    if qtype == 'enumeration':
+        raw = request.form.get('correct_answer') or ''
+        parts = [p.strip() for p in (raw.replace('\n', ',').split(',')) if p.strip()]
+        question.correct_answer = json.dumps(parts)
     
     db.session.commit()
     flash('Question updated successfully!', 'success')
@@ -595,21 +656,38 @@ def submit_form(form_id):
         explanation = None
         score_percentage = 0
         
-        if question.question_type in ['multiple_choice', 'identification', 'coding', 'checkbox']:
+        if question.question_type in ['multiple_choice', 'identification', 'coding', 'checkbox', 'true_false', 'enumeration']:
             if question.question_type == 'checkbox':
                 # Multiple selections possible
                 selections = request.form.getlist(f'question_{question.id}')
                 answer_text = json.dumps(selections)
+            elif question.question_type == 'enumeration':
+                # Expect comma/newline separated entries in a textarea
+                raw = request.form.get(f'question_{question.id}', '')
+                # Normalize into list
+                parts = [p.strip() for p in (raw.replace('\n', ',').split(',')) if p.strip()]
+                answer_text = json.dumps(parts)
             else:
                 answer_text = request.form.get(f'question_{question.id}')
             
             # Check if answer is correct
-            if question.question_type in ['multiple_choice', 'identification'] and question.correct_answer:
+            if question.question_type in ['multiple_choice', 'identification', 'true_false'] and question.correct_answer:
                 if question.question_type == 'identification':
                     # Use fuzzy matching for identification questions
                     is_correct, score_percentage, explanation = calculate_identification_score(
                         answer_text, question.correct_answer
                     )
+                elif question.question_type == 'true_false':
+                    # Normalize to capitalized True/False
+                    normalized = None
+                    if isinstance(answer_text, str):
+                        low = answer_text.strip().lower() if answer_text else ''
+                        if low in ['true', 't', '1', 'yes']:
+                            normalized = 'True'
+                        elif low in ['false', 'f', '0', 'no']:
+                            normalized = 'False'
+                    is_correct = (normalized or answer_text) == question.correct_answer
+                    score_percentage = 100 if is_correct else 0
                 else:
                     # Multiple choice questions use exact matching
                     is_correct = answer_text == question.correct_answer
@@ -632,6 +710,39 @@ def submit_form(form_id):
                 else:
                     score_percentage = 0
                     is_correct = False
+            elif question.question_type == 'enumeration' and question.correct_answer:
+                # Enumeration scoring with fuzzy matching per expected item
+                # Score is the average of fuzzy scores (0-100) for best-matching provided items
+                try:
+                    provided_list = json.loads(answer_text) if answer_text else []
+                    if isinstance(provided_list, str):
+                        provided_list = [s.strip() for s in provided_list.replace('\n', ',').split(',') if s.strip()]
+                    provided_list = [p for p in provided_list if isinstance(p, str) and p.strip()]
+                except Exception:
+                    provided_list = []
+                expected_list = [c for c in question.get_correct_answers() if isinstance(c, str) and c.strip()]
+                if expected_list:
+                    used_idx = set()
+                    total = 0.0
+                    for expected in expected_list:
+                        # Find best available provided item for this expected term
+                        best = 0
+                        best_j = None
+                        for j, prov in enumerate(provided_list):
+                            if j in used_idx:
+                                continue
+                            _, score, _ = calculate_identification_score(prov, expected)
+                            if score > best:
+                                best = score
+                                best_j = j
+                        if best_j is not None:
+                            used_idx.add(best_j)
+                        total += best
+                    score_percentage = round(total / len(expected_list))
+                    is_correct = score_percentage == 100
+                else:
+                    score_percentage = 0
+                    is_correct = False
             
             # For coding questions, use AI to evaluate the answer
             elif question.question_type == 'coding' and answer_text:
@@ -647,7 +758,7 @@ def submit_form(form_id):
         
         # Calculate earned points based on question type and score percentage
         earned_points = 0
-        if question.question_type in ['coding', 'identification', 'checkbox'] and answer_text:
+        if question.question_type in ['coding', 'identification', 'checkbox', 'enumeration'] and answer_text:
             # Percentage-based scoring
             earned_points = (score_percentage / 100) * question.points
         else:
@@ -691,11 +802,22 @@ def view_responses(form_id):
             pts = question_points_by_id.get(ans.question_id, 0)
             earned_points += (float(ans.score_percentage or 0) / 100.0) * pts
         percentage = (earned_points / total_possible_points * 100.0) if total_possible_points > 0 else 0.0
+        # Resolve student display name
+        student_name = None
+        try:
+            if resp.submitted_by:
+                for s in get_all_students():
+                    if s.student_id == resp.submitted_by:
+                        student_name = s.fullname or resp.submitted_by
+                        break
+        except Exception:
+            student_name = resp.submitted_by
         ranking_entries.append({
             'response': resp,
             'earned_points': earned_points,
             'percentage': percentage,
-            'created_at': resp.created_at
+            'created_at': resp.created_at,
+            'student_name': student_name
         })
     
     # Sort by highest earned points, tie-breaker earliest created_at (faster)
