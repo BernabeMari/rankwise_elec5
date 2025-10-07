@@ -249,8 +249,11 @@
                 </div>
             </div>
             <div class="col-md-4 text-end">
-                <button class="btn btn-success" id="addStudentBtn">
+                <button class="btn btn-outline-light ms-2" id="addStudentBtn">
                     <i class="bi bi-person-plus"></i> Add Student
+                </button>
+                <button class="btn btn-outline-light ms-2" data-bs-toggle="modal" data-bs-target="#codesModal" id="showCodesBtn">
+                    <i class="bi bi-shield-lock"></i> Show Verification Codes
                 </button>
             </div>
         </div>
@@ -454,7 +457,7 @@
 <div class="modal fade" id="addStudentModal" tabindex="-1" aria-labelledby="addStudentModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-success text-white">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="addStudentModalLabel">Add New Student</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -511,6 +514,37 @@
             </div>
         </div>
     </div>
+
+    </div>
+
+<!-- Verification Codes Modal -->
+<div class="modal fade" id="codesModal" tabindex="-1" aria-labelledby="codesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="codesModalLabel">Student Verification Codes</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Verification Code</th>
+                            </tr>
+                        </thead>
+                        <tbody id="codesTableBody">
+                            <!-- filled dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
@@ -526,6 +560,13 @@
         const moveStudentModal = new bootstrap.Modal(document.getElementById('moveStudentModal'));
         const addStudentModal = new bootstrap.Modal(document.getElementById('addStudentModal'));
         const generateVerificationBtn = document.getElementById('generateVerificationBtn');
+        const codesModalEl = document.getElementById('codesModal');
+        const codesModal = new bootstrap.Modal(codesModalEl);
+        // Ensure modal exists before wiring listeners
+        if (!codesModalEl) {
+            console.error('codesModal element not found');
+        }
+        const showCodesBtn = document.getElementById('showCodesBtn');
         
         // File Upload Functions
         // ====================
@@ -601,6 +642,37 @@
         
         // Student Checklist and Verification Code Functions
         // ===========================================
+        // Show verification codes modal
+        // Load codes when the modal is about to be shown
+        document.getElementById('codesModal').addEventListener('show.bs.modal', function() {
+            fetch('/auth/get-verification-codes')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const tbody = document.getElementById('codesTableBody');
+                        tbody.innerHTML = '';
+                        // Build id->name lookup from current table
+                        const idToName = {};
+                        document.querySelectorAll('.student-row').forEach(row => {
+                            idToName[row.dataset.studentId] = row.dataset.studentName;
+                        });
+                        (data.codes || [])
+                            .filter(item => item && item.verification_code)
+                            .forEach(item => {
+                                const displayName = item.fullname || idToName[item.student_id] || item.student_id || '';
+                                const tr = document.createElement('tr');
+                                tr.innerHTML = `
+                                    <td>${displayName}</td>
+                                    <td><span class=\"badge bg-success\">${item.verification_code}</span></td>
+                                `;
+                                tbody.appendChild(tr);
+                            });
+                    } else {
+                        alert('Unable to load verification codes');
+                    }
+                })
+                .catch(() => alert('Unable to load verification codes'));
+        });
         
         // Initial load - check for existing verification codes
         fetchExistingVerificationCodes();
