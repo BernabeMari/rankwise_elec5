@@ -527,11 +527,11 @@
             </div>
             <div class="modal-body p-0">
                 <div class="table-responsive">
-                    <table class="table mb-0">
+                    <table class="table table-striped table-hover mb-0">
                         <thead>
                             <tr>
                                 <th>Student Name</th>
-                                <th>Verification Code</th>
+                                <th class="text-center">Verification Code</th>
                             </tr>
                         </thead>
                         <tbody id="codesTableBody">
@@ -656,17 +656,22 @@
                         document.querySelectorAll('.student-row').forEach(row => {
                             idToName[row.dataset.studentId] = row.dataset.studentName;
                         });
-                        (data.codes || [])
+                        // Prepare, sort, and render rows alphabetically by name
+                        const rows = (data.codes || [])
                             .filter(item => item && item.verification_code)
-                            .forEach(item => {
-                                const displayName = item.fullname || idToName[item.student_id] || item.student_id || '';
-                                const tr = document.createElement('tr');
-                                tr.innerHTML = `
-                                    <td>${displayName}</td>
-                                    <td><span class=\"badge bg-success\">${item.verification_code}</span></td>
-                                `;
-                                tbody.appendChild(tr);
-                            });
+                            .map(item => ({
+                                name: (item.fullname || idToName[item.student_id] || item.student_id || '').toString(),
+                                code: item.verification_code
+                            }))
+                            .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+                        rows.forEach(({ name, code }) => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${name}</td>
+                                <td class=\"text-center\"><span class=\"badge bg-success\">${code}</span></td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
                     } else {
                         alert('Unable to load verification codes');
                     }
