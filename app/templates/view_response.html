@@ -246,6 +246,49 @@
                                 </div>
                             {% endif %}
                         </div>
+                    {% elif answer.question.question_type == 'checkbox' %}
+                        <div class="mb-3">
+                            <div class="answer-block {% if answer.score_percentage and answer.score_percentage == 100 %}answer-correct{% elif answer.question.correct_answer %}answer-incorrect{% endif %}">
+                                <strong>Your Selections:</strong>
+                                <div class="mt-2">{{ answer.answer_text or 'No selections' }}</div>
+                            </div>
+                            {% set correct_list = answer.question.get_correct_answers() %}
+                            {% if correct_list %}
+                                <div class="answer-block answer-correct mt-3">
+                                    <strong>Correct Answers:</strong>
+                                    <div class="mt-2">
+                                        {% for it in correct_list %}
+                                            <span class="badge bg-success me-1">{{ it }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% if answer.question.options %}
+                                <div class="mt-3">
+                                    <strong>All Options:</strong>
+                                    <ul class="list-group mt-2">
+                                        {% for option in answer.question.get_options() %}
+                                            <li class="list-group-item">
+                                                {{ option }}
+                                                {% if option in correct_list %}
+                                                    <span class="badge bg-success float-end">Correct</span>
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            {% if answer.score_percentage is defined %}
+                                <div class="mt-3">
+                                    {% set earned_points = (answer.question.points * (answer.score_percentage or 0) / 100)|round(2) %}
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ answer.score_percentage or 0 }}%;" aria-valuenow="{{ answer.score_percentage or 0 }}" aria-valuemin="0" aria-valuemax="100">
+                                            {{ earned_points }} / {{ answer.question.points }} points ({{ (answer.score_percentage or 0)|int }}%)
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
                     {% elif answer.question.question_type == 'true_false' %}
                         <div class="mb-3">
                             <div class="answer-block {% if answer.is_correct %}answer-correct{% elif answer.question.correct_answer %}answer-incorrect{% endif %}">
@@ -278,7 +321,7 @@
                                 <div class="mt-3">
                                     {% set earned_points = (answer.question.points * (answer.score_percentage or 0) / 100)|round(2) %}
                                     <div class="progress" style="height: 25px;">
-                                        <div class="progress-bar" role="progressbar" style="width: {{ answer.score_percentage or 0 }}%;" aria-valuenow="{{ answer.score_percentage or 0 }}" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ answer.score_percentage or 0 }}%;" aria-valuenow="{{ answer.score_percentage or 0 }}" aria-valuemin="0" aria-valuemax="100">
                                             {{ earned_points }} / {{ answer.question.points }} points ({{ (answer.score_percentage or 0)|int }}%)
                                         </div>
                                     </div>
