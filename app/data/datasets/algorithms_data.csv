@@ -1,0 +1,11 @@
+algorithm,description,time_complexity,space_complexity,use_case,implementation_hint
+Bubble Sort,"Compare adjacent elements and swap if needed",O(n²),O(1),"Small datasets","Nested loops, compare and swap"
+Quick Sort,"Divide array around pivot element",O(n log n),O(log n),"General purpose","Recursive, choose pivot, partition"
+Binary Search,"Search in sorted array by halving search space",O(log n),O(1),"Sorted arrays","Compare middle element, narrow range"
+Linear Search,"Check each element sequentially",O(n),O(1),"Unsorted arrays","Loop through array, compare each element"
+Merge Sort,"Divide array into halves, sort, then merge",O(n log n),O(n),"Stable sorting","Recursive divide, merge sorted halves"
+Depth First Search,"Explore as far as possible before backtracking",O(V+E),O(V),"Graph traversal","Use stack or recursion"
+Breadth First Search,"Explore level by level",O(V+E),O(V),"Shortest path","Use queue, visit all neighbors first"
+Dynamic Programming,"Solve by breaking into overlapping subproblems",Varies,Varies,"Optimization problems","Memoization, bottom-up approach"
+Dijkstra,"Find shortest path in weighted graph",O((V+E) log V),O(V),"Pathfinding","Priority queue, greedy approach"
+Hash Table,"Store key-value pairs with fast lookup",O(1),O(n),"Fast lookups","Hash function, collision handling"

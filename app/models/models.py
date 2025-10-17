@@ -74,4 +74,44 @@ class Answer(db.Model):
     feedback = db.Column(db.Text, nullable=True)  # To store AI feedback for coding questions
     
     def __repr__(self):
-        return f"Answer('{self.answer_text[:20]}...')" 
+        return f"Answer('{self.answer_text[:20]}...')"
+
+class Dataset(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    filename = db.Column(db.String(255), nullable=False)  # Built-in filename
+    file_path = db.Column(db.String(500), nullable=False)  # Path to built-in file
+    file_size = db.Column(db.Integer, nullable=False)  # File size in bytes
+    columns = db.Column(db.Text, nullable=True)  # JSON string of column names
+    row_count = db.Column(db.Integer, default=0)  # Number of data rows
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True)  # Whether dataset is available for AI context
+    is_builtin = db.Column(db.Boolean, default=True)  # Whether this is a built-in dataset
+    
+    def __repr__(self):
+        return f"Dataset('{self.name}')"
+    
+    def get_columns(self):
+        """Return list of column names."""
+        if self.columns:
+            try:
+                return json.loads(self.columns)
+            except Exception:
+                return []
+        return []
+    
+    def set_columns(self, columns_list):
+        """Set column names from a list."""
+        self.columns = json.dumps(columns_list)
+    
+    def get_sample_data(self, limit=5):
+        """Return sample data from the dataset for preview."""
+        try:
+            import pandas as pd
+            df = pd.read_csv(self.file_path)
+            return df.head(limit).to_dict('records')
+        except Exception as e:
+            print(f"Error reading dataset sample: {e}")
+            return [] 

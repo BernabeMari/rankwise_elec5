@@ -1,0 +1,5 @@
+language,syntax_example,data_type_example,loop_example,function_example,paradigm
+Python,"print('Hello World')","x = 42","for i in range(5):","def add(a, b):",Object-Oriented
+C,"printf('Hello World');","int x = 42;","for(int i=0; i<5; i++)","int add(int a, int b) {",Procedural
+C++,"cout << 'Hello World';","int x = 42;","for(int i=0; i<5; i++)","int add(int a, int b) {",Object-Oriented
+Java,"System.out.println('Hello World');","int x = 42;","for(int i=0; i<5; i++)","public int add(int a, int b) {",Object-Oriented

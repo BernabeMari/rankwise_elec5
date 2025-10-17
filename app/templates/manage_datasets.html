@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Built-in Datasets - AI Context{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleDatasetStatus(datasetId) {
+    // Create a form to submit the toggle request
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/datasets/${datasetId}/toggle`;
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+
+<style>
+.dataset-card {
+    transition: transform 0.2s ease;
+}
+
+.dataset-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.status-badge {
+    font-size: 0.75rem;
+}
+
+.dataset-stats {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.builtin-badge {
+    background-color: #28a745;
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1><i class="bi bi-database"></i> Built-in Datasets</h1>
+        <p class="text-muted">Manage built-in datasets that provide context for AI question generation</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Forms
+        </a>
+    </div>
+</div>
+
+<!-- Info Card -->
+<div class="card mb-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="bi bi-info-circle"></i> About Built-in Datasets</h5>
+    </div>
+    <div class="card-body">
+        <p class="card-text mb-0">
+            These datasets are built into the application and provide context for AI question generation. 
+            You can toggle them on/off to control which datasets the AI uses when creating questions.
+            The AI will reference these datasets to create more relevant and contextual questions.
+        </p>
+    </div>
+</div>
+
+<!-- Datasets List -->
+{% if datasets %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-list-ul"></i> Available Datasets</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for dataset in datasets %}
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card dataset-card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="status_{{ dataset.id }}" 
+                                   {% if dataset.is_active %}checked{% endif %}
+                                   onchange="toggleDatasetStatus({{ dataset.id }})">
+                            <label class="form-check-label" for="status_{{ dataset.id }}">
+                                <span class="status-badge badge {% if dataset.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {% if dataset.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </label>
+                        </div>
+                        <span class="builtin-badge">Built-in</span>
+                    </div>
+                    
+                    <div class="card-body">
+                        <h6 class="card-title">{{ dataset.name }}</h6>
+                        <p class="card-text text-muted small">
+                            {{ dataset.description or "No description" }}
+                        </p>
+                        
+                        <div class="dataset-stats">
+                            <div><i class="bi bi-file-earmark"></i> {{ dataset.filename }}</div>
+                            <div><i class="bi bi-table"></i> {{ dataset.row_count }} rows, {{ dataset.get_columns()|length }} columns</div>
+                            <div><i class="bi bi-calendar"></i> {{ dataset.created_at.strftime('%Y-%m-%d') }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer bg-transparent">
+                        <div class="text-center">
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle"></i> 
+                                {% if dataset.is_active %}Active for AI context{% else %}Inactive{% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-database text-muted" style="font-size: 3rem;"></i>
+        <h5 class="mt-3 text-muted">No datasets available</h5>
+        <p class="text-muted">Built-in datasets will be automatically loaded.</p>
+    </div>
+</div>
+{% endif %}
+
+<div class="text-muted mt-3">
+    <small>
+        <i class="bi bi-info-circle"></i> 
+        Active datasets will be included as context when generating AI questions. 
+        The AI can reference these datasets to create more relevant and contextual questions.
+    </small>
+</div>
+{% endblock %}

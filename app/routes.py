@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session
 from app import db
-from app.models.models import Form, Question, Response, Answer
+from app.models.models import Form, Question, Response, Answer, Dataset
 from app.models.users import login_required, admin_required, get_user, get_all_students
 from datetime import datetime
 import requests, time
@@ -475,6 +475,26 @@ def generate_ai_question_standalone():
             - Keep the problem clear and self-contained.
             """
         
+        # Get dataset context for AI
+        dataset_context = ""
+        try:
+            active_datasets = Dataset.query.filter_by(is_active=True, is_builtin=True).all()
+            if active_datasets:
+                dataset_context = "\n\nAvailable datasets for context:\n"
+                for dataset in active_datasets:
+                    try:
+                        sample_data = dataset.get_sample_data(2)  # First 2 rows
+                        columns = dataset.get_columns()
+                        dataset_context += f"- {dataset.name}: {dataset.description or 'No description'}\n"
+                        dataset_context += f"  Columns: {', '.join(columns[:5])}{'...' if len(columns) > 5 else ''}\n"
+                        if sample_data:
+                            dataset_context += f"  Sample data: {str(sample_data)[:200]}...\n"
+                    except Exception as e:
+                        print(f"Error processing dataset {dataset.name}: {e}")
+                        continue
+        except Exception as e:
+            print(f"Error getting dataset context: {e}")
+
         ai_prompt = f"""You are a teacher generating an easy and student friendly questions about {prompt}.
 
 Create a {question_type} question about '{prompt}' following these guidelines:
@@ -485,8 +505,11 @@ Requirements:
 3. Appropriate difficulty level for learning assessment
 4. You MUST provide a factually accurate correct answer
 5. Question should have the {prompt} in it
+6. If relevant, you may reference the available datasets below for context and examples
 
 {instructions}
+
+{dataset_context}
 
 Return only the question with no additional explanation. Do not include any rationale or explanation after the answer; keep the answer concise (a single term/phrase).
 
@@ -879,7 +902,7 @@ def view_response(response_id):
     if overall_pct <= 25.0:
         badges.append({'name': 'Study More', 'image': url_for('static', filename='images/studymore.png')})
     # Speed badge: compute allowed total time = 60s per MC/ID, 300s per coding; award if allowed/actual >= 0.5
-    mc_id_count = sum(1 for q in questions if q.question_type in ('multiple_choice', 'identification'))
+    mc_id_count = sum(1 for q in questions if q.question_type in ('multiple_choice', 'identification', 'checkbox', 'enumeration', 'true_false'))
     coding_count = sum(1 for q in questions if q.question_type == 'coding')
     allowed_total = (60 * mc_id_count) + (300 * coding_count)
     if duration_seconds is not None and duration_seconds > 0 and allowed_total > 0:
@@ -903,6 +926,23 @@ def view_response(response_id):
 def evaluate_code_with_ai(code_answer, question_text):
     """Evaluate code with AI and return (is_correct, score_percentage, explanation)."""
     try:
+        # Get coding evaluation samples for context
+        evaluation_context = ""
+        try:
+            active_datasets = Dataset.query.filter_by(is_active=True, is_builtin=True).all()
+            for dataset in active_datasets:
+                if 'coding_evaluation_samples' in dataset.filename:
+                    sample_data = dataset.get_sample_data(3)  # First 3 samples
+                    columns = dataset.get_columns()
+                    evaluation_context += f"\n\nCoding Evaluation Examples:\n"
+                    for sample in sample_data:
+                        evaluation_context += f"- Problem: {sample.get('problem_statement', '')[:100]}...\n"
+                        evaluation_context += f"  Sample Solution: {sample.get('sample_code', '')[:150]}...\n"
+                        evaluation_context += f"  Scoring Criteria: {sample.get('scoring_criteria', '')}\n"
+                        evaluation_context += f"  Common Mistakes: {sample.get('common_mistakes', '')}\n"
+                    break
+        except Exception as e:
+            print(f"Error getting evaluation context: {e}")
         
         prompt = f"""You are a programming evaluator.
 First, analyze the student's code for the given task. Then output a single final verdict line.
@@ -916,6 +956,8 @@ Question:
 
 Student Code:
 {code_answer}
+
+{evaluation_context}
 
 Scoring rubric (pick ONE):
 - PERFECT (100): Runs correctly, fully solves the task
@@ -967,3 +1009,134 @@ Output format (exact):
     except Exception as e:
         print(f"Error evaluating code: {e}")
         return False, 0, "SCORE_VERDICT: N/A Please contact the coordinator."
+
+# Built-in Dataset Management Routes
+
+def initialize_builtin_datasets():
+    """Initialize built-in datasets from CSV files."""
+    import os
+    import pandas as pd
+    
+    # Define built-in programming datasets
+    datasets_config = [
+        {
+            'name': 'Programming Languages',
+            'description': 'Syntax examples and paradigms for Python, C, C++, and Java',
+            'filename': 'programming_languages.csv'
+        },
+        {
+            'name': 'Programming Concepts',
+            'description': 'Core programming concepts with examples and complexity levels',
+            'filename': 'programming_concepts.csv'
+        },
+        {
+            'name': 'Algorithms Data',
+            'description': 'Common algorithms with time/space complexity and implementation hints',
+            'filename': 'algorithms_data.csv'
+        },
+        {
+            'name': 'Coding Evaluation Samples',
+            'description': 'Sample coding questions with solutions, test cases, and scoring criteria',
+            'filename': 'coding_evaluation_samples.csv'
+        }
+    ]
+    
+    # Get the datasets directory path
+    datasets_dir = os.path.join(os.path.dirname(__file__), 'data', 'datasets')
+    
+    for config in datasets_config:
+        # Check if dataset already exists in database
+        existing = Dataset.query.filter_by(filename=config['filename'], is_builtin=True).first()
+        if existing:
+            continue
+            
+        file_path = os.path.join(datasets_dir, config['filename'])
+        
+        if os.path.exists(file_path):
+            try:
+                # Read CSV to get metadata
+                df = pd.read_csv(file_path)
+                
+                # Get file info
+                file_size = os.path.getsize(file_path)
+                columns = df.columns.tolist()
+                row_count = len(df)
+                
+                # Create dataset record
+                dataset = Dataset(
+                    name=config['name'],
+                    description=config['description'],
+                    filename=config['filename'],
+                    file_path=file_path,
+                    file_size=file_size,
+                    row_count=row_count,
+                    is_active=True,
+                    is_builtin=True
+                )
+                dataset.set_columns(columns)
+                
+                db.session.add(dataset)
+                
+            except Exception as e:
+                print(f"Error processing built-in dataset {config['filename']}: {e}")
+    
+    db.session.commit()
+
+@main.route('/datasets', methods=['GET'])
+@admin_required
+def manage_datasets():
+    """Display all built-in datasets for management."""
+    # Initialize built-in datasets if they don't exist
+    initialize_builtin_datasets()
+    
+    datasets = Dataset.query.filter_by(is_builtin=True).order_by(Dataset.name).all()
+    return render_template('manage_datasets.html', datasets=datasets)
+
+@main.route('/datasets/<int:dataset_id>/toggle', methods=['POST'])
+@admin_required
+def toggle_dataset_status(dataset_id):
+    """Toggle dataset active status."""
+    dataset = Dataset.query.get_or_404(dataset_id)
+    dataset.is_active = not dataset.is_active
+    db.session.commit()
+    
+    status = "activated" if dataset.is_active else "deactivated"
+    flash(f'Dataset "{dataset.name}" has been {status}!', 'success')
+    return redirect(url_for('main.manage_datasets'))
+
+
+@main.route('/datasets/context', methods=['GET'])
+@admin_required
+def get_datasets_context():
+    """Get active datasets for AI context (API endpoint)."""
+    try:
+        active_datasets = Dataset.query.filter_by(is_active=True, is_builtin=True).all()
+        
+        context_data = []
+        for dataset in active_datasets:
+            try:
+                # Get sample data for context
+                sample_data = dataset.get_sample_data(3)  # First 3 rows
+                columns = dataset.get_columns()
+                
+                context_data.append({
+                    'name': dataset.name,
+                    'description': dataset.description,
+                    'columns': columns,
+                    'sample_data': sample_data,
+                    'row_count': dataset.row_count
+                })
+            except Exception as e:
+                print(f"Error processing dataset {dataset.name}: {e}")
+                continue
+        
+        return jsonify({
+            'success': True,
+            'datasets': context_data
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500

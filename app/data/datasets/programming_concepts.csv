@@ -1,0 +1,16 @@
+concept,description,example,language,complexity
+Variable,"A storage location with an associated name","int age = 25;",C++,Basic
+Function,"A reusable block of code","def greet(name): return f'Hello {name}'",Python,Basic
+Array,"A collection of elements of the same type","int numbers[5] = {1,2,3,4,5};",C,Basic
+Class,"A blueprint for creating objects","class Person { private String name; }",Java,Intermediate
+Inheritance,"A mechanism where a class inherits properties from another","class Student extends Person",Java,Intermediate
+Polymorphism,"Same interface, different implementations","virtual void draw() = 0;",C++,Advanced
+Recursion,"A function calling itself","def factorial(n): return n * factorial(n-1)",Python,Intermediate
+Pointer,"A variable that stores memory address","int *ptr = &variable;",C,Advanced
+Exception,"Error handling mechanism","try { risky_code(); } catch(Exception e) { }",Java,Intermediate
+Constructor,"Special method to initialize objects","public Person(String name) { this.name = name; }",Java,Intermediate
+Method Overloading,"Multiple methods with same name but different parameters","public int add(int a, int b); public double add(double a, double b);",Java,Intermediate
+Memory Management,"Manual memory allocation and deallocation","int *ptr = malloc(sizeof(int)); free(ptr);",C,Advanced
+Template,"Generic programming feature","template<class T> T max(T a, T b) { return (a > b) ? a : b; }",C++,Advanced
+Static Variables,"Variables that belong to the class rather than instance","static int count = 0;",Java,Intermediate
+Lambda,"Anonymous function","x => x * 2",C++,Intermediate
