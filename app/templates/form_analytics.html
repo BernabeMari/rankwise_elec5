@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - {{ form.title }}{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if Chart.js is loaded
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js failed to load');
+        // Show error message for all chart containers
+        document.querySelectorAll('.chart-container').forEach(container => {
+            container.innerHTML = '<div class="chart-error"><i class="bi bi-exclamation-triangle"></i><br>Chart.js failed to load. Please refresh the page.</div>';
+        });
+        return;
+    }
+
+    // Score Distribution Chart
+    try {
+        const scoreCtx = document.getElementById('scoreChart');
+        if (scoreCtx) {
+            new Chart(scoreCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['90-100%', '80-89%', '70-79%', '60-69%', '50-59%', '0-49%'],
+                    datasets: [{
+                        label: 'Number of Students',
+                        data: [
+                            {{ score_ranges['90-100'] }},
+                            {{ score_ranges['80-89'] }},
+                            {{ score_ranges['70-79'] }},
+                            {{ score_ranges['60-69'] }},
+                            {{ score_ranges['50-59'] }},
+                            {{ score_ranges['0-49'] }}
+                        ],
+                        backgroundColor: [
+                            '#28a745',
+                            '#20c997',
+                            '#17a2b8',
+                            '#ffc107',
+                            '#fd7e14',
+                            '#dc3545'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error creating score chart:', error);
+        const scoreCtx = document.getElementById('scoreChart');
+        if (scoreCtx) {
+            scoreCtx.parentElement.innerHTML = '<div class="chart-error"><i class="bi bi-exclamation-triangle"></i><br>Error loading chart</div>';
+        }
+    }
+
+    // Individual Question Pie Charts
+    {% for q in question_stats %}
+    {% if q.answer_breakdown %}
+    try {
+        const questionCtx{{ q.question_id }} = document.getElementById('questionChart{{ q.question_id }}');
+        if (questionCtx{{ q.question_id }}) {
+            const questionLabels{{ q.question_id }} = [
+                {% for key, data in q.answer_breakdown.items() %}
+                "{{ key|e }}",
+                {% endfor %}
+            ];
+            const questionData{{ q.question_id }} = [
+                {% for key, data in q.answer_breakdown.items() %}
+                {{ data.count }},
+                {% endfor %}
+            ];
+            const questionColors{{ q.question_id }} = [
+                '#FF6384',
+                '#36A2EB', 
+                '#FFCE56',
+                '#4BC0C0',
+                '#9966FF',
+                '#FF9F40'
+            ];
+            
+            // Filter out zero values to avoid empty pie slices
+            const filteredLabels{{ q.question_id }} = [];
+            const filteredData{{ q.question_id }} = [];
+            const filteredColors{{ q.question_id }} = [];
+            
+            for (let i = 0; i < questionData{{ q.question_id }}.length; i++) {
+                if (questionData{{ q.question_id }}[i] > 0) {
+                    filteredLabels{{ q.question_id }}.push(questionLabels{{ q.question_id }}[i]);
+                    filteredData{{ q.question_id }}.push(questionData{{ q.question_id }}[i]);
+                    filteredColors{{ q.question_id }}.push(questionColors{{ q.question_id }}[i]);
+                }
+            }
+            
+            if (filteredData{{ q.question_id }}.length > 0) {
+                new Chart(questionCtx{{ q.question_id }}, {
+                    type: 'pie',
+                    data: {
+                        labels: filteredLabels{{ q.question_id }},
+                        datasets: [{
+                            data: filteredData{{ q.question_id }},
+                            backgroundColor: filteredColors{{ q.question_id }},
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                        return label + ': ' + value + ' (' + percentage + '%)';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                // Show "No data" message if no data available
+                questionCtx{{ q.question_id }}.parentElement.innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-pie-chart"></i><br>No data available for this question</div>';
+            }
+        }
+    } catch (error) {
+        console.error('Error creating pie chart for question {{ q.question_id }}:', error);
+        const questionCtx{{ q.question_id }} = document.getElementById('questionChart{{ q.question_id }}');
+        if (questionCtx{{ q.question_id }}) {
+            questionCtx{{ q.question_id }}.parentElement.innerHTML = '<div class="chart-error"><i class="bi bi-exclamation-triangle"></i><br>Error loading chart</div>';
+        }
+    }
+    {% endif %}
+    {% endfor %}
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1><i class="bi bi-graph-up"></i> Analytics: {{ form.title }}</h1>
+        <p class="text-muted">Form performance and student analytics</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Forms
+        </a>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-primary">{{ total_responses }}</h5>
+                <p class="card-text">Total Responses</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-success">{{ total_questions }}</h5>
+                <p class="card-text">Total Questions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-info">{{ "%.1f"|format(avg_score) }}%</h5>
+                <p class="card-text">Average Score</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-warning">{{ total_possible_points }}</h5>
+                <p class="card-text">Total Points</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Score Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="scoreChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Overall Performance</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h3 class="text-success">{{ "%.1f"|format(avg_score) }}%</h3>
+                        <small class="text-muted">Average Score</small>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="text-primary">{{ total_responses }}</h3>
+                        <small class="text-muted">Total Responses</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between">
+                            <span>High Performers (80%+)</span>
+                            <span class="badge bg-success">{{ score_ranges['90-100'] + score_ranges['80-89'] }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Average (60-79%)</span>
+                            <span class="badge bg-warning">{{ score_ranges['70-79'] + score_ranges['60-69'] }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between">
+                            <span>Needs Help (<60%)</span>
+                            <span class="badge bg-danger">{{ score_ranges['50-59'] + score_ranges['0-49'] }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Total Questions</span>
+                            <span class="badge bg-info">{{ total_questions }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Question Performance with Individual Charts -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-question-circle"></i> Question Performance</h5>
+            </div>
+            <div class="card-body">
+                {% if question_stats %}
+                    {% for q in question_stats %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                Question {{ loop.index }}: {{ q.question_text }}
+                                <span class="badge bg-info ms-2">{{ q.question_type.replace('_', ' ').title() }}</span>
+                                <span class="badge {% if q.accuracy >= 80 %}bg-success{% elif q.accuracy >= 60 %}bg-warning{% else %}bg-danger{% endif %} ms-2">
+                                    {{ "%.1f"|format(q.accuracy) }}% Accuracy
+                                </span>
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Answer Distribution</h6>
+                                    <div class="chart-container">
+                                        <canvas id="questionChart{{ q.question_id }}"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Statistics</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="card text-center">
+                                                <div class="card-body p-2">
+                                                    <h6 class="text-primary">{{ q.total_answers }}</h6>
+                                                    <small>Total Responses</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="card text-center">
+                                                <div class="card-body p-2">
+                                                    <h6 class="text-success">{{ q.correct_answers }}</h6>
+                                                    <small>Correct Answers</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="card text-center">
+                                                <div class="card-body p-2">
+                                                    <h6 class="text-info">{{ q.points }}</h6>
+                                                    <small>Points</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="card text-center">
+                                                <div class="card-body p-2">
+                                                    <h6 class="{% if q.accuracy >= 80 %}text-success{% elif q.accuracy >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                                                        {{ "%.1f"|format(q.accuracy) }}%
+                                                    </h6>
+                                                    <small>Accuracy</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if q.answer_breakdown %}
+                                    <h6 class="mt-3">Answer Breakdown</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Option</th>
+                                                    <th>Text</th>
+                                                    <th>Count</th>
+                                                    <th>%</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for key, data in q.answer_breakdown.items() %}
+                                                <tr>
+                                                    <td><strong>{{ key }}</strong></td>
+                                                    <td>{{ data.text }}</td>
+                                                    <td>{{ data.count }}</td>
+                                                    <td>
+                                                        <div class="progress" style="height: 15px;">
+                                                            <div class="progress-bar" style="width: {{ data.percentage }}%">
+                                                                {{ "%.1f"|format(data.percentage) }}%
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-question-circle text-muted" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3 text-muted">No questions yet</h5>
+                    <p class="text-muted">Add questions to see performance analytics.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

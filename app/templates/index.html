@@ -99,6 +99,9 @@ function toggleVisibility(formId) {
                                 <a href="{{ url_for('main.view_responses', form_id=form.id) }}" class="btn btn-outline-info">
                                     <i class="bi bi-list-check"></i> Responses
                                 </a>
+                                <a href="{{ url_for('main.form_analytics', form_id=form.id) }}" class="btn btn-outline-warning">
+                                    <i class="bi bi-graph-up"></i> Analytics
+                                </a>
                                 <button type="button" class="btn btn-outline-danger" 
                                         onclick="deleteForm({{ form.id }}, '{{ form.title }}')">
                                     <i class="bi bi-trash"></i> Delete

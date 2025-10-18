@@ -1140,3 +1140,174 @@ def get_datasets_context():
             'success': False,
             'error': str(e)
         }), 500
+
+@main.route('/form/<int:form_id>/analytics', methods=['GET'])
+@admin_required
+def form_analytics(form_id):
+    """Display analytics for a specific form."""
+    form = Form.query.get_or_404(form_id)
+    
+    # Get all responses for this form
+    responses = Response.query.filter_by(form_id=form_id).all()
+    
+    # Get all questions for this form
+    questions = Question.query.filter_by(form_id=form_id).all()
+    
+    # Calculate analytics
+    total_responses = len(responses)
+    total_questions = len(questions)
+    
+    # Calculate total possible points
+    total_possible_points = sum(q.points for q in questions) if questions else 0
+    
+    # Response analytics
+    response_stats = []
+    for response in responses:
+        earned_points = 0.0
+        for answer in response.answers:
+            question = next((q for q in questions if q.id == answer.question_id), None)
+            if question:
+                earned_points += (float(answer.score_percentage or 0) / 100.0) * question.points
+        
+        percentage = (earned_points / total_possible_points * 100.0) if total_possible_points > 0 else 0.0
+        response_stats.append({
+            'response_id': response.id,
+            'earned_points': earned_points,
+            'percentage': percentage,
+            'created_at': response.created_at,
+            'submitted_by': response.submitted_by
+        })
+    
+    # Sort by percentage (highest first)
+    response_stats.sort(key=lambda x: x['percentage'], reverse=True)
+    
+    # Calculate average score
+    avg_score = sum(r['percentage'] for r in response_stats) / len(response_stats) if response_stats else 0
+    
+    # Question analytics with detailed answer breakdowns
+    question_stats = []
+    for question in questions:
+        answers = [a for a in question.answers if a.response_id in [r.id for r in responses]]
+        correct_count = sum(1 for a in answers if a.is_correct)
+        total_answers = len(answers)
+        accuracy = (correct_count / total_answers * 100) if total_answers > 0 else 0
+        
+        # Analyze answer choices for different question types
+        answer_breakdown = {}
+        
+        if question.question_type == 'multiple_choice':
+            # Count each option (A, B, C, D)
+            options = question.get_options()
+            for i, option in enumerate(options):
+                letter = chr(65 + i)  # A, B, C, D
+                count = sum(1 for a in answers if a.answer_text == option)
+                answer_breakdown[letter] = {
+                    'text': option,
+                    'count': count,
+                    'percentage': (count / total_answers * 100) if total_answers > 0 else 0
+                }
+        
+        elif question.question_type == 'checkbox':
+            # Count each selected option
+            options = question.get_options()
+            for i, option in enumerate(options):
+                letter = chr(65 + i)  # A, B, C, D
+                count = 0
+                for a in answers:
+                    try:
+                        import json
+                        selected = json.loads(a.answer_text) if a.answer_text else []
+                        if option in selected:
+                            count += 1
+                    except:
+                        pass
+                answer_breakdown[letter] = {
+                    'text': option,
+                    'count': count,
+                    'percentage': (count / total_answers * 100) if total_answers > 0 else 0
+                }
+        
+        elif question.question_type == 'true_false':
+            # Count True vs False
+            true_count = sum(1 for a in answers if a.answer_text == 'True')
+            false_count = sum(1 for a in answers if a.answer_text == 'False')
+            answer_breakdown = {
+                'True': {
+                    'text': 'True',
+                    'count': true_count,
+                    'percentage': (true_count / total_answers * 100) if total_answers > 0 else 0
+                },
+                'False': {
+                    'text': 'False',
+                    'count': false_count,
+                    'percentage': (false_count / total_answers * 100) if total_answers > 0 else 0
+                }
+            }
+        
+        elif question.question_type == 'identification':
+            # Group similar answers together
+            answer_groups = {}
+            for a in answers:
+                answer_text = a.answer_text or ""
+                # Group by first 20 characters to handle variations
+                key = answer_text[:20].lower().strip()
+                if key not in answer_groups:
+                    answer_groups[key] = []
+                answer_groups[key].append(answer_text)
+            
+            # Convert to breakdown format
+            for key, group in answer_groups.items():
+                answer_breakdown[key] = {
+                    'text': group[0][:30] + "..." if len(group[0]) > 30 else group[0],
+                    'count': len(group),
+                    'percentage': (len(group) / total_answers * 100) if total_answers > 0 else 0
+                }
+        
+        question_stats.append({
+            'question_id': question.id,
+            'question_text': question.question_text[:50] + "..." if len(question.question_text) > 50 else question.question_text,
+            'question_type': question.question_type,
+            'points': question.points,
+            'total_answers': total_answers,
+            'correct_answers': correct_count,
+            'accuracy': accuracy,
+            'answer_breakdown': answer_breakdown
+        })
+    
+    # Sort questions by accuracy (lowest first - most problematic)
+    question_stats.sort(key=lambda x: x['accuracy'])
+    
+    # Score distribution
+    score_ranges = {
+        '90-100': 0,
+        '80-89': 0,
+        '70-79': 0,
+        '60-69': 0,
+        '50-59': 0,
+        '0-49': 0
+    }
+    
+    for stat in response_stats:
+        score = stat['percentage']
+        if score >= 90:
+            score_ranges['90-100'] += 1
+        elif score >= 80:
+            score_ranges['80-89'] += 1
+        elif score >= 70:
+            score_ranges['70-79'] += 1
+        elif score >= 60:
+            score_ranges['60-69'] += 1
+        elif score >= 50:
+            score_ranges['50-59'] += 1
+        else:
+            score_ranges['0-49'] += 1
+    
+    return render_template('form_analytics.html', 
+                         form=form,
+                         total_responses=total_responses,
+                         total_questions=total_questions,
+                         total_possible_points=total_possible_points,
+                         response_stats=response_stats,
+                         question_stats=question_stats,
+                         avg_score=avg_score,
+                         score_ranges=score_ranges)
