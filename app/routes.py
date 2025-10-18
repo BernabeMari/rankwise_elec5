@@ -6,6 +6,10 @@ from datetime import datetime
 import requests, time
 from rapidfuzz import fuzz
 import json
+import subprocess
+import tempfile
+import os
+import uuid
 
 main = Blueprint('main', __name__)
 
@@ -403,6 +407,490 @@ def parse_ai_response(content, question_type):
             'text': content[:100] + "..." if len(content) > 100 else content,
             'question_type': question_type,
             'options': ["Option A", "Option B", "Option C", "Option D"] if question_type in ['multiple_choice', 'checkbox'] else None,
+        }
+
+@main.route('/execute-code', methods=['POST'])
+def execute_code():
+    """
+    Execute code in various programming languages and return the output.
+    """
+    try:
+        data = request.get_json()
+        code = data.get('code', '').strip()
+        language = data.get('language', '').lower()
+        user_inputs = data.get('inputs', [])  # List of user inputs for interactive programs
+        
+        # Validate and sanitize user inputs
+        if user_inputs:
+            import re
+            sanitized_inputs = []
+            for user_input in user_inputs:
+                if len(user_input) > 1000:
+                    return jsonify({'success': False, 'error': 'Input too long (max 1000 characters)'})
+                # Remove potentially dangerous characters but keep most printable characters
+                sanitized_input = re.sub(r'[^\w\s\-.,!?@#$%^&*()+=\[\]{}|\\:";\'<>?/~`]', '', user_input)
+                sanitized_inputs.append(sanitized_input)
+            user_inputs = sanitized_inputs
+        
+        if not code:
+            return jsonify({'success': False, 'error': 'No code provided'})
+        
+        if not language:
+            return jsonify({'success': False, 'error': 'No language specified'})
+        
+        # Execute code based on language
+        if language == 'python':
+            result = execute_python_code(code, user_inputs)
+        elif language == 'java':
+            result = execute_java_code(code, user_inputs)
+        elif language == 'cpp':
+            result = execute_cpp_code(code, user_inputs)
+        elif language == 'c':
+            result = execute_c_code(code, user_inputs)
+        else:
+            return jsonify({'success': False, 'error': f'Unsupported language: {language}'})
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': f'Execution error: {str(e)}'})
+
+@main.route('/check-input-needed', methods=['POST'])
+def check_input_needed():
+    """
+    Check if code needs input and return information about what input is expected.
+    """
+    try:
+        data = request.get_json()
+        code = data.get('code', '').strip()
+        language = data.get('language', '').lower()
+        
+        if not code or not language:
+            return jsonify({'needs_input': False})
+        
+        # Check for input patterns based on language
+        needs_input = False
+        input_prompt = ""
+        
+        if language == 'python':
+            import re
+            input_matches = re.findall(r'input\(["\']([^"\']*)["\']?\)', code)
+            if input_matches:
+                needs_input = True
+                input_prompt = input_matches[0] if input_matches[0] else "Enter input:"
+        elif language == 'java':
+            if 'scanner' in code.lower() and ('nextint' in code.lower() or 'nextline' in code.lower() or 'nextdouble' in code.lower()):
+                needs_input = True
+                input_prompt = "Enter input:"
+        elif language in ['cpp', 'c']:
+            if any(pattern in code.lower() for pattern in ['cin', 'scanf', 'fgets', 'getline']):
+                needs_input = True
+                input_prompt = "Enter input:"
+        
+        return jsonify({
+            'needs_input': needs_input,
+            'prompt': input_prompt
+        })
+        
+    except Exception as e:
+        return jsonify({'needs_input': False, 'error': str(e)})
+
+def execute_python_code(code, user_inputs=[]):
+    """Execute Python code and return output."""
+    try:
+        # Security check: prevent dangerous operations (but allow input())
+        dangerous_patterns = [
+            'import os', 'import sys', 'import subprocess', 'import shutil',
+            '__import__', 'eval(', 'exec(', 'open(', 'file(',
+            'raw_input(', 'compile('
+        ]
+        
+        code_lower = code.lower()
+        for pattern in dangerous_patterns:
+            if pattern in code_lower:
+                return {
+                    'success': False,
+                    'output': '',
+                    'error': f'Security restriction: {pattern} is not allowed'
+                }
+        
+        # Create a temporary file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+            f.write(code)
+            temp_file = f.name
+        
+        try:
+            # Combine all inputs with newlines
+            combined_input = '\n'.join(user_inputs) if user_inputs else ''
+            
+            # Execute the Python code with restricted environment and input
+            result = subprocess.run(
+                ['python', temp_file],
+                capture_output=True,
+                text=True,
+                timeout=10,  # 10 second timeout
+                cwd=tempfile.gettempdir(),
+                env={'PYTHONPATH': '', 'PATH': os.environ.get('PATH', '')},  # Restricted environment
+                input=combined_input  # Provide all user inputs
+            )
+            
+            output = result.stdout
+            error = result.stderr
+            
+            if result.returncode == 0:
+                return {
+                    'success': True,
+                    'output': output or 'Code executed successfully.',
+                    'error': None
+                }
+            else:
+                # Check for common input-related errors
+                if 'EOFError' in error or 'NoSuchElementException' in error:
+                    return {
+                        'success': False,
+                        'output': output,
+                        'error': f'Input required: {error}\n\nTip: Enter input in the input field above the "Run Code" button.'
+                    }
+                else:
+                    return {
+                        'success': False,
+                        'output': output,
+                        'error': error or 'Code execution failed'
+                    }
+                
+        finally:
+            # Clean up temporary file
+            try:
+                os.unlink(temp_file)
+            except:
+                pass
+                
+    except subprocess.TimeoutExpired:
+        return {
+            'success': False,
+            'output': '',
+            'error': 'Code execution timed out (10 seconds)'
+        }
+    except Exception as e:
+        return {
+            'success': False,
+            'output': '',
+            'error': f'Execution error: {str(e)}'
+        }
+
+def execute_java_code(code, user_inputs=[]):
+    """Execute Java code and return output."""
+    try:
+        # Security check: prevent dangerous operations
+        dangerous_patterns = [
+            'Runtime.getRuntime()', 'ProcessBuilder', 'System.exit',
+            'FileInputStream', 'FileOutputStream', 'FileReader', 'FileWriter',
+            'Socket', 'ServerSocket', 'URL', 'URLConnection'
+        ]
+        
+        code_lower = code.lower()
+        for pattern in dangerous_patterns:
+            if pattern.lower() in code_lower:
+                return {
+                    'success': False,
+                    'output': '',
+                    'error': f'Security restriction: {pattern} is not allowed'
+                }
+        
+        # Extract class name from code or use a default
+        class_name = 'Solution'
+        if 'public class' in code:
+            import re
+            match = re.search(r'public class (\w+)', code)
+            if match:
+                class_name = match.group(1)
+        
+        # Create temporary directory for Java files
+        temp_dir = tempfile.mkdtemp()
+        java_file = os.path.join(temp_dir, f'{class_name}.java')
+        
+        try:
+            # Write Java code to file
+            with open(java_file, 'w') as f:
+                f.write(code)
+            
+            # Compile Java code
+            compile_result = subprocess.run(
+                ['javac', java_file],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                cwd=temp_dir
+            )
+            
+            if compile_result.returncode != 0:
+                return {
+                    'success': False,
+                    'output': '',
+                    'error': f'Compilation error: {compile_result.stderr}'
+                }
+            
+            # Combine all inputs with newlines
+            combined_input = '\n'.join(user_inputs) if user_inputs else ''
+            
+            # Execute compiled Java code with input
+            exec_result = subprocess.run(
+                ['java', class_name],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                cwd=temp_dir,
+                input=combined_input  # Provide all user inputs
+            )
+            
+            output = exec_result.stdout
+            error = exec_result.stderr
+            
+            if exec_result.returncode == 0:
+                return {
+                    'success': True,
+                    'output': output or 'Code executed successfully.',
+                    'error': None
+                }
+            else:
+                # Check for common input-related errors
+                if 'NoSuchElementException' in error or 'InputMismatchException' in error:
+                    return {
+                        'success': False,
+                        'output': output,
+                        'error': f'Input required: {error}\n\nTip: Enter input in the input field above the "Run Code" button.'
+                    }
+                else:
+                    return {
+                        'success': False,
+                        'output': output,
+                        'error': error or 'Code execution failed'
+                    }
+                
+        finally:
+            # Clean up temporary directory
+            try:
+                import shutil
+                shutil.rmtree(temp_dir)
+            except:
+                pass
+                
+    except subprocess.TimeoutExpired:
+        return {
+            'success': False,
+            'output': '',
+            'error': 'Code execution timed out (10 seconds)'
+        }
+    except Exception as e:
+        return {
+            'success': False,
+            'output': '',
+            'error': f'Execution error: {str(e)}'
+        }
+
+def execute_cpp_code(code, user_inputs=[]):
+    """Execute C++ code and return output."""
+    try:
+        # Security check: prevent dangerous operations
+        dangerous_patterns = [
+            '#include <fstream>', '#include <cstdlib>', '#include <unistd.h>',
+            'system(', 'exec', 'fork', 'popen', 'fopen', 'fstream',
+            'ifstream', 'ofstream', 'FILE*'
+        ]
+        
+        code_lower = code.lower()
+        for pattern in dangerous_patterns:
+            if pattern.lower() in code_lower:
+                return {
+                    'success': False,
+                    'output': '',
+                    'error': f'Security restriction: {pattern} is not allowed'
+                }
+        
+        # Create temporary directory for C++ files
+        temp_dir = tempfile.mkdtemp()
+        cpp_file = os.path.join(temp_dir, 'main.cpp')
+        exe_file = os.path.join(temp_dir, 'main')
+        
+        try:
+            # Write C++ code to file
+            with open(cpp_file, 'w') as f:
+                f.write(code)
+            
+            # Compile C++ code
+            compile_result = subprocess.run(
+                ['g++', '-o', exe_file, cpp_file],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                cwd=temp_dir
+            )
+            
+            if compile_result.returncode != 0:
+                return {
+                    'success': False,
+                    'output': '',
+                    'error': f'Compilation error: {compile_result.stderr}'
+                }
+            
+            # Combine all inputs with newlines
+            combined_input = '\n'.join(user_inputs) if user_inputs else ''
+            
+            # Execute compiled C++ code with input
+            exec_result = subprocess.run(
+                [exe_file],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                cwd=temp_dir,
+                input=combined_input  # Provide all user inputs
+            )
+            
+            output = exec_result.stdout
+            error = exec_result.stderr
+            
+            if exec_result.returncode == 0:
+                return {
+                    'success': True,
+                    'output': output or 'Code executed successfully.',
+                    'error': None
+                }
+            else:
+                # Check if it's an input-related error for C++
+                if 'EOFError' in error or 'NoSuchElementException' in error or 'scanf' in error.lower():
+                    return {
+                        'success': False,
+                        'output': output,
+                        'error': f'Input required: {error}\n\nTip: Enter input in the input field above the "Run Code" button.'
+                    }
+                else:
+                    return {
+                        'success': False,
+                        'output': output,
+                        'error': error or 'Code execution failed'
+                    }
+                
+        finally:
+            # Clean up temporary directory
+            try:
+                import shutil
+                shutil.rmtree(temp_dir)
+            except:
+                pass
+                
+    except subprocess.TimeoutExpired:
+        return {
+            'success': False,
+            'output': '',
+            'error': 'Code execution timed out (10 seconds)'
+        }
+    except Exception as e:
+        return {
+            'success': False,
+            'output': '',
+            'error': f'Execution error: {str(e)}'
+        }
+
+def execute_c_code(code, user_inputs=[]):
+    """Execute C code and return output."""
+    try:
+        # Security check: prevent dangerous operations
+        dangerous_patterns = [
+            '#include <stdlib.h>', '#include <unistd.h>', '#include <fcntl.h>',
+            'system(', 'exec', 'fork', 'popen', 'fopen', 'FILE*'
+        ]
+        
+        code_lower = code.lower()
+        for pattern in dangerous_patterns:
+            if pattern.lower() in code_lower:
+                return {
+                    'success': False,
+                    'output': '',
+                    'error': f'Security restriction: {pattern} is not allowed'
+                }
+        
+        # Create temporary directory for C files
+        temp_dir = tempfile.mkdtemp()
+        c_file = os.path.join(temp_dir, 'main.c')
+        exe_file = os.path.join(temp_dir, 'main')
+        
+        try:
+            # Write C code to file
+            with open(c_file, 'w') as f:
+                f.write(code)
+            
+            # Compile C code
+            compile_result = subprocess.run(
+                ['gcc', '-o', exe_file, c_file],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                cwd=temp_dir
+            )
+            
+            if compile_result.returncode != 0:
+                return {
+                    'success': False,
+                    'output': '',
+                    'error': f'Compilation error: {compile_result.stderr}'
+                }
+            
+            # Combine all inputs with newlines
+            combined_input = '\n'.join(user_inputs) if user_inputs else ''
+            
+            # Execute compiled C code with input
+            exec_result = subprocess.run(
+                [exe_file],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                cwd=temp_dir,
+                input=combined_input  # Provide all user inputs
+            )
+            
+            output = exec_result.stdout
+            error = exec_result.stderr
+            
+            if exec_result.returncode == 0:
+                return {
+                    'success': True,
+                    'output': output or 'Code executed successfully.',
+                    'error': None
+                }
+            else:
+                # Check if it's an input-related error for C
+                if 'EOFError' in error or 'NoSuchElementException' in error or 'scanf' in error.lower():
+                    return {
+                        'success': False,
+                        'output': output,
+                        'error': f'Input required: {error}\n\nTip: Enter input in the input field above the "Run Code" button.'
+                    }
+                else:
+                    return {
+                        'success': False,
+                        'output': output,
+                        'error': error or 'Code execution failed'
+                    }
+                
+        finally:
+            # Clean up temporary directory
+            try:
+                import shutil
+                shutil.rmtree(temp_dir)
+            except:
+                pass
+                
+    except subprocess.TimeoutExpired:
+        return {
+            'success': False,
+            'output': '',
+            'error': 'Code execution timed out (10 seconds)'
+        }
+    except Exception as e:
+        return {
+            'success': False,
+            'output': '',
+            'error': f'Execution error: {str(e)}'
         }
 
 @main.route('/form/ai-question', methods=['POST'])

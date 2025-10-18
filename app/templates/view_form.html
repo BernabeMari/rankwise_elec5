@@ -573,6 +573,25 @@
         box-shadow: 0 6px 20px rgba(123, 76, 160, 0.4);
     }
     
+    /* Review Code Container */
+    .review-code-container {
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .review-code-header {
+        background: linear-gradient(135deg, #f8f9ff, #f0f2ff);
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .review-code-container .code-editor {
+        border: none;
+        border-radius: 0;
+        margin: 0;
+    }
+    
     /* Scrollbar styling for modal */
     #reviewModal .modal-body::-webkit-scrollbar {
         width: 6px;
@@ -738,6 +757,385 @@
         --danger-color: #dc3545;
         --info-color: #17a2b8;
     }
+    
+    /* IDE Styling */
+    .language-selector {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .language-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5rem 1rem;
+        background: linear-gradient(135deg, #f8f9ff, #f0f2ff);
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: center;
+    }
+    
+    .language-option:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(123, 76, 160, 0.15);
+        border-color: var(--primary-color);
+    }
+    
+    .language-option.selected {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        border-color: var(--primary-color);
+        box-shadow: 0 8px 25px rgba(123, 76, 160, 0.3);
+    }
+    
+    .language-option i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .language-option:hover i {
+        transform: scale(1.1);
+    }
+    
+    .language-option span {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    /* IDE Container */
+    .ide-container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(123, 76, 160, 0.12);
+        overflow: hidden;
+        margin-top: 1.5rem;
+        border: 1px solid #e9ecef;
+    }
+    
+    .ide-header {
+        background: linear-gradient(135deg, #f8f9ff, #f0f2ff);
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .ide-tabs {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .ide-tab {
+        padding: 0.5rem 1rem;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        color: #6c757d;
+    }
+    
+    .ide-tab:hover {
+        background: rgba(123, 76, 160, 0.1);
+        color: var(--primary-color);
+    }
+    
+    .ide-tab.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .ide-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .ide-actions .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+    
+    .ide-actions .input-group .btn {
+        border-radius: 0 8px 8px 0;
+        border-left: 1px solid #dee2e6;
+    }
+    
+    .ide-actions .input-group .btn:hover {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: white;
+    }
+    
+    .ide-actions .input-group.needs-input {
+        border: 2px solid #ffc107;
+        border-radius: 8px;
+        background-color: #fff3cd;
+    }
+    
+    
+    /* Interactive Input Area */
+    .interactive-input-area {
+        background: #2d2d44;
+        border-top: 1px solid #3c3c54;
+        padding: 1rem;
+        animation: slideInUp 0.3s ease-out;
+    }
+    
+    .input-prompt {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .prompt-text {
+        color: #e4e4e7;
+        font-weight: 600;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+    
+    .interactive-input-area .input-group {
+        flex: 1;
+        max-width: 400px;
+    }
+    
+    .interactive-input-area .form-control {
+        background: #1e1e2e;
+        border: 1px solid #3c3c54;
+        color: #e4e4e7;
+        font-family: 'Fira Code', 'Courier New', monospace;
+        font-size: 0.9rem;
+    }
+    
+    .interactive-input-area .form-control:focus {
+        background: #1e1e2e;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(123, 76, 160, 0.15);
+        color: #e4e4e7;
+    }
+    
+    .interactive-input-area .form-control::placeholder {
+        color: #6c757d;
+        font-style: italic;
+    }
+    
+    .interactive-input-area .btn {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        font-weight: 600;
+    }
+    
+    .interactive-input-area .btn:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+        transform: translateX(2px);
+    }
+    
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .ide-content {
+        position: relative;
+        height: 500px;
+    }
+    
+    .ide-panel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .ide-panel.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .monaco-editor {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    
+    /* Output Panel */
+    .output-container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .output-header {
+        padding: 1rem 1.5rem;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .output-label {
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .output-content {
+        flex: 1;
+        padding: 1.5rem;
+        background: #1e1e1e;
+        color: #e4e4e7;
+        font-family: 'Fira Code', 'Courier New', monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    
+    .output-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #6c757d;
+        text-align: center;
+    }
+    
+    .output-placeholder i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .output-placeholder p {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+    
+    /* Output Entry Styling */
+    .output-entry {
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border-left: 4px solid #28a745;
+    }
+    
+    .output-entry.error {
+        background: rgba(220, 53, 69, 0.1);
+        border-left-color: #dc3545;
+        color: #dc3545;
+    }
+    
+    .output-entry.success {
+        background: rgba(40, 167, 69, 0.1);
+        border-left-color: #28a745;
+        color: #28a745;
+    }
+    
+    .output-timestamp {
+        font-size: 0.8rem;
+        opacity: 0.7;
+        margin-bottom: 0.5rem;
+    }
+    
+    .output-text {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    
+    /* Code execution states */
+    .code-running {
+        position: relative;
+    }
+    
+    .code-running::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    
+    .code-running::before {
+        content: 'Running code...';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        z-index: 1001;
+    }
+    
+    /* Responsive IDE */
+    @media (max-width: 768px) {
+        .language-selector {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .language-option {
+            padding: 1rem 0.5rem;
+        }
+        
+        .language-option i {
+            font-size: 1.5rem;
+        }
+        
+        .language-option span {
+            font-size: 0.8rem;
+        }
+        
+        .ide-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+        }
+        
+        .ide-tabs {
+            justify-content: center;
+        }
+        
+        .ide-actions {
+            justify-content: center;
+        }
+        
+        .ide-content {
+            height: 400px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -809,11 +1207,106 @@
                                 </div>
                             {% endif %}
                             
-                            <label class="form-label">Your Solution:</label>
-
-
-                            <textarea class="form-control code-editor" name="question_{{ question.id }}" 
-                                id="code-{{ question.id }}" rows="6" required></textarea>
+                            <!-- Language Selection -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Choose Programming Language:</label>
+                                <div class="language-selector">
+                                    <div class="language-option" data-language="python" data-question="{{ question.id }}">
+                                        <i class="fab fa-python"></i>
+                                        <span>Python</span>
+                                    </div>
+                                    <div class="language-option" data-language="java" data-question="{{ question.id }}">
+                                        <i class="fab fa-java"></i>
+                                        <span>Java</span>
+                                    </div>
+                                    <div class="language-option" data-language="cpp" data-question="{{ question.id }}">
+                                        <i class="fas fa-code"></i>
+                                        <span>C++</span>
+                                    </div>
+                                    <div class="language-option" data-language="c" data-question="{{ question.id }}">
+                                        <i class="fas fa-terminal"></i>
+                                        <span>C</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- IDE Container -->
+                            <div class="ide-container" id="ide-container-{{ question.id }}" style="display: none;">
+                                <div class="ide-header">
+                                    <div class="ide-tabs">
+                                        <div class="ide-tab active" data-tab="editor">
+                                            <i class="fas fa-code"></i> Editor
+                                        </div>
+                                        <div class="ide-tab" data-tab="output">
+                                            <i class="fas fa-terminal"></i> Output
+                                        </div>
+                                    </div>
+                                    <div class="ide-actions">
+                                        <div class="input-group me-2" style="max-width: 450px;">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-keyboard"></i>
+                                            </span>
+                                            <input type="text" class="form-control form-control-sm" 
+                                                   placeholder="Enter input for your code (e.g., 'John', '42')" 
+                                                   id="input-{{ question.id }}"
+                                                   title="Enter input that your code expects (like user input from input(), Scanner, etc.)">
+                                            <button class="btn btn-outline-primary btn-sm" type="button" id="send-input-{{ question.id }}">
+                                                <i class="fas fa-paper-plane"></i> Send
+                                            </button>
+                                        </div>
+                                        <button type="button" class="btn btn-success btn-sm run-code-btn" data-question="{{ question.id }}">
+                                            <i class="fas fa-play"></i> Run Code
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-sm ms-1 stop-code-btn" data-question="{{ question.id }}" style="display: none;">
+                                            <i class="fas fa-stop"></i> Stop
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="ide-content">
+                                    <div class="ide-panel active" id="editor-panel-{{ question.id }}">
+                                        <div class="monaco-editor" id="monaco-editor-{{ question.id }}"></div>
+                                    </div>
+                                    <div class="ide-panel" id="output-panel-{{ question.id }}">
+                                        <div class="output-container">
+                                            <div class="output-header">
+                                                <span class="output-label">Output:</span>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary clear-output-btn" data-question="{{ question.id }}">
+                                                    <i class="fas fa-trash"></i> Clear
+                                                </button>
+                                            </div>
+                                            <div class="output-content" id="output-content-{{ question.id }}">
+                                                <div class="output-placeholder">
+                                                    <i class="fas fa-play-circle"></i>
+                                                    <p>Click "Run Code" to see the output here</p>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-info-circle"></i>
+                                                        If your code needs input, you'll be prompted to enter it interactively.
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <!-- Interactive Input Area -->
+                                            <div class="interactive-input-area" id="interactive-input-{{ question.id }}" style="display: none;">
+                                                <div class="input-prompt">
+                                                    <span class="prompt-text">Enter input:</span>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control interactive-input" 
+                                                               placeholder="Type your input here..." 
+                                                               id="user-input-{{ question.id }}">
+                                                        <button class="btn btn-primary btn-sm submit-input-btn" 
+                                                                data-question="{{ question.id }}">
+                                                            <i class="fas fa-arrow-right"></i> Send
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Hidden textarea for form submission -->
+                            <textarea class="form-control" name="question_{{ question.id }}" 
+                                id="code-{{ question.id }}" style="display: none;" required></textarea>
                         </div>
                     {% elif question.question_type == 'checkbox' %}
                         {% if question.sample_code %}
@@ -920,8 +1413,20 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Monaco Editor CDN -->
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <script>
+    // Global variables for Monaco editors
+    let monacoEditors = {};
+    let selectedLanguages = {};
+    
     $(document).ready(function() {
+        // Initialize Monaco Editor
+        initializeMonacoEditor();
+        
         // Handle review button click
         $('#reviewBtn').on('click', function(e) {
             e.preventDefault();
@@ -938,7 +1443,7 @@
             // Submit the form
             $('.animated-form').submit();
         });
-        
+    
         // Add animation to form elements
         $('.animated-form .question-card').each(function(i) {
             const delay = $(this).data('animation-delay') || (i * 0.1);
@@ -965,7 +1470,653 @@
                 $(this).css('transform', 'translateX(0)');
             }
         );
+        
+        // IDE Event Handlers
+        initializeIDEEvents();
     });
+    
+    function initializeMonacoEditor() {
+        require.config({ 
+            paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' },
+            'vs/nls': { availableLanguages: { '*': 'en' } }
+        });
+        require(['vs/editor/editor.main'], function () {
+            console.log('Monaco Editor loaded successfully');
+            // Ensure Monaco is available globally
+            window.monaco = monaco;
+            
+            // Set up Monaco environment
+            monaco.editor.setTheme('vs-dark');
+            
+            // Add a small delay to ensure everything is properly loaded
+            setTimeout(() => {
+                console.log('Monaco Editor fully initialized and ready');
+                // Trigger any pending editor initializations
+                $(document).trigger('monacoReady');
+            }, 100);
+        });
+    }
+    
+    function initializeIDEEvents() {
+        // Language selection
+        $(document).on('click', '.language-option', function() {
+            const language = $(this).data('language');
+            const questionId = $(this).data('question');
+            
+            // Update selection
+            $(`.language-option[data-question="${questionId}"]`).removeClass('selected');
+            $(this).addClass('selected');
+            
+            // Store selected language
+            selectedLanguages[questionId] = language;
+            
+            // Show IDE
+            $(`#ide-container-${questionId}`).show();
+            
+            // Ensure editor tab is active
+            $(`#ide-container-${questionId} .ide-tab`).removeClass('active');
+            $(`#ide-container-${questionId} .ide-tab[data-tab="editor"]`).addClass('active');
+            $(`#ide-container-${questionId} .ide-panel`).removeClass('active');
+            $(`#editor-panel-${questionId}`).addClass('active');
+            
+            // Initialize Monaco Editor for this question
+            initializeEditorForQuestion(questionId, language);
+        });
+        
+        // IDE Tab switching
+        $(document).on('click', '.ide-tab', function() {
+            const tab = $(this).data('tab');
+            const questionId = $(this).closest('.ide-container').attr('id').replace('ide-container-', '');
+            
+            // Update tab states
+            $(`#ide-container-${questionId} .ide-tab`).removeClass('active');
+            $(this).addClass('active');
+            
+            // Update panel states
+            $(`#ide-container-${questionId} .ide-panel`).removeClass('active');
+            $(`#${tab}-panel-${questionId}`).addClass('active');
+        });
+        
+        // Run code button
+        $(document).on('click', '.run-code-btn', function() {
+            const questionId = $(this).data('question');
+            runCode(questionId);
+        });
+        
+        // Stop code button
+        $(document).on('click', '.stop-code-btn', function() {
+            const questionId = $(this).data('question');
+            stopExecution(questionId);
+        });
+        
+        
+        // Clear output button
+        $(document).on('click', '.clear-output-btn', function() {
+            const questionId = $(this).data('question');
+            clearOutput(questionId);
+        });
+    }
+    
+    function initializeEditorForQuestion(questionId, language) {
+        // Check if Monaco is loaded
+        if (typeof monaco === 'undefined') {
+            console.log('Monaco not loaded yet, retrying...');
+            // Listen for the monacoReady event
+            $(document).one('monacoReady', () => {
+                initializeEditorForQuestion(questionId, language);
+            });
+            // Also set a timeout as fallback
+            setTimeout(() => {
+                if (typeof monaco !== 'undefined') {
+                    initializeEditorForQuestion(questionId, language);
+                }
+            }, 1000);
+            return;
+        }
+        
+        if (monacoEditors[questionId]) {
+            monacoEditors[questionId].dispose();
+        }
+        
+        const editorContainer = document.getElementById(`monaco-editor-${questionId}`);
+        if (!editorContainer) {
+            console.error('Editor container not found:', `monaco-editor-${questionId}`);
+            return;
+        }
+        
+        // Language mapping
+        const languageMap = {
+            'python': 'python',
+            'java': 'java',
+            'cpp': 'cpp',
+            'c': 'c'
+        };
+        
+        // Default code templates
+        const codeTemplates = {
+            'python': `# Python solution
+print("Hello, World!")
+
+# Example with input
+name = input("Enter your name: ")
+print(f"Hello, {name}!")
+
+def main():
+    # Your code here
+    pass
+
+if __name__ == "__main__":
+    main()`,
+            'java': `import java.util.Scanner;
+
+public class Solution {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+        
+        // Example with input
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter your name: ");
+        String name = scanner.nextLine();
+        System.out.println("Hello, " + name + "!");
+        
+        // Your code here
+    }
+}`,
+            'cpp': `#include <iostream>
+#include <string>
+using namespace std;
+
+int main() {
+    cout << "Hello, World!" << endl;
+    
+    // Example with input
+    string name;
+    cout << "Enter your name: ";
+    getline(cin, name);
+    cout << "Hello, " << name << "!" << endl;
+    
+    // Your code here
+    return 0;
+}`,
+            'c': `#include <stdio.h>
+
+int main() {
+    printf("Hello, World!\\n");
+    
+    // Example with input
+    char name[100];
+    printf("Enter your name: ");
+    fgets(name, sizeof(name), stdin);
+    printf("Hello, %s!", name);
+    
+    // Your code here
+    return 0;
+}`
+        };
+        
+        try {
+            const initialValue = codeTemplates[language] || '';
+            console.log(`Initializing Monaco editor for question ${questionId} with language ${language}`);
+            console.log(`Initial value:`, initialValue);
+            
+            monacoEditors[questionId] = monaco.editor.create(editorContainer, {
+                value: initialValue,
+                language: languageMap[language] || 'plaintext',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                fontSize: 14,
+                lineNumbers: 'on',
+                roundedSelection: false,
+                scrollBeyondLastLine: false,
+                readOnly: false,
+                minimap: { enabled: false },
+                wordWrap: 'on',
+                formatOnPaste: true,
+                formatOnType: true,
+                suggestOnTriggerCharacters: true,
+                acceptSuggestionOnEnter: 'on',
+                tabCompletion: 'on',
+                wordBasedSuggestions: 'off',
+                renderWhitespace: 'selection',
+                renderControlCharacters: true,
+                cursorBlinking: 'blink',
+                cursorStyle: 'line',
+                selectOnLineNumbers: true,
+                glyphMargin: true,
+                folding: true,
+                foldingStrategy: 'indentation',
+                showFoldingControls: 'always',
+                unfoldOnClickAfterEnd: false,
+                bracketPairColorization: { enabled: true },
+                guides: {
+                    bracketPairs: true,
+                    indentation: true
+                }
+            });
+            
+            // Force layout update to ensure proper rendering
+            setTimeout(() => {
+                if (monacoEditors[questionId]) {
+                    monacoEditors[questionId].layout();
+                    console.log(`Monaco editor layout updated for question ${questionId}`);
+                }
+            }, 100);
+            
+            // Update hidden textarea when editor content changes
+            monacoEditors[questionId].onDidChangeModelContent(function() {
+                const code = monacoEditors[questionId].getValue();
+                $(`#code-${questionId}`).val(code);
+                console.log(`Code updated for question ${questionId}:`, code.substring(0, 100) + '...');
+                
+                // Code updated - input detection will happen when running
+            });
+            
+            // Set initial value in hidden textarea
+            $(`#code-${questionId}`).val(initialValue);
+            
+            console.log(`Monaco editor successfully initialized for question ${questionId} with language ${language}`);
+        } catch (error) {
+            console.error('Error initializing Monaco editor:', error);
+            // Fallback: show error message in the editor container
+            editorContainer.innerHTML = `
+                <div style="padding: 20px; color: #ff6b6b; background: #ffe6e6; border-radius: 8px; text-align: center;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                    <p>Error loading code editor. Please refresh the page.</p>
+                    <small>Error: ${error.message}</small>
+                </div>
+            `;
+        }
+    }
+    
+    // Global variables for managing multiple inputs
+    let inputQueue = {};
+    let currentExecution = {};
+    
+    function runCode(questionId) {
+        const language = selectedLanguages[questionId];
+        const code = monacoEditors[questionId] ? monacoEditors[questionId].getValue() : '';
+        
+        console.log(`Running code for question ${questionId}, language: ${language}`);
+        console.log('Code:', code);
+        
+        if (!code.trim()) {
+            showOutput(questionId, 'Error: No code to run', 'error');
+            return;
+        }
+        
+        if (!language) {
+            showOutput(questionId, 'Error: No language selected', 'error');
+            return;
+        }
+        
+        // Initialize input queue and execution state
+        inputQueue[questionId] = [];
+        currentExecution[questionId] = {
+            code: code,
+            language: language,
+            inputs: [],
+            isRunning: true
+        };
+        
+        // Check if code needs input and highlight input field if it does
+        if (checkIfCodeNeedsInput(questionId, code, language)) {
+            const inputField = $(`#input-${questionId}`);
+            const inputGroup = inputField.closest('.input-group');
+            inputGroup.addClass('needs-input');
+            inputField.attr('placeholder', '⚠️ Input required! Enter your input here');
+            
+            // Debug information
+            const expectedInputs = countExpectedInputs(code, language);
+            console.log(`Code needs ${expectedInputs} inputs for ${language}`);
+        }
+        
+        // Start execution with no inputs first
+        executeCodeWithInputs(questionId, code, language, []);
+    }
+    
+    function executeCodeWithInputs(questionId, code, language, inputs) {
+        console.log(`Executing code with ${inputs.length} inputs:`, inputs);
+        console.log(`Language: ${language}, Code: ${code.substring(0, 100)}...`);
+        
+        // Show loading state
+        $(`#ide-container-${questionId}`).addClass('code-running');
+        $(`.run-code-btn[data-question="${questionId}"]`).hide();
+        $(`.stop-code-btn[data-question="${questionId}"]`).show();
+        showOutput(questionId, 'Executing code...', 'info');
+        
+        fetch('/execute-code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                code: code,
+                language: language,
+                inputs: inputs
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            $(`#ide-container-${questionId}`).removeClass('code-running');
+            $(`.run-code-btn[data-question="${questionId}"]`).show();
+            $(`.stop-code-btn[data-question="${questionId}"]`).hide();
+            
+            if (data.success) {
+                // Check if the output suggests more input is needed
+                const output = data.output || '';
+                const needsMoreInput = checkIfNeedsMoreInput(output, language);
+                
+                // For C/C++, also check if the code itself needs input and we haven't provided enough
+                let shouldPromptForInput = needsMoreInput;
+                if ((language === 'cpp' || language === 'c') && currentExecution[questionId]) {
+                    const codeNeedsInput = checkIfCodeNeedsInput(questionId, currentExecution[questionId].code, language);
+                    const expectedInputs = countExpectedInputs(currentExecution[questionId].code, language);
+                    
+                    // If code needs input and we haven't provided all expected inputs, prompt for more
+                    if (codeNeedsInput && inputs.length < expectedInputs) {
+                        shouldPromptForInput = true;
+                        console.log(`C/C++ needs ${expectedInputs} inputs, provided ${inputs.length}`);
+                    }
+                    
+                    // Additional check: if output is very short and code needs input, it might be waiting
+                    if (codeNeedsInput && output.trim().length < 50 && inputs.length < expectedInputs) {
+                        shouldPromptForInput = true;
+                        console.log(`C/C++ short output detected, prompting for input`);
+                    }
+                }
+                
+                if (shouldPromptForInput && currentExecution[questionId] && currentExecution[questionId].isRunning) {
+                    // Show current output and prompt for more input
+                    showOutput(questionId, output, 'success');
+                    promptForInput(questionId, inputs.length + 1);
+                } else {
+                    // Execution complete
+                    showOutput(questionId, output, 'success');
+                    currentExecution[questionId] = null;
+                    inputQueue[questionId] = [];
+                }
+            } else {
+                // Check if it's an input-related error
+                const error = data.error || 'Code execution failed';
+                let shouldPromptForInput = isInputError(error);
+                
+                // For C/C++, also check if we haven't provided enough inputs
+                if ((language === 'cpp' || language === 'c') && currentExecution[questionId]) {
+                    const codeNeedsInput = checkIfCodeNeedsInput(questionId, currentExecution[questionId].code, language);
+                    const expectedInputs = countExpectedInputs(currentExecution[questionId].code, language);
+                    
+                    if (codeNeedsInput && inputs.length < expectedInputs) {
+                        shouldPromptForInput = true;
+                        console.log(`C/C++ error - needs ${expectedInputs} inputs, provided ${inputs.length}`);
+                    }
+                }
+                
+                if (shouldPromptForInput && currentExecution[questionId] && currentExecution[questionId].isRunning) {
+                    // Show current output and prompt for input
+                    const currentOutput = data.output || '';
+                    showOutput(questionId, currentOutput, 'success');
+                    promptForInput(questionId, inputs.length + 1);
+                } else {
+                    // Real error
+                    showOutput(questionId, `Error: ${error}`, 'error');
+                    currentExecution[questionId] = null;
+                    inputQueue[questionId] = [];
+                }
+            }
+        })
+        .catch(error => {
+            $(`#ide-container-${questionId}`).removeClass('code-running');
+            $(`.run-code-btn[data-question="${questionId}"]`).show();
+            $(`.stop-code-btn[data-question="${questionId}"]`).hide();
+            console.error('Code execution error:', error);
+            showOutput(questionId, `Error: Failed to execute code - ${error.message}`, 'error');
+            currentExecution[questionId] = null;
+            inputQueue[questionId] = [];
+        });
+    }
+    
+    function checkIfNeedsMoreInput(output, language) {
+        const outputLower = output.toLowerCase();
+        
+        // Common patterns that indicate input is expected
+        const inputPatterns = [
+            'enter', 'input', 'please', 'what', 'how', '?', ':', '>',
+            'name:', 'age:', 'number:', 'value:', 'string:'
+        ];
+        
+        // Check if output ends with a prompt-like pattern
+        const endsWithPrompt = inputPatterns.some(pattern => 
+            outputLower.trim().endsWith(pattern.toLowerCase())
+        );
+        
+        // For C/C++, we need to check if the output suggests input is expected
+        // C/C++ programs often don't show the input prompt in stderr, so we check for common patterns
+        if (language === 'cpp' || language === 'c') {
+            // Check for common C/C++ input patterns in output
+            const cppInputPatterns = [
+                'enter', 'input', 'please', 'what', 'how', '?', ':', '>',
+                'name:', 'age:', 'number:', 'value:', 'string:',
+                'cin', 'scanf', 'getline'
+            ];
+            
+            // Also check if output ends with a colon or question mark (common prompt patterns)
+            const endsWithPromptPattern = /[:\?]\s*$/;
+            const hasPromptPattern = endsWithPromptPattern.test(output.trim());
+            
+            return cppInputPatterns.some(pattern => 
+                outputLower.includes(pattern.toLowerCase())
+            ) || endsWithPrompt || hasPromptPattern;
+        }
+        
+        // Check for specific language patterns
+        if (language === 'python') {
+            return endsWithPrompt || outputLower.includes('input(');
+        } else if (language === 'java') {
+            return endsWithPrompt || outputLower.includes('scanner') || outputLower.includes('next');
+        }
+        
+        return endsWithPrompt;
+    }
+    
+    // Enhanced function to check if code needs input by analyzing the code itself
+    function checkIfCodeNeedsInput(questionId, code, language) {
+        const codeLower = code.toLowerCase();
+        let needsInput = false;
+        
+        switch(language) {
+            case 'python':
+                needsInput = codeLower.includes('input(');
+                break;
+            case 'java':
+                needsInput = codeLower.includes('scanner') || codeLower.includes('nextint') || 
+                           codeLower.includes('nextline') || codeLower.includes('nextdouble');
+                break;
+            case 'cpp':
+                needsInput = codeLower.includes('cin') || codeLower.includes('scanf') || 
+                           codeLower.includes('fgets') || codeLower.includes('getline');
+                break;
+            case 'c':
+                needsInput = codeLower.includes('scanf') || codeLower.includes('fgets') || 
+                           codeLower.includes('getchar') || codeLower.includes('gets');
+                break;
+        }
+        
+        return needsInput;
+    }
+    
+    // Function to count how many inputs the code expects
+    function countExpectedInputs(code, language) {
+        const codeLower = code.toLowerCase();
+        let inputCount = 0;
+        
+        switch(language) {
+            case 'python':
+                // Count input() calls
+                const inputMatches = code.match(/input\s*\(/g);
+                inputCount = inputMatches ? inputMatches.length : 0;
+                break;
+            case 'java':
+                // Count Scanner method calls
+                const scannerMatches = code.match(/\.next(int|line|double|float|boolean|long|short|byte)\s*\(/g);
+                inputCount = scannerMatches ? scannerMatches.length : 0;
+                break;
+            case 'cpp':
+                // Count cin operations and getline calls
+                const cinMatches = code.match(/cin\s*>>/g);
+                const getlineMatches = code.match(/getline\s*\(/g);
+                const cinGetlineMatches = code.match(/cin\.getline\s*\(/g);
+                inputCount = (cinMatches ? cinMatches.length : 0) + 
+                           (getlineMatches ? getlineMatches.length : 0) + 
+                           (cinGetlineMatches ? cinGetlineMatches.length : 0);
+                break;
+            case 'c':
+                // Count scanf calls, fgets, and other input functions
+                const scanfMatches = code.match(/scanf\s*\(/g);
+                const fgetsMatches = code.match(/fgets\s*\(/g);
+                const getcharMatches = code.match(/getchar\s*\(/g);
+                const getsMatches = code.match(/gets\s*\(/g);
+                inputCount = (scanfMatches ? scanfMatches.length : 0) + 
+                           (fgetsMatches ? fgetsMatches.length : 0) + 
+                           (getcharMatches ? getcharMatches.length : 0) + 
+                           (getsMatches ? getsMatches.length : 0);
+                break;
+        }
+        
+        return inputCount;
+    }
+    
+    function isInputError(error) {
+        const errorLower = error.toLowerCase();
+        return errorLower.includes('eof') || 
+               errorLower.includes('nosuchelement') || 
+               errorLower.includes('input') ||
+               errorLower.includes('scanner');
+    }
+    
+    function promptForInput(questionId, inputNumber) {
+        const inputField = $(`#input-${questionId}`);
+        const inputGroup = inputField.closest('.input-group');
+        
+        // Update placeholder to show which input we're expecting
+        inputField.attr('placeholder', `Input ${inputNumber}: Enter your input here`);
+        
+        // Highlight the input field
+        inputGroup.addClass('needs-input');
+        inputField.focus();
+        
+        // Add debugging information
+        if (currentExecution[questionId]) {
+            const expectedInputs = countExpectedInputs(currentExecution[questionId].code, currentExecution[questionId].language);
+            console.log(`Prompting for input ${inputNumber} of ${expectedInputs} expected inputs`);
+        }
+        
+        // Add a message to the output
+        const currentOutput = $(`#output-${questionId}`).text();
+        showOutput(questionId, currentOutput + `\n\n⏳ Waiting for input ${inputNumber}...`, 'info');
+        
+        // Set up input handler for Send button
+        const sendButton = $(`#send-input-${questionId}`);
+        sendButton.off('click').on('click', function() {
+            const userInput = inputField.val().trim();
+            if (userInput) {
+                // Add input to the queue
+                if (!inputQueue[questionId]) inputQueue[questionId] = [];
+                inputQueue[questionId].push(userInput);
+                
+                // Clear the input field
+                inputField.val('');
+                
+                // Continue execution with all inputs
+                if (currentExecution[questionId]) {
+                    const allInputs = [...currentExecution[questionId].inputs, ...inputQueue[questionId]];
+                    currentExecution[questionId].inputs = allInputs;
+                    inputQueue[questionId] = [];
+                    
+                    executeCodeWithInputs(questionId, currentExecution[questionId].code, currentExecution[questionId].language, allInputs);
+                }
+            }
+        });
+        
+        // Also allow Enter key as alternative
+        inputField.off('keypress').on('keypress', function(e) {
+            if (e.which === 13) { // Enter key
+                e.preventDefault(); // Prevent form submission
+                sendButton.click(); // Trigger the send button click
+            }
+        });
+    }
+    
+    // Function to stop current execution
+    function stopExecution(questionId) {
+        if (currentExecution[questionId]) {
+            currentExecution[questionId].isRunning = false;
+            currentExecution[questionId] = null;
+            inputQueue[questionId] = [];
+            
+            // Reset UI state
+            $(`#ide-container-${questionId}`).removeClass('code-running');
+            $(`.run-code-btn[data-question="${questionId}"]`).show();
+            $(`.stop-code-btn[data-question="${questionId}"]`).hide();
+            
+            // Reset input field
+            const inputField = $(`#input-${questionId}`);
+            const inputGroup = inputField.closest('.input-group');
+            inputGroup.removeClass('needs-input');
+            inputField.attr('placeholder', 'Enter input for your code (e.g., "John", "42")');
+            inputGroup.find('.input-indicator').remove();
+            
+            showOutput(questionId, 'Execution stopped by user.', 'info');
+        }
+    }
+    
+    
+    
+    
+    function showOutput(questionId, output, type = 'success') {
+        const outputContent = $(`#output-content-${questionId}`);
+        const timestamp = new Date().toLocaleTimeString();
+        
+        // Escape HTML to prevent XSS
+        const escapeHtml = (text) => {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        };
+        
+        let outputHtml = `<div class="output-entry ${type}">
+            <div class="output-timestamp">[${timestamp}]</div>
+            <div class="output-text">${escapeHtml(output)}</div>
+        </div>`;
+        
+        // Remove placeholder if it exists
+        outputContent.find('.output-placeholder').remove();
+        
+        // Add new output
+        outputContent.append(outputHtml);
+        
+        // Scroll to bottom
+        outputContent.scrollTop(outputContent[0].scrollHeight);
+        
+        // Switch to output tab
+        $(`#ide-container-${questionId} .ide-tab[data-tab="output"]`).click();
+        
+        console.log(`Output displayed for question ${questionId}:`, output);
+    }
+    
+    function clearOutput(questionId) {
+        const outputContent = $(`#output-content-${questionId}`);
+        outputContent.html(`
+            <div class="output-placeholder">
+                <i class="fas fa-play-circle"></i>
+                <p>Click "Run Code" to see the output here</p>
+                <small class="text-muted">
+                    <i class="fas fa-info-circle"></i>
+                    If your code needs input (like input(), Scanner, cin), enter it in the input field above.
+                </small>
+            </div>
+        `);
+    }
+    
     
     function collectFormData() {
         const formData = [];
@@ -1094,8 +2245,13 @@
                 `;
             case 'coding':
                 return `
-                    <textarea class="form-control code-editor" name="review_${item.questionId}" 
-                              rows="6" id="review_${item.questionId}">${escapeHtml(item.value)}</textarea>
+                    <div class="review-code-container">
+                        <div class="review-code-header">
+                            <span class="badge bg-info">${selectedLanguages[item.questionId] || 'Unknown'} Code</span>
+                        </div>
+                        <textarea class="form-control code-editor" name="review_${item.questionId}" 
+                                  rows="8" id="review_${item.questionId}">${escapeHtml(item.value)}</textarea>
+                    </div>
                 `;
             case 'enumeration':
                 return `
