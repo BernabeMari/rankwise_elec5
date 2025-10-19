@@ -1751,6 +1751,70 @@ def form_analytics(form_id):
                     'percentage': (len(group) / total_answers * 100) if total_answers > 0 else 0
                 }
         
+        elif question.question_type == 'enumeration':
+            # Group answers by score ranges for enumeration questions
+            score_categories = {
+                'Perfect (90-100%)': 0,
+                'Good (70-89%)': 0,
+                'Fair (50-69%)': 0,
+                'Poor (0-49%)': 0
+            }
+            
+            for a in answers:
+                score = a.score_percentage or 0
+                if score >= 90:
+                    score_categories['Perfect (90-100%)'] += 1
+                elif score >= 70:
+                    score_categories['Good (70-89%)'] += 1
+                elif score >= 50:
+                    score_categories['Fair (50-69%)'] += 1
+                else:
+                    score_categories['Poor (0-49%)'] += 1
+            
+            # Convert to breakdown format
+            for category, count in score_categories.items():
+                if count > 0:  # Only include categories with responses
+                    answer_breakdown[category] = {
+                        'text': category,
+                        'count': count,
+                        'percentage': (count / total_answers * 100) if total_answers > 0 else 0
+                    }
+        
+        elif question.question_type == 'coding':
+            # Group answers by AI evaluation score categories for coding questions
+            score_categories = {
+                'Perfect (100%)': 0,
+                'Minor Flaw (90%)': 0,
+                'Major Flaw (70%)': 0,
+                'So-So (50%)': 0,
+                'Effort (25%)': 0,
+                'Zero (0%)': 0
+            }
+            
+            for a in answers:
+                score = a.score_percentage or 0
+                if score == 100:
+                    score_categories['Perfect (100%)'] += 1
+                elif score == 90:
+                    score_categories['Minor Flaw (90%)'] += 1
+                elif score == 70:
+                    score_categories['Major Flaw (70%)'] += 1
+                elif score == 50:
+                    score_categories['So-So (50%)'] += 1
+                elif score == 25:
+                    score_categories['Effort (25%)'] += 1
+                else:
+                    score_categories['Zero (0%)'] += 1
+            
+            # Convert to breakdown format
+            for category, count in score_categories.items():
+                if count > 0:  # Only include categories with responses
+                    answer_breakdown[category] = {
+                        'text': category,
+                        'count': count,
+                        'percentage': (count / total_answers * 100) if total_answers > 0 else 0
+                    }
+        
         question_stats.append({
             'question_id': question.id,
             'question_text': question.question_text[:50] + "..." if len(question.question_text) > 50 else question.question_text,
