@@ -1,0 +1,5 @@
+problem_id,topic,language,problem_statement
+1,Algorithms,Python,Write a function that takes a list of numbers and returns their sum
+2,Algorithms,C,Implement a function that returns the sum of an integer array
+3,Algorithms,C++,Implement a function that returns the sum of a vector of integers
+4,Algorithms,Java,Write a method that returns the sum of an int array

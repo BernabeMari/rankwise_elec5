@@ -109,6 +109,20 @@ class Dataset(db.Model):
     def get_sample_data(self, limit=5):
         """Return sample data from the dataset for preview."""
         try:
+            # Only process IT Olympics files, ignore old datasets
+            it_olympics_files = [
+                'it_olympics_multiple_choice.csv',
+                'it_olympics_true_false.csv', 
+                'it_olympics_identification.csv',
+                'it_olympics_enumeration.csv',
+                'it_olympics_checkbox.csv',
+                'it_olympics_coding.csv',
+                'it_olympics_code_eval.csv'
+            ]
+            
+            if self.filename not in it_olympics_files:
+                return []  # Skip old datasets silently
+                
             import pandas as pd
             df = pd.read_csv(self.file_path)
             return df.head(limit).to_dict('records')

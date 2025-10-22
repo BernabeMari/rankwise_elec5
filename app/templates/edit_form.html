@@ -771,6 +771,32 @@
                 .trim();
         }
         
+        // Generate question from datasets
+        async function generateQuestionFromDatasets(prompt, questionType) {
+            try {
+                const response = await fetch('/form/ai-question', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        question_type: questionType,
+                    }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error generating question from datasets:', error);
+                throw error;
+            }
+        }
+        
         // Generate question(s) with AI
         aiGenerateBtn.addEventListener('click', async function() {
             const promptValue = aiPrompt.value.trim();
@@ -801,7 +827,7 @@
                 const tasks = [];
                 for (let i = 0; i < count; i++) {
                     const variantPrompt = `${promptValue} (Variant ${i + 1})`;
-                    tasks.push(window.aiConnector.generateQuestion(variantPrompt, typeValue));
+                    tasks.push(generateQuestionFromDatasets(variantPrompt, typeValue));
                 }
                 const results = await Promise.allSettled(tasks);
                 
@@ -897,6 +923,16 @@
                                     <ul class="ai-options-list">
                                         ${q.options.map(o => `<li class=\"ai-option-item ${o===q.correct_answer ? 'correct' : ''}\">${o}${o===q.correct_answer ? '<span class=\"badge bg-success float-end\">Correct</span>' : ''}</li>`).join('')}
                                     </ul>` : ''}
+                                ${q.question_type === 'identification' ? `<p><strong>Correct Answer:</strong> <span class=\"badge bg-success\">${q.correct_answer || 'Not specified'}</span></p>` : ''}
+                                ${q.question_type === 'true_false' ? `<p><strong>Correct Answer:</strong> <span class=\"badge bg-success\">${q.correct_answer || 'True'}</span></p>` : ''}
+                                ${q.question_type === 'enumeration' ? (() => {
+                                    const list = Array.isArray(q.correct_answer) ? q.correct_answer : [];
+                                    return list.length ? `<p><strong>Correct Items:</strong> ${list.map(c=>`<span class=\"badge bg-success me-1\">${c}</span>`).join('')}</p>` : '';
+                                })() : ''}
+                                ${q.question_type === 'checkbox' && q.options ? (() => {
+                                    const correctList = Array.isArray(q.correct_answer) ? q.correct_answer : [];
+                                    return `<ul class=\"ai-options-list\">${q.options.map(o => `<li class=\"ai-option-item ${correctList.includes(o) ? 'correct' : ''}\">${o}${correctList.includes(o) ? '<span class=\"badge bg-success float-end\">Correct</span>' : ''}</li>`).join('')}</ul>${correctList.length ? `<p><strong>Correct Answers:</strong> ${correctList.map(c=>`<span class=\"badge bg-success me-1\">${c}</span>`).join('')}</p>` : ''}`;
+                                })() : ''}
                             </div>
                         `;
                     });

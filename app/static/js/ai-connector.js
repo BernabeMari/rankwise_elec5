@@ -1,11 +1,11 @@
 /**
  * AI Connector for DeepSeek Coder Model
- * This file handles the communication with the local LM Studio model
+ * This file handles the communication with the local LM Studio model for code evaluation only
  */
 
 class AIConnector {
     constructor(modelPath) {
-        this.modelPath = modelPath || "C:\\Users\\Zyb\\.lmstudio\\models\\LoneStriker\\CodeLlama-13B-Instruct-GGUF\\codellama-13b-instruct.Q5_K_M.gguf";
+        this.modelPath = modelPath || "C:\\Users\\Zyb\\.lmstudio\\models\\bartowski\\DeepSeek-Coder-V2-Lite-Instruct-GGUF\\DeepSeek-Coder-V2-Lite-Instruct-Q8_0_L.gguf";
         this.isReady = false;
         this.isLocalModelAvailable = false;
         this.lmStudioEndpoint = "http://localhost:1234/v1/completions"; // Using the confirmed working endpoint
@@ -56,31 +56,31 @@ class AIConnector {
     }
 
     /**
-     * Generate a question based on the prompt and type
-     * @param {string} prompt - User prompt for the question
-     * @param {string} questionType - Type of question (multiple_choice, identification, coding)
-     * @returns {Promise<object>} - Generated question data
+     * Evaluate code with AI and return evaluation result
+     * @param {string} codeAnswer - Student's code answer
+     * @param {string} questionText - The coding question text
+     * @returns {Promise<object>} - Evaluation result with score and feedback
      */
-    async generateQuestion(prompt, questionType) {
+    async evaluateCode(codeAnswer, questionText) {
         if (!this.isReady) {
             await this.initialize();
         }
 
-        console.log(`Generating ${questionType} question about: ${prompt}`);
+        console.log(`Evaluating code for question: ${questionText.substring(0, 50)}...`);
         
-        // Send the request to our server endpoint which will proxy to LM Studio
+        // Send the request to our server endpoint which will handle AI evaluation
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), this.requestTimeout);
             
-            const response = await fetch('/form/ai-question', {
+            const response = await fetch('/form/evaluate-code', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    prompt: prompt,
-                    question_type: questionType,
+                    code_answer: codeAnswer,
+                    question_text: questionText,
                 }),
                 signal: controller.signal
             });
@@ -101,10 +101,10 @@ class AIConnector {
                 throw new Error(`API error: ${response.status} - ${data.error || 'Unknown error'}`);
             }
 
-            console.log("AI generated question:", data);
+            console.log("AI code evaluation result:", data);
             return data;
         } catch (error) {
-            console.error("Error generating question:", error);
+            console.error("Error evaluating code:", error);
             if (error.name === 'AbortError') {
                 throw new Error("The request timed out. LM Studio may be busy processing a large model. Try again or use a smaller model.");
             }
@@ -121,7 +121,4 @@ document.addEventListener('DOMContentLoaded', () => {
     window.aiConnector.initialize()
         .then(() => console.log("AI Connector initialized successfully"))
         .catch(error => console.error("Error initializing AI Connector:", error));
-
-    // Note: Event listener for aiGenerateBtn is handled in edit_form.html
-    // to avoid duplicate event handlers that cause multiple requests
-}); 
+});

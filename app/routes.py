@@ -262,152 +262,494 @@ def query_lm_studio(prompt, max_tokens=1500, timeout=60, model_path=None):
             print(f"Retry {current_retry}/{max_retries} due to: {e}")
             time.sleep(2)  # Wait 2 seconds before retrying
 
-def clean_short_answer(raw_answer: str, question_text: str = "", preserve_full: bool = False) -> str:
-    """Return a concise, answer-only string by stripping explanations.
-    Uses simple heuristics plus fuzzy overlap checks against the question text.
-    If preserve_full is True, keeps the full answer without truncation.
-    """
-    try:
-        import re
-        from difflib import SequenceMatcher
-        if not raw_answer:
-            return raw_answer
-        text = raw_answer.strip()
-        # Remove leading labels
-        text = re.sub(r"^(correct\s*answer\s*[:\-]|answer\s*[:\-])\s*", "", text, flags=re.I)
-        # Take first line/sentence
-        first_line = text.split("\n", 1)[0]
-        sentence = re.split(r"(?<=[.!?])\s+", first_line)[0]
-        # Cut at common explanation joiners
-        sentence = re.split(r"\b(because|which|that|who|so that|therefore|hence|as it|as this)\b", sentence, flags=re.I)[0]
-        # Remove parenthetical notes
-        sentence = re.sub(r"\([^)]*\)", "", sentence)
-        # Remove trailing punctuation and extra spaces
-        sentence = re.sub(r"[\s,;:]+$", "", sentence).strip()
-        
-        # If preserve_full is True, don't truncate (for multiple choice options)
-        if not preserve_full:
-            # If still very long, keep up to first 6 words
-            words = sentence.split()
-            if len(words) > 6:
-                sentence = " ".join(words[:6])
-            # Avoid repeating the question; if 80%+ similar to question, attempt to trim trailing words
-            if question_text:
-                ratio = SequenceMatcher(None, sentence.lower(), question_text.lower()).ratio()
-                if ratio > 0.8 and len(words) > 1:
-                    sentence = words[-1]
-        
-        return sentence.strip()
-    except Exception:
-        return raw_answer.strip()
 
-def parse_ai_response(content, question_type):
-    """
-    Parse the AI model response into a structured question format in a concise way.
+
+# --- Offline fallback: generate questions from local CSV datasets when LM Studio is unavailable ---
+def _load_active_datasets_frames(max_rows_per_df=1000):
+    """Load active built-in datasets into pandas DataFrames with metadata.
+    Returns list of tuples: (dataset, dataframe). Fails gracefully returning [].
+    Only loads IT Olympics CSV files, ignores old datasets.
     """
     try:
-        import re
-        lines = [ln.strip() for ln in content.strip().splitlines() if ln.strip()]
-        lower_lines = [ln.lower() for ln in lines]
-        ans_idx = next((i for i, l in enumerate(lower_lines) if l.startswith("answer") or "correct answer" in l or "correct answers" in l), None)
-        # Build question text from leading lines before options/answer
-        qtext_parts = []
-        for i, ln in enumerate(lines):
-            if question_type in ['multiple_choice', 'checkbox'] and re.match(r'^[A-D][.).]\s+', ln):
-                break
-            if ans_idx is not None and i >= ans_idx:
-                break
-            qtext_parts.append(ln)
-        question_text = ' '.join(qtext_parts).strip()
-        data = {'text': question_text, 'question_type': question_type}
-        if question_type == 'multiple_choice':
-            options = [clean_short_answer(m.group(2).strip(), question_text, preserve_full=True)
-                       for m in re.finditer(r'^([A-D])[.).]\s+(.+)$', content, flags=re.M)]
-            if not options:
-                options = ["Option A", "Option B", "Option C", "Option D"]
-            m = re.search(r'(?:correct\s+answer|answer)[:\s]+([A-D])', content, flags=re.I)
-            if m:
-                idx = ord(m.group(1).upper()) - ord('A')
-                correct = options[idx] if 0 <= idx < len(options) else options[0]
-            else:
-                correct = options[0]
-            data.update({'options': options, 'correct_answer': clean_short_answer(correct, question_text, preserve_full=True)})
-        elif question_type == 'checkbox':
-            # Expect options A-D and possibly multiple correct letters like "Correct answers: A,C" or "A and C"
-            options = [clean_short_answer(m.group(2).strip(), question_text, preserve_full=True)
-                       for m in re.finditer(r'^([A-D])[.).]\s+(.+)$', content, flags=re.M)]
-            if not options:
-                options = ["Option A", "Option B", "Option C", "Option D"]
-            # Look for letters list
-            m = re.search(r'(?:correct\s+answers?|answers?)[:\s]+([A-D](?:\s*,\s*[A-D])*(?:\s*(?:and|&)\s*[A-D])?)', content, flags=re.I)
-            letters = []
-            if m:
-                raw = m.group(1)
-                # Normalize separators
-                raw = re.sub(r'\s*(?:and|&)\s*', ',', raw, flags=re.I)
-                letters = [ch.strip().upper() for ch in raw.split(',') if ch.strip()]
-            elif any("correct answer" in l for l in lower_lines):
-                # Fallback: single letter
-                m2 = re.search(r'(?:correct\s+answer|answer)[:\s]+([A-D])', content, flags=re.I)
-                if m2:
-                    letters = [m2.group(1).upper()]
-            # Map letters to option texts
-            idxs = [ord(L) - ord('A') for L in letters]
-            correct_list = [options[i] for i in idxs if 0 <= i < len(options)]
-            if not correct_list:
-                # Default to first two options as a placeholder
-                correct_list = options[:2]
-            data.update({'options': options, 'correct_answer': correct_list})
-        elif question_type == 'identification':
-            m = re.search(r'(?:correct\s+answer|answer)[:\s]+(.+)$', content, flags=re.I|re.M)
-            extracted = m.group(1).strip() if m else (lines[-1] if lines else "")
-            cleaned = clean_short_answer(extracted, question_text)
-            if cleaned.lower() == question_text.lower() and lines:
-                cleaned = clean_short_answer(next((ln for ln in reversed(lines) if ln.lower() != question_text.lower()), extracted), question_text)
-            data['correct_answer'] = cleaned or extracted or "Please provide a correct answer for this question"
-        elif question_type == 'true_false':
-            # Expect a line like "Correct answer: True" or "Correct answer: False"
-            m = re.search(r'(?:correct\s+answer|answer)[:\s]+(true|false)', content, flags=re.I)
-            ans = (m.group(1).strip().capitalize() if m else 'True')
-            data['options'] = ['True', 'False']
-            data['correct_answer'] = 'True' if ans.lower() == 'true' else 'False'
-        elif question_type == 'enumeration':
-            # Expect a line: "Correct answers: a, b, c"
-            m = re.search(r'(?:correct\s+answers?)[:\s]+(.+)$', content, flags=re.I|re.M)
-            items = []
-            if m:
-                raw = m.group(1)
-                items = [clean_short_answer(p.strip(), question_text, preserve_full=True) for p in raw.replace('\n', ',').split(',') if p.strip()]
-            if not items and lines:
-                # fallback: last non-question line split by commas
-                fallback = lines[-1]
-                items = [clean_short_answer(p.strip(), question_text, preserve_full=True) for p in fallback.split(',') if p.strip()]
-            data['correct_answer'] = items
-        elif question_type == 'coding':
-            m = re.search(r"Problem:\s*(.*?)\n\s*(?:Sample Code:|```|$)", content, flags=re.S|re.I)
-            problem = (m.group(1).strip() if m else '')
-            if not problem:
-                # Fallback: first non-empty paragraph
-                paragraph = []
-                for ln in content.split('\n'):
-                    ln = ln.strip()
-                    if ln:
-                        paragraph.append(ln)
-                    elif paragraph:
-                        break
-                problem = ' '.join(paragraph).strip()
-            if problem:
-                data['text'] = problem
-            data['sample_code'] = None
-            data['expected_output'] = None
-        return data
-    except Exception as e:
-        print(f"Error parsing AI response: {e}")
-        return {
-            'text': content[:100] + "..." if len(content) > 100 else content,
+        import pandas as pd
+    except Exception:
+        return []
+    frames = []
+    try:
+        # Only load IT Olympics datasets, ignore old ones
+        it_olympics_files = [
+            'it_olympics_multiple_choice.csv',
+            'it_olympics_true_false.csv', 
+            'it_olympics_identification.csv',
+            'it_olympics_enumeration.csv',
+            'it_olympics_checkbox.csv',
+            'it_olympics_coding.csv',
+            'it_olympics_code_eval.csv'
+        ]
+        
+        active = Dataset.query.filter_by(is_active=True, is_builtin=True).all()
+        for ds in active:
+            # Only process IT Olympics files
+            if ds.filename in it_olympics_files:
+                try:
+                    df = pd.read_csv(ds.file_path)
+                    if len(df) > max_rows_per_df:
+                        df = df.sample(n=max_rows_per_df, random_state=42)
+                    frames.append((ds, df))
+                except Exception:
+                    continue
+    except Exception:
+        return frames
+    return frames
+
+def _select_distractors(correct_item, pool, k=3):
+    """Pick up to k distinct distractors from pool that are not equal to correct_item."""
+    import random
+    choices = [p for p in pool if isinstance(p, str) and p.strip() and p != correct_item]
+    random.shuffle(choices)
+    return choices[:k]
+
+def generate_question_from_datasets(prompt, question_type):
+    """Generate a simple question using local datasets.
+    Supports: multiple_choice, identification, true_false (basic), checkbox (basic), enumeration (basic).
+    Returns dict matching frontend expectation: {text, options?, correct_answer}.
+    Raises Exception on failure.
+    """
+    import random
+    # Don't set a fixed seed - let it be truly random for shuffling
+
+    frames = _load_active_datasets_frames()
+    # Always include our IT Olympics CSVs as offline sources
+    try:
+        import os
+        import pandas as pd
+        base = os.path.join(os.path.dirname(__file__), 'data', 'datasets')
+        fallback_files = [
+            'it_olympics_multiple_choice.csv',
+            'it_olympics_true_false.csv',
+            'it_olympics_identification.csv',
+            'it_olympics_enumeration.csv',
+            'it_olympics_checkbox.csv',
+            'it_olympics_coding.csv'
+        ]
+        for fname in fallback_files:
+            fpath = os.path.join(base, fname)
+            if os.path.exists(fpath):
+                try:
+                    df = pd.read_csv(fpath)
+                    frames.append((None, df))
+                except Exception:
+                    continue
+    except Exception:
+        pass
+
+    if not frames:
+        raise Exception('No datasets available for offline generation')
+
+    # Try to find a dataframe with definition-like columns for simple Q/A
+    def find_definition_df():
+        for ds, df in frames:
+            cols_lower = [str(c).lower() for c in df.columns]
+            if any(k in cols_lower for k in ['term', 'concept', 'topic', 'name']):
+                if any(k in cols_lower for k in ['definition', 'description', 'meaning', 'explanation']):
+                    return ds, df
+        return frames[0]
+
+    ds, df = find_definition_df()
+    cols = [str(c) for c in df.columns]
+    cols_lower = [c.lower() for c in cols]
+
+    # Identify potential columns
+    def_col = None
+    term_col = None
+    for c in cols:
+        cl = c.lower()
+        if def_col is None and any(k in cl for k in ['definition', 'description', 'meaning', 'explanation']):
+            def_col = c
+        if term_col is None and any(k in cl for k in ['term', 'concept', 'topic', 'name']):
+            term_col = c
+    # Fallback: use first two columns if not found
+    if term_col is None and len(cols) >= 1:
+        term_col = cols[0]
+    if def_col is None and len(cols) >= 2:
+        def_col = cols[1]
+
+    # Choose a row biased by prompt keyword match if possible
+    def pick_row():
+        subset = df
+        try:
+            if prompt:
+                mask = None
+                for c in [term_col, def_col]:
+                    if c in df.columns and df[c].dtype == object:
+                        m = df[c].astype(str).str.contains(str(prompt), case=False, na=False)
+                        mask = m if mask is None else (mask | m)
+                if mask is not None and mask.any():
+                    subset = df[mask]
+        except Exception:
+            subset = df
+        try:
+            return subset.sample(n=1, random_state=random.randint(0, 10_000)).iloc[0]
+        except Exception:
+            return df.iloc[random.randrange(0, len(df))]
+
+    row = pick_row()
+    term = str(row.get(term_col, '')).strip()
+    definition = str(row.get(def_col, '')).strip()
+
+    if question_type in ['multiple_choice', 'checkbox']:
+        # If a dedicated CSV exists, use it
+        try:
+            import pandas as pd
+            import os
+            base = os.path.join(os.path.dirname(__file__), 'data', 'datasets')
+            mc_path = os.path.join(base, 'it_olympics_multiple_choice.csv')
+            if os.path.exists(mc_path):
+                dfmc = pd.read_csv(mc_path)
+                # Search for questions matching prompt keywords
+                if prompt and prompt.strip():
+                    prompt_lower = prompt.lower()
+                    # Find all relevant questions first
+                    relevant_questions = []
+                    for idx, row in dfmc.iterrows():
+                        score = 0
+                        question_text = str(row.get('question', '')).lower()
+                        topic = str(row.get('topic', '')).lower()
+                        # Higher score for exact topic match, then question text match
+                        if any(word in topic for word in prompt_lower.split()):
+                            score += 10
+                        if any(word in question_text for word in prompt_lower.split()):
+                            score += 5
+                        if score > 0:
+                            relevant_questions.append((score, idx, row))
+                    
+                    if relevant_questions:
+                        # Shuffle relevant questions and pick one randomly
+                        random.shuffle(relevant_questions)
+                        pick = relevant_questions[0][2]  # Get the row
+                    else:
+                        # No relevant questions found, pick any random question
+                        pick = dfmc.sample(n=1).iloc[0]
+                else:
+                    # No prompt, pick any random question
+                    pick = dfmc.sample(n=1).iloc[0]
+                qtext = str(pick.get('question', '')).strip()
+                opts = [str(pick.get(k, '')).strip() for k in ['A','B','C','D']]
+                # Use raw option texts (no letter prefixes) and set correct_answer to the actual text
+                correct_letter = str(pick.get('correct', 'A')).strip()[:1].upper()
+                idx = max(0, min(3, ord(correct_letter) - ord('A')))
+                correct_text = opts[idx] if idx < len(opts) else (opts[0] if opts else '')
+                res = {'text': qtext, 'question_type': 'multiple_choice', 'options': opts, 'correct_answer': correct_text, 'correct_letter': correct_letter.lower()}
+                if question_type == 'checkbox':
+                    cb_path = os.path.join(base, 'it_olympics_checkbox.csv')
+                    if os.path.exists(cb_path):
+                        dfcb = pd.read_csv(cb_path)
+                        # Search for checkbox questions matching prompt
+                        if prompt and prompt.strip():
+                            prompt_lower = prompt.lower()
+                            relevant_questions = []
+                            for idx, row in dfcb.iterrows():
+                                score = 0
+                                question_text = str(row.get('question', '')).lower()
+                                topic = str(row.get('topic', '')).lower()
+                                if any(word in topic for word in prompt_lower.split()):
+                                    score += 10
+                                if any(word in question_text for word in prompt_lower.split()):
+                                    score += 5
+                                if score > 0:
+                                    relevant_questions.append((score, idx, row))
+                            
+                            if relevant_questions:
+                                random.shuffle(relevant_questions)
+                                pick2 = relevant_questions[0][2]
+                            else:
+                                pick2 = dfcb.sample(n=1).iloc[0]
+                        else:
+                            pick2 = dfcb.sample(n=1).iloc[0]
+                        q2 = str(pick2.get('question','')).strip()
+                        opts2 = [str(pick2.get(k,'')).strip() for k in ['A','B','C','D']]
+                        correct_multi = str(pick2.get('correct','')).strip()
+                        letters = [s.strip().upper() for s in correct_multi.replace('"','').split(',') if s.strip()]
+                        idxs = [ord(L)-ord('A') for L in letters]
+                        correct_texts = [opts2[i] for i in idxs if 0 <= i < len(opts2)]
+                        res = {'text': q2, 'question_type': 'checkbox', 'options': opts2, 'correct_answer': correct_texts}
+                return res
+        except Exception:
+            pass
+        # Build distractor definitions from other rows
+        pool_defs = [str(v).strip() for v in df[def_col].dropna().astype(str).tolist()] if def_col in df.columns else []
+        distractors = _select_distractors(definition, pool_defs, k=3)
+        # If not enough distractors, synthesize short ones from other columns
+        if len(distractors) < 3:
+            for c in df.columns:
+                if c == def_col:
+                    continue
+                extra_pool = [str(v).strip() for v in df[c].dropna().astype(str).tolist()]
+                distractors += _select_distractors(definition, extra_pool, k=3-len(distractors))
+                if len(distractors) >= 3:
+                    break
+        options = distractors + [definition]
+        random.shuffle(options)
+        letters = ['A', 'B', 'C', 'D']
+        opts_unlabeled = options[:4]
+        correct_letter = letters[opts_unlabeled.index(definition)] if definition in opts_unlabeled else letters[-1]
+        text = f"Which of the following best describes {term}?"
+        if prompt and prompt.strip():
+            text = f"Which of the following best describes {prompt} related to {term}?"
+        result = {
+            'text': text,
             'question_type': question_type,
-            'options': ["Option A", "Option B", "Option C", "Option D"] if question_type in ['multiple_choice', 'checkbox'] else None,
+            'options': opts_unlabeled,
+            'correct_answer': definition,
+            'correct_letter': correct_letter.lower()
         }
+        if question_type == 'checkbox':
+            # For checkbox, keep only one correct for simplicity
+            result['correct_answer'] = [definition]
+        return result
+
+    if question_type == 'identification':
+        try:
+            import pandas as pd
+            import os
+            base = os.path.join(os.path.dirname(__file__), 'data', 'datasets')
+            id_path = os.path.join(base, 'it_olympics_identification.csv')
+            if os.path.exists(id_path):
+                dfid = pd.read_csv(id_path)
+                # Search for identification questions matching prompt
+                if prompt and prompt.strip():
+                    prompt_lower = prompt.lower()
+                    relevant_questions = []
+                    for idx, row in dfid.iterrows():
+                        score = 0
+                        question_text = str(row.get('question', '')).lower()
+                        topic = str(row.get('topic', '')).lower()
+                        if any(word in topic for word in prompt_lower.split()):
+                            score += 10
+                        if any(word in question_text for word in prompt_lower.split()):
+                            score += 5
+                        if score > 0:
+                            relevant_questions.append((score, idx, row))
+                    
+                    if relevant_questions:
+                        random.shuffle(relevant_questions)
+                        pick = relevant_questions[0][2]
+                    else:
+                        pick = dfid.sample(n=1).iloc[0]
+                else:
+                    pick = dfid.sample(n=1).iloc[0]
+                return {
+                    'text': str(pick.get('question','')).strip(), 
+                    'question_type': 'identification', 
+                    'options': ['Answer field (text input)'],
+                    'correct_answer': str(pick.get('answer','')).strip()
+                }
+        except Exception:
+            pass
+        text = f"What is {term}?"
+        if prompt and prompt.strip():
+            text = f"In the context of {prompt}, what is {term}?"
+        return {
+            'text': text,
+            'question_type': 'identification',
+            'options': ['Answer field (text input)'],
+            'correct_answer': definition
+        }
+
+    if question_type == 'true_false':
+        try:
+            import pandas as pd
+            import os
+            base = os.path.join(os.path.dirname(__file__), 'data', 'datasets')
+            tf_path = os.path.join(base, 'it_olympics_true_false.csv')
+            if os.path.exists(tf_path):
+                dftf = pd.read_csv(tf_path)
+                # Search for true/false questions matching prompt
+                if prompt and prompt.strip():
+                    prompt_lower = prompt.lower()
+                    relevant_questions = []
+                    for idx, row in dftf.iterrows():
+                        score = 0
+                        statement = str(row.get('statement', '')).lower()
+                        topic = str(row.get('topic', '')).lower()
+                        if any(word in topic for word in prompt_lower.split()):
+                            score += 10
+                        if any(word in statement for word in prompt_lower.split()):
+                            score += 5
+                        if score > 0:
+                            relevant_questions.append((score, idx, row))
+                    
+                    if relevant_questions:
+                        random.shuffle(relevant_questions)
+                        pick = relevant_questions[0][2]
+                    else:
+                        pick = dftf.sample(n=1).iloc[0]
+                else:
+                    pick = dftf.sample(n=1).iloc[0]
+                return {
+                    'text': str(pick.get('statement','')).strip(), 
+                    'question_type': 'true_false', 
+                    'options': ['True', 'False'],
+                    'correct_answer': 'True' if str(pick.get('answer','True')).strip().lower()=='true' else 'False'
+                }
+        except Exception:
+            pass
+        # Create a simple true statement using definition presence
+        statement_true = f"{term} is {definition}" if definition else f"{term} is a concept in computing"
+        # Occasionally flip to false by swapping definition
+        make_false = random.random() < 0.5
+        if make_false and def_col in df.columns and len(df) > 1:
+            alt = None
+            try:
+                alt = df[df[term_col] != row[term_col]].sample(n=1, random_state=random.randint(0, 10_000)).iloc[0]
+            except Exception:
+                pass
+            if alt is not None:
+                statement = f"{term} is {str(alt.get(def_col, ''))}"
+                return {
+                    'text': statement, 
+                    'question_type': 'true_false', 
+                    'options': ['True', 'False'],
+                    'correct_answer': 'False'
+                }
+        return {
+            'text': statement_true, 
+            'question_type': 'true_false', 
+            'options': ['True', 'False'],
+            'correct_answer': 'True'
+        }
+
+    if question_type == 'enumeration':
+        try:
+            import pandas as pd
+            import os
+            base = os.path.join(os.path.dirname(__file__), 'data', 'datasets')
+            en_path = os.path.join(base, 'it_olympics_enumeration.csv')
+            if os.path.exists(en_path):
+                dfen = pd.read_csv(en_path)
+                # Search for enumeration questions matching prompt
+                if prompt and prompt.strip():
+                    prompt_lower = prompt.lower()
+                    relevant_questions = []
+                    for idx, row in dfen.iterrows():
+                        score = 0
+                        prompt_text = str(row.get('prompt', '')).lower()
+                        topic = str(row.get('topic', '')).lower()
+                        if any(word in topic for word in prompt_lower.split()):
+                            score += 10
+                        if any(word in prompt_text for word in prompt_lower.split()):
+                            score += 5
+                        if score > 0:
+                            relevant_questions.append((score, idx, row))
+                    
+                    if relevant_questions:
+                        random.shuffle(relevant_questions)
+                        pick = relevant_questions[0][2]
+                    else:
+                        pick = dfen.sample(n=1).iloc[0]
+                else:
+                    pick = dfen.sample(n=1).iloc[0]
+                answers = [a.strip() for a in str(pick.get('answers','')).split(';') if a.strip()]
+                return {
+                    'text': str(pick.get('prompt','')).strip(), 
+                    'question_type': 'enumeration', 
+                    'options': ['List items (separated by commas)'],
+                    'correct_answer': answers
+                }
+        except Exception:
+            pass
+        # Return 3 related items from the same column as term
+        col_for_items = term_col
+        items = [str(v).strip() for v in df[col_for_items].dropna().astype(str).tolist()]
+        random.shuffle(items)
+        answers = [i for i in items[:3] if i]
+        text = f"List three items related to {prompt or term}."
+        return {
+            'text': text, 
+            'question_type': 'enumeration', 
+            'options': ['List items (separated by commas)'],
+            'correct_answer': answers
+        }
+
+    if question_type == 'coding':
+        # Prefer problems from new IT Olympics coding CSV or legacy coding_evaluation_samples.csv
+        try:
+            import pandas as pd
+            import os
+            base = os.path.join(os.path.dirname(__file__), 'data', 'datasets')
+            new_path = os.path.join(base, 'it_olympics_coding.csv')
+            if os.path.exists(new_path):
+                dfcode = pd.read_csv(new_path)
+                # Search for coding problems matching prompt
+                if prompt and prompt.strip():
+                    prompt_lower = prompt.lower()
+                    scores = []
+                    for idx, row in dfcode.iterrows():
+                        score = 0
+                        problem = str(row.get('problem_statement', '')).lower()
+                        topic = str(row.get('topic', '')).lower()
+                        language = str(row.get('language', '')).lower()
+                        # Higher score for language match, then topic, then problem text
+                        if any(word in language for word in prompt_lower.split()):
+                            score += 15
+                        if any(word in topic for word in prompt_lower.split()):
+                            score += 10
+                        if any(word in problem for word in prompt_lower.split()):
+                            score += 5
+                        scores.append((score, idx))
+                    scores.sort(reverse=True)
+                    if scores and scores[0][0] > 0:
+                        pick = dfcode.iloc[scores[0][1]]
+                    else:
+                        pick = dfcode.sample(n=1).iloc[0]
+                else:
+                    pick = dfcode.sample(n=1).iloc[0]
+                text = str(pick.get('problem_statement','')).strip()
+                lang = str(pick.get('language','')).strip()
+                result = {'text': text, 'question_type': 'coding', 'sample_code': str(pick.get('sample_code','')).strip()}
+                return result
+            target_cols = {'problem_statement', 'language', 'sample_code'}
+            candidates = []
+            for dsm, dfm in frames:
+                cols_set = set(str(c).lower() for c in dfm.columns)
+                if {'problem_statement', 'language'}.issubset(cols_set):
+                    candidates.append((dsm, dfm))
+            if candidates:
+                dsm, dfm = candidates[0]
+                # Filter by language or prompt keywords if possible
+                lang_col = next((c for c in dfm.columns if str(c).lower() == 'language'), None)
+                ps_col = next((c for c in dfm.columns if str(c).lower() == 'problem_statement'), None)
+                sc_col = next((c for c in dfm.columns if str(c).lower() == 'sample_code'), None)
+                dfsel = dfm
+                try:
+                    if prompt and lang_col in dfm.columns:
+                        common_langs = ['python', 'java', 'c++', 'c', 'javascript', 'sql']
+                        for kw in common_langs:
+                            if kw in str(prompt).lower():
+                                df_lang = dfm[dfm[lang_col].astype(str).str.lower().str.contains(kw, na=False)]
+                                if not df_lang.empty:
+                                    dfsel = df_lang
+                                    break
+                    if prompt and ps_col in dfm.columns and dfsel is dfm:
+                        df_ps = dfm[dfm[ps_col].astype(str).str.contains(str(prompt), case=False, na=False)]
+                        if not df_ps.empty:
+                            dfsel = df_ps
+                except Exception:
+                    pass
+                picked = dfsel.sample(n=1, random_state=random.randint(0, 10_000)).iloc[0]
+                text = str(picked.get(ps_col, '')).strip() or f"Write a program related to {prompt or 'coding'}"
+                result = {'text': text, 'question_type': 'coding'}
+                if sc_col in dfm.columns:
+                    result['sample_code'] = str(picked.get(sc_col, '')).strip()
+                return result
+        except Exception:
+            pass
+        # Generic fallback if dataset not found
+        text = f"Write a program that reads input and produces the expected output related to {prompt or term}."
+        return {'text': text, 'question_type': 'coding'}
+
+    # Default fallback to identification
+    return {'text': f"What is {term}?", 'question_type': 'identification', 'correct_answer': definition}
 
 @main.route('/execute-code', methods=['POST'])
 def execute_code():
@@ -893,132 +1235,6 @@ def execute_c_code(code, user_inputs=[]):
             'error': f'Execution error: {str(e)}'
         }
 
-@main.route('/form/ai-question', methods=['POST'])
-def generate_ai_question_standalone():
-    """
-    Generate an AI question without requiring a form_id
-    This endpoint is called directly from the JavaScript frontend
-    """
-    # Get the prompt from the request
-    data = request.get_json() if request.is_json else request.form
-    prompt = data.get('prompt')
-    question_type = data.get('question_type', 'multiple_choice')
-    
-    if not prompt:
-        return jsonify({'error': 'Prompt is required'}), 400
-    
-    try:
-        # Create a specific prompt for the DeepSeek Coder 7b Instruct v1.5 model
-        instructions = ""
-        if question_type == 'multiple_choice':
-            instructions = """
-            - Provide exactly 4 options labeled A, B, C, D
-            - Each option should be on a separate line starting with the letter
-            - Clearly mark the correct answer at the end as "Correct answer: [letter]"
-            - Options should be distinct and unambiguous
-            - YOU MUST ALWAYS specify the correct answer - this is required
-            - The correct answer must be factually accurate
-            """
-        elif question_type == 'identification':
-            instructions = """
-            - The answer should be a specific word, phrase, or term
-            - Make the question focused and specific
-            - Clearly separate the question from the answer
-            - After writing the question, include "Correct answer: [your answer]" on a new line
-            - The answer should be different from the question itself
-            - YOU MUST ALWAYS provide the correct answer - this is required
-            - The correct answer must be factually accurate
-            - Example format:
-              What is the programming language that was created as an extension to Python 2.x in 1991?
-              Correct answer: Python++
-            """
-        elif question_type == 'checkbox':
-            instructions = """
-            - Provide exactly 4 options labeled A, B, C, D
-            - More than one option may be correct
-            - Each option should be on its own line starting with the letter
-            - At the end, include a line like: "Correct answers: A, C" (one or more letters separated by commas or 'and')
-            - Options should be distinct and unambiguous
-            - YOU MUST ALWAYS specify at least one correct answer
-            """
-        elif question_type == 'true_false':
-            instructions = """
-            - Write a statement that is clearly either True or False
-            - At the end, include a line: "Correct answer: True" or "Correct answer: False"
-            - Do NOT include multiple choice letters
-            """
-        elif question_type == 'enumeration':
-            instructions = """
-            - Ask for multiple items (e.g., list programming paradigms of Python)
-            - At the end, include a line: "Correct answers: item1, item2, item3" (comma-separated)
-            - Keep items short (single terms/short phrases)
-            """
-        elif question_type == 'coding':
-            instructions = """
-            Output EXACTLY in this format (no extra text):
-            <single-paragraph coding problem statement describing the required program and inputs/outputs>
-            
-            Rules:
-            - Do NOT include any code, sample code, solution, tests, or explanations.
-            - Keep the problem clear and self-contained.
-            """
-        
-        # Get dataset context for AI
-        dataset_context = ""
-        try:
-            active_datasets = Dataset.query.filter_by(is_active=True, is_builtin=True).all()
-            if active_datasets:
-                dataset_context = "\n\nAvailable datasets for context:\n"
-                for dataset in active_datasets:
-                    try:
-                        sample_data = dataset.get_sample_data(2)  # First 2 rows
-                        columns = dataset.get_columns()
-                        dataset_context += f"- {dataset.name}: {dataset.description or 'No description'}\n"
-                        dataset_context += f"  Columns: {', '.join(columns[:5])}{'...' if len(columns) > 5 else ''}\n"
-                        if sample_data:
-                            dataset_context += f"  Sample data: {str(sample_data)[:200]}...\n"
-                    except Exception as e:
-                        print(f"Error processing dataset {dataset.name}: {e}")
-                        continue
-        except Exception as e:
-            print(f"Error getting dataset context: {e}")
-
-        ai_prompt = f"""You are a teacher generating an easy and student friendly questions about {prompt}.
-
-Create a {question_type} question about '{prompt}' following these guidelines:
-
-Requirements:
-1. Question should be clear, specific, and 1-2 sentences
-2. Focus on key concepts related to {prompt}
-3. Appropriate difficulty level for learning assessment
-4. You MUST provide a factually accurate correct answer
-5. Question should have the {prompt} in it
-6. If relevant, you may reference the available datasets below for context and examples
-
-{instructions}
-
-{dataset_context}
-
-Return only the question with no additional explanation. Do not include any rationale or explanation after the answer; keep the answer concise (a single term/phrase).
-
-Question:
-"""
-        
-        # Call the LM Studio API
-        ai_response = query_lm_studio(ai_prompt)
-        
-        if not ai_response:
-            raise Exception("Failed to get a response from the AI model")
-        
-        # Parse the AI response into our question format
-        question_data = parse_ai_response(ai_response, question_type)
-        
-        # Return the generated question data
-        return jsonify(question_data)
-    
-    except Exception as e:
-        print(f"AI question generation error: {str(e)}")
-        return jsonify({'error': str(e)}), 500
 
 @main.route('/question/<int:question_id>/edit', methods=['GET'])
 @admin_required
@@ -1414,21 +1630,32 @@ def view_response(response_id):
 def evaluate_code_with_ai(code_answer, question_text):
     """Evaluate code with AI and return (is_correct, score_percentage, explanation)."""
     try:
-        # Get coding evaluation samples for context
+        # Get coding evaluation samples for context from new CSV files
         evaluation_context = ""
         try:
-            active_datasets = Dataset.query.filter_by(is_active=True, is_builtin=True).all()
-            for dataset in active_datasets:
-                if 'coding_evaluation_samples' in dataset.filename:
-                    sample_data = dataset.get_sample_data(3)  # First 3 samples
-                    columns = dataset.get_columns()
-                    evaluation_context += f"\n\nCoding Evaluation Examples:\n"
-                    for sample in sample_data:
-                        evaluation_context += f"- Problem: {sample.get('problem_statement', '')[:100]}...\n"
-                        evaluation_context += f"  Sample Solution: {sample.get('sample_code', '')[:150]}...\n"
-                        evaluation_context += f"  Scoring Criteria: {sample.get('scoring_criteria', '')}\n"
-                        evaluation_context += f"  Common Mistakes: {sample.get('common_mistakes', '')}\n"
-                    break
+            # Try to load the IT Olympics coding CSV for context
+            csv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'datasets', 'it_olympics_coding.csv')
+            if os.path.exists(csv_path):
+                import pandas as pd
+                df = pd.read_csv(csv_path)
+                if not df.empty:
+                    evaluation_context += f"\n\nReference Problems:\n"
+                    for _, row in df.head(3).iterrows():  # Show first 3 problems as context
+                        evaluation_context += f"- Problem: {row.get('problem_statement', 'N/A')}\n"
+                        evaluation_context += f"  Language: {row.get('language', 'N/A')}\n"
+            else:
+                # Fallback to old dataset if new CSV doesn't exist
+                active_datasets = Dataset.query.filter_by(is_active=True, is_builtin=True).all()
+                for dataset in active_datasets:
+                    if 'coding_evaluation_samples' in dataset.filename:
+                        sample_data = dataset.get_sample_data(3)  # First 3 samples
+                        evaluation_context += f"\n\nCoding Evaluation Examples:\n"
+                        for sample in sample_data:
+                            evaluation_context += f"- Problem: {sample.get('problem_statement', '')[:100]}...\n"
+                            evaluation_context += f"  Sample Solution: {sample.get('sample_code', '')[:150]}...\n"
+                            evaluation_context += f"  Scoring Criteria: {sample.get('scoring_criteria', '')}\n"
+                            evaluation_context += f"  Common Mistakes: {sample.get('common_mistakes', '')}\n"
+                        break
         except Exception as e:
             print(f"Error getting evaluation context: {e}")
         
@@ -1448,11 +1675,12 @@ Student Code:
 {evaluation_context}
 
 Scoring rubric (pick ONE):
-- PERFECT (100): Runs correctly, fully solves the task
-- MINOR_FLAW (90): Small issues (syntax, variables, minor logic). Example: "The code runs correctly, but the variable names used are exchanged(Ex. instead of using num the student used num1)."
+
+-PERFECT (100): Runs correctly, fully solves the task.
+- MINOR_FLAW (90): Small issues (syntax, variables, minor logic). Example: "The code runs correctly, but the variable names used are different or exchanged (Ex. instead of using num the student used num1). Even if the program output is correct, using variable names not matching the required ones results in this deduction."
 - MAJOR_FLAW (70): Major issues (wrong data types). Example: "The code runs correctly, but the data types are incorrect."
-- SO_SO (50): Code is mostly wrong but has some correct parts. 
-- EFFORT (25): Input some coding but mostly wrong. 
+- SO_SO (50): Code is mostly wrong but has some correct parts.
+- EFFORT (25): Input some coding but mostly wrong.
 - ZERO (0): No meaningful attempt OR the code is written in a different programming language than required by the problem.
 
 Output format (exact):
@@ -1461,72 +1689,114 @@ Output format (exact):
 """
         
         model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\bartowski\\DeepSeek-Coder-V2-Lite-Instruct-GGUF\\DeepSeek-Coder-V2-Lite-Instruct-Q8_0_L.gguf"
-        ai_resp = query_lm_studio(prompt, max_tokens=400, timeout=60, model_path=model_path) or ""
-        
-        scores = {'PERFECT': 100, 'MINOR_FLAW': 90, 'MAJOR_FLAW': 70, 'SO_SO': 50, 'EFFORT': 25, 'ZERO': 0}
-        text = (ai_resp or '').strip()
-        analysis = None
         try:
-            import re
-            # Prefer explicit SCORE_VERDICT line; take the last occurrence if multiple
-            pattern = re.compile(r"SCORE_VERDICT\s*:\s*(PERFECT|MINOR_FLAW|MAJOR_FLAW|SO_SO|EFFORT|ZERO)", re.I)
-            matches = pattern.findall(text)
-            if matches:
-                category = matches[-1].upper()
-                # Extract analysis as everything before the last verdict line
-                last_verdict_match = list(pattern.finditer(text))[-1]
-                analysis = text[:last_verdict_match.start()].strip()
-            else:
-                # Fallback: choose the category that appears latest in the text
-                upper = text.upper()
-                positions = [(upper.rfind(k), k) for k in scores.keys() if upper.rfind(k) != -1]
-                category = max(positions)[1] if positions else 'ZERO'
+            ai_resp = query_lm_studio(prompt, max_tokens=400, timeout=60, model_path=model_path) or ""
+            
+            scores = {'PERFECT': 100, 'MINOR_FLAW': 90, 'MAJOR_FLAW': 70, 'SO_SO': 50, 'EFFORT': 25, 'ZERO': 0}
+            text = (ai_resp or '').strip()
+            analysis = None
+            try:
+                import re
+                # Clean up the text first - remove duplicate analysis sections
+                lines = text.split('\n')
+                cleaned_lines = []
+                analysis_sections = []
+                verdict_found = False
+                
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    
+                    # Check if this is a SCORE_VERDICT line
+                    if re.match(r"SCORE_VERDICT\s*:\s*(PERFECT|MINOR_FLAW|MAJOR_FLAW|SO_SO|EFFORT|ZERO)", line, re.I):
+                        if not verdict_found:
+                            cleaned_lines.append(line)
+                            verdict_found = True
+                    elif line.lower().startswith('analysis:'):
+                        # Start of analysis section
+                        analysis_sections.append(line)
+                    elif analysis_sections and not verdict_found:
+                        # Continue analysis section
+                        analysis_sections.append(line)
+                    elif not verdict_found:
+                        # Other content before verdict
+                        cleaned_lines.append(line)
+                
+                # Use the last analysis section if multiple found
+                if analysis_sections:
+                    analysis = '\n'.join(analysis_sections[-1:])  # Take only the last analysis
+                else:
+                    analysis = '\n'.join(cleaned_lines)
+                
+                # Find the verdict
+                pattern = re.compile(r"SCORE_VERDICT\s*:\s*(PERFECT|MINOR_FLAW|MAJOR_FLAW|SO_SO|EFFORT|ZERO)", re.I)
+                matches = pattern.findall(text)
+                if matches:
+                    category = matches[-1].upper()
+                else:
+                    # Fallback: choose the category that appears latest in the text
+                    upper = text.upper()
+                    positions = [(upper.rfind(k), k) for k in scores.keys() if upper.rfind(k) != -1]
+                    category = max(positions)[1] if positions else 'ZERO'
+                    
+            except Exception:
+                category = 'ZERO'
                 analysis = text.strip()
-        except Exception:
-            category = 'ZERO'
-            analysis = text.strip()
-        score = scores[category]
-        
-        feedback_lines = []
-        if analysis:
-            feedback_lines.append("Analysis:\n" + analysis)
-        feedback_lines.append(f"SCORE_VERDICT: {category} ({score}%)")
-        feedback = "\n\n".join(feedback_lines)
-        
-        return score >= 75, score, feedback
+            score = scores[category]
+            
+            feedback_lines = []
+            if analysis:
+                feedback_lines.append("Analysis:\n" + analysis)
+            feedback_lines.append(f"SCORE_VERDICT: {category} ({score}%)")
+            feedback = "\n\n".join(feedback_lines)
+            
+            return score >= 75, score, feedback
+        except Exception as e:
+            # LM Studio unavailable - return error
+            print(f"LM Studio unavailable for code evaluation: {e}")
+            return False, 0, "SCORE_VERDICT: ZERO (0%)\nAnalysis: LM Studio is unavailable for code evaluation."
     except Exception as e:
         print(f"Error evaluating code: {e}")
-        return False, 0, "SCORE_VERDICT: N/A Please contact the coordinator."
-
-# Built-in Dataset Management Routes
+        return False, 0, "SCORE_VERDICT: ZERO (0%)\nAnalysis: Code evaluation failed."
 
 def initialize_builtin_datasets():
     """Initialize built-in datasets from CSV files."""
     import os
     import pandas as pd
     
-    # Define built-in programming datasets
+    # Define built-in IT Olympics datasets
     datasets_config = [
         {
-            'name': 'Programming Languages',
-            'description': 'Syntax examples and paradigms for Python, C, C++, and Java',
-            'filename': 'programming_languages.csv'
+            'name': 'IT Olympics Multiple Choice',
+            'description': 'Multiple choice questions for IT Olympics topics',
+            'filename': 'it_olympics_multiple_choice.csv'
         },
         {
-            'name': 'Programming Concepts',
-            'description': 'Core programming concepts with examples and complexity levels',
-            'filename': 'programming_concepts.csv'
+            'name': 'IT Olympics True/False',
+            'description': 'True/False questions for IT Olympics topics',
+            'filename': 'it_olympics_true_false.csv'
         },
         {
-            'name': 'Algorithms Data',
-            'description': 'Common algorithms with time/space complexity and implementation hints',
-            'filename': 'algorithms_data.csv'
+            'name': 'IT Olympics Identification',
+            'description': 'Identification questions for IT Olympics topics',
+            'filename': 'it_olympics_identification.csv'
         },
         {
-            'name': 'Coding Evaluation Samples',
-            'description': 'Sample coding questions with solutions, test cases, and scoring criteria',
-            'filename': 'coding_evaluation_samples.csv'
-        }
+            'name': 'IT Olympics Enumeration',
+            'description': 'Enumeration questions for IT Olympics topics',
+            'filename': 'it_olympics_enumeration.csv'
+        },
+        {
+            'name': 'IT Olympics Checkbox',
+            'description': 'Checkbox questions for IT Olympics topics',
+            'filename': 'it_olympics_checkbox.csv'
+        },
+        {
+            'name': 'IT Olympics Coding',
+            'description': 'Coding problems for IT Olympics topics',
+            'filename': 'it_olympics_coding.csv'
+        },
     ]
     
     # Get the datasets directory path
@@ -1593,41 +1863,6 @@ def toggle_dataset_status(dataset_id):
     return redirect(url_for('main.manage_datasets'))
 
 
-@main.route('/datasets/context', methods=['GET'])
-@admin_required
-def get_datasets_context():
-    """Get active datasets for AI context (API endpoint)."""
-    try:
-        active_datasets = Dataset.query.filter_by(is_active=True, is_builtin=True).all()
-        
-        context_data = []
-        for dataset in active_datasets:
-            try:
-                # Get sample data for context
-                sample_data = dataset.get_sample_data(3)  # First 3 rows
-                columns = dataset.get_columns()
-                
-                context_data.append({
-                    'name': dataset.name,
-                    'description': dataset.description,
-                    'columns': columns,
-                    'sample_data': sample_data,
-                    'row_count': dataset.row_count
-                })
-            except Exception as e:
-                print(f"Error processing dataset {dataset.name}: {e}")
-                continue
-        
-        return jsonify({
-            'success': True,
-            'datasets': context_data
-        })
-        
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
 
 @main.route('/form/<int:form_id>/analytics', methods=['GET'])
 @admin_required
@@ -1863,3 +2098,28 @@ def form_analytics(form_id):
                          question_stats=question_stats,
                          avg_score=avg_score,
                          score_ranges=score_ranges)
+
+@main.route('/form/ai-question', methods=['POST'])
+def generate_ai_question_standalone():
+    """
+    Generate a question from datasets only (no AI)
+    This endpoint is called directly from the JavaScript frontend
+    """
+    # Get the prompt from the request
+    data = request.get_json() if request.is_json else request.form
+    prompt = data.get('prompt')
+    question_type = data.get('question_type', 'multiple_choice')
+    
+    if not prompt:
+        return jsonify({'error': 'Prompt is required'}), 400
+    
+    try:
+        # Use only offline dataset generation (no AI)
+        question_data = generate_question_from_datasets(prompt, question_type)
+        
+        # Return the generated question data
+        return jsonify(question_data)
+    
+    except Exception as e:
+        print(f"Dataset question generation error: {str(e)}")
+        return jsonify({'error': str(e)}), 500

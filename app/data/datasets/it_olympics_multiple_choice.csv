@@ -1,0 +1,106 @@
+topic,question,A,B,C,D,correct
+Cybersecurity,Which protocol is used for secure web communication?,HTTP,FTP,HTTPS,SMTP,C
+Cybersecurity,What does a firewall primarily protect against?,Viruses,Unauthorized access,Data compression,Encryption,B
+Cybersecurity,Which type of malware demands payment to unlock files?,Spyware,Ransomware,Worm,Trojan,B
+Cybersecurity,What is the process of converting data into a code to prevent unauthorized access?,Encoding,Decoding,Encryption,Hashing,C
+Cybersecurity,What does VPN stand for?,Virtual Private Network,Verified Public Node,Virtual Personal Network,Variable Process Node,A
+Cybersecurity,Which of the following is an example of two-factor authentication?,Password only,Password and OTP,Username and password,Fingerprint only,B
+Cybersecurity,What is phishing primarily used for?,Spamming,Data theft,Encryption,Advertising,B
+Cybersecurity,Which organization is responsible for cybersecurity awareness?,WHO,CERT,UNESCO,NASA,B
+Cybersecurity,What is the strongest password?,123456,Password1,MyDog,RandomCharacters123!,D
+Cybersecurity,What does SSL stand for?,Secure Socket Layer,Simple Security Lock,Server Secure Link,Socket Secure Login,A
+Digital Electronics,What does IC stand for?,Internal Circuit,Integrated Circuit,Inverted Current,Input Control,B
+Digital Electronics,Which logic gate outputs true only when both inputs are true?,OR,AND,NOR,XOR,B
+Digital Electronics,What is the binary equivalent of decimal 5?,101,100,110,111,A
+Digital Electronics,Which component stores charge?,Resistor,Capacitor,Inductor,Transistor,B
+Digital Electronics,What is the base of the hexadecimal system?,10,12,16,8,C
+Digital Electronics,What device converts analog signals to digital?,ADC,DAC,OP-AMP,Transistor,A
+Digital Electronics,Which gate is known as the universal gate?,AND,NAND,OR,XOR,B
+Digital Electronics,Which flip-flop stores one bit of data?,D Flip-Flop,T Flip-Flop,JK Flip-Flop,RS Flip-Flop,A
+Linux Administration,Which command lists files in a directory?,ls,cat,cp,mv,A
+Linux Administration,Which command is used to change directories?,cd,ls,rm,cp,A
+Linux Administration,Which command deletes files?,del,remove,rm,erase,C
+Linux Administration,What symbol represents the home directory?,~,%,#,*,A
+Linux Administration,Which user has all system privileges?,root,sudo,admin,super,B
+Linux Administration,Which command shows current working directory?,where,locate,pwd,dir,C
+Linux Administration,Which command displays running processes?,run,show,ps,list,C
+Networking,Which device connects multiple networks together?,Switch,Router,Hub,Repeater,B
+Networking,Which topology connects all devices to a central hub?,Star,Bus,Ring,Mesh,A
+Networking,Which protocol is used to send emails?,POP3,SMTP,IMAP,HTTP,B
+Networking,Which IP version uses 128-bit addresses?,IPv4,IPv6,IPX,TCP,B
+Networking,Which layer in OSI model handles routing?,Transport,Network,Session,Physical,B
+Networking,Which device operates at the data link layer?,Hub,Switch,Router,Bridge,B
+Networking,Which protocol is used for file transfer?,FTP,HTTP,TCP,SMTP,A
+Robotics,What is used to sense the environment?,Actuator,Sensor,Battery,Motor,B
+Robotics,Which component moves parts of a robot?,Sensor,Actuator,Transistor,Relay,B
+Robotics,Which robot part processes input data?,Controller,Sensor,Actuator,Relay,A
+Robotics,What type of robot mimics human actions?,Drone,Android,Automaton,Servo,B
+Robotics,Which programming language is popular in robotics?,HTML,Python,PHP,Swift,B
+Robotics,What is the purpose of a servo motor?,Measure distance,Control movement,Process data,Store energy,B
+Robotics,Which robot uses wheels for motion?,Humanoid,Mobile,Arm,Industrial,B
+Android Apps Development (IoT),Which protocol is common in IoT?,HTTP,MQTT,SMTP,FTP,B
+Android Apps Development (IoT),Which is a microcontroller board for IoT?,Arduino,CPU,GPU,Monitor,A
+Android Apps Development (IoT),Which wireless tech is used in IoT?,Wi-Fi,NFC,Bluetooth,Zigbee,D
+Android Apps Development (IoT),What does IoT stand for?,Internet of Tasks,Internet of Things,Interface of Things,Internet of Technology,B
+Android Apps Development (IoT),Which cloud platform supports IoT?,Google Cloud,Android Studio,Photoshop,WordPress,A
+Android Apps Development (Productivity),Which language is mainly used in Android?,C#,Java,Python,C++,B
+Android Apps Development (Productivity),Which tool is used to design Android UI?,Figma,Android Studio,GitHub,Blender,B
+Android Apps Development (Productivity),What is APK?,Android Package,Application Key,Android Kit,App Kernel,A
+Android Apps Development (Game Development),Which engine is popular for Android games?,Unreal,Unity,Godot,CryEngine,B
+Android Apps Development (Game Development),Which file format stores Android resources?,.java,.xml,.apk,.dex,B
+Android Apps Development (Game Development),What library is used for 2D graphics?,OpenGL,Canvas,Render,Bitmap,B
+Database Programming,Which SQL command retrieves data?,INSERT,DELETE,SELECT,UPDATE,C
+Database Programming,Which command adds data?,INSERT,ADD,APPEND,INPUT,A
+Database Programming,Which command removes data?,DELETE,DROP,ERASE,REMOVE,A
+Database Programming,Which key uniquely identifies rows?,Primary,Foreign,Alternate,Composite,A
+Database Programming,Which SQL clause filters results?,GROUP BY,ORDER BY,WHERE,HAVING,C
+Database Programming,Which is a relational database?,MongoDB,MySQL,Neo4j,Redis,B
+Database Programming,Which symbol represents a wildcard?,%,*,#,?,A
+Java Programming,Which keyword is used for inheritance?,inherit,extends,super,base,B
+Java Programming,What is JVM?,Java Virtual Machine,Java Version Manager,Just Virtual Module,Java Value Manager,A
+Java Programming,Which method starts Java programs?,begin(),start(),main(),init(),C
+Java Programming,What does OOP stand for?,Object Oriented Programming,Online Open Program,Open Object Process,Overload Operation Program,A
+Java Programming,Which keyword creates objects?,this,new,super,alloc,B
+Java Programming,Which keyword prevents inheritance?,lock,final,private,const,B
+Java Programming,Which access specifier makes members visible to all?,public,private,protected,internal,A
+.NET Programming using C#,Which symbol denotes single-line comments?,//,#,%,--,A
+.NET Programming using C#,Which keyword defines a class?,define,class,new,object,B
+.NET Programming using C#,Which method is entry point?,run(),main(),Start(),Execute(),B
+.NET Programming using C#,What is the extension of C# files?,.c,.cpp,.java,.cs,D
+.NET Programming using C#,Which keyword is used for inheritance?,extends,base,inherit,:,A
+.NET Programming using C#,Which framework runs C# code?,JVM,CLR,SDK,API,B
+.NET Programming using C#,Which type represents whole numbers?,float,string,int,double,C
+Python Programming,Which keyword defines a function?,function,def,lambda,define,B
+Python Programming,Which data type is immutable?,List,Set,Dictionary,Tuple,D
+Python Programming,What does IDE stand for?,Integrated Development Environment,Internal Data Engine,Input Data Executor,Independent Developer Extension,A
+Python Programming,Which library is used for data analysis?,NumPy,Matplotlib,Pandas,Requests,C
+Python Programming,Which operator is used for exponentiation?,*,**,^,//,B
+Python Programming,Which keyword handles exceptions?,throw,try,except,handle,C
+Python Programming,Which keyword creates a loop?,for,repeat,loop,iterate,A
+Web Design,Which language is used for structuring web pages?,HTML,CSS,JavaScript,Python,A
+Web Design,Which tag creates a hyperlink?,<p>,<a>,<h1>,<link>,B
+Web Design,Which language styles HTML?,CSS,PHP,JavaScript,HTML,A
+Web Design,Which tag inserts an image?,<img>,<src>,<pic>,<photo>,A
+Web Design,Which property changes text color?,color,text-color,font-color,background-color,A
+Web Design,Which HTML version introduced semantic tags?,HTML4,HTML5,XHTML,HTML3,B
+Web Design,Which tag creates a table row?,<td>,<tr>,<table>,<th>,B
+IT Quiz Bee,Who is the father of computers?,Einstein,Charles Babbage,Alan Turing,Bill Gates,B
+IT Quiz Bee,Which company developed Windows?,Microsoft,Apple,IBM,Google,A
+IT Quiz Bee,Which unit measures data size?,Bit,Pixel,Second,Volt,A
+IT Quiz Bee,Which of the following is an input device?,Monitor,Printer,Keyboard,Speaker,C
+IT Quiz Bee,What does CPU stand for?,Central Process Unit,Central Processing Unit,Computer Personal Unit,Central Program Utility,B
+IT Quiz Bee,Which device stores permanent data?,RAM,ROM,Cache,Register,B
+IT Quiz Bee,What does AI stand for?,Artificial Interface,Artificial Intelligence,Automated Intelligence,Analog Interface,B
+E-Sports (ML),Which hero role soaks up damage?,Mage,Tank,Marksman,Assassin,B
+E-Sports (ML),Which objective grants gold to all teammates?,Turtle,Lord,Turret,Minion,A
+E-Sports (ML),Which lane is usually for marksman?,Mid,Top,Gold,EXP,C
+E-Sports (ML),What does MM stand for?,Main Mage,Main Marksman,Matchmaking,Mobile Mode,C
+E-Sports (ML),Which item provides lifesteal?,Blade of Despair,Hunter Strike,Haas's Claws,Immortality,C
+E-Sports (ML),What color is the buff from Lithowanderer?,Blue,Red,Orange,Purple,A
+E-Sports (CODM),What mode involves planting bombs?,Search and Destroy,Domination,Frontline,Hardpoint,A
+E-Sports (CODM),Which gun is an assault rifle?,DLQ33,AK47,KRM,MW11,B
+E-Sports (CODM),Which scorestreak calls a helicopter?,UAV,VTOL,Counter UAV,Shield,B
+E-Sports (CODM),What is the main objective of Domination?,Hold points,Plant bombs,Kill enemies,Defend flag,A
+E-Sports (CODM),Which perk hides you from UAV?,Ghost,Alert,Hardline,Cold Blooded,A
+E-Sports (CODM),What map is snowy?,Nuketown,Crash,Icebreaker,Firing Range,C
+E-Sports (CODM),Which button reloads weapon by default?,R,F,E,T,A
