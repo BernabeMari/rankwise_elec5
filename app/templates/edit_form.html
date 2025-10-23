@@ -893,12 +893,18 @@
                 }
                 const results = await Promise.allSettled(tasks);
                 
-                // Dedupe by normalized question text
+                // Dedupe by normalized question text (less aggressive for coding questions)
                 const unique = [];
                 const seen = new Set();
                 results.forEach(r => {
                     if (r.status === 'fulfilled' && r.value && r.value.text) {
-                        const key = normalizeText(r.value.text);
+                        let key = normalizeText(r.value.text);
+                        
+                        // For coding questions, include language and topic in deduplication key
+                        if (typeValue === 'coding' && r.value.language) {
+                            key = `${key}_${r.value.language}_${r.value.topic || ''}`;
+                        }
+                        
                         if (key && !seen.has(key)) {
                             seen.add(key);
                             unique.push(r.value);
@@ -1008,6 +1014,23 @@
                                     const correctList = Array.isArray(q.correct_answer) ? q.correct_answer : [];
                                     return `<ul class=\"ai-options-list\">${q.options.map(o => `<li class=\"ai-option-item ${correctList.includes(o) ? 'correct' : ''}\">${o}${correctList.includes(o) ? '<span class=\"badge bg-success float-end\">Correct</span>' : ''}</li>`).join('')}</ul>${correctList.length ? `<p><strong>Correct Answers:</strong> ${correctList.map(c=>`<span class=\"badge bg-success me-1\">${c}</span>`).join('')}</p>` : ''}`;
                                 })() : ''}
+                                ${q.question_type === 'coding' ? `
+                                    <div class="mb-2">
+                                        <small class="text-muted">Language: <span class="badge bg-primary">${q.language || 'Unknown'}</span> | Topic: <span class="badge bg-secondary">${q.topic || 'Unknown'}</span></small>
+                                    </div>
+                                    ${q.sample_code ? `
+                                        <div class="mb-2">
+                                            <h6>Sample Code:</h6>
+                                            <pre class="p-2 bg-light border rounded small"><code>${q.sample_code}</code></pre>
+                                        </div>
+                                    ` : ''}
+                                    ${q.expected_output ? `
+                                        <div class="mb-2">
+                                            <h6>Unit Tests:</h6>
+                                            <pre class="p-2 bg-dark text-light border rounded small"><code>${q.expected_output}</code></pre>
+                                        </div>
+                                    ` : ''}
+                                ` : ''}
                             </div>
                         `;
                     });

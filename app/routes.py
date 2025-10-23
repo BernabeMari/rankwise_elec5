@@ -683,84 +683,105 @@ def generate_question_from_datasets(prompt, question_type):
                 if not dfcode.empty:
                 # Search for coding problems matching prompt
                     selected_problem = None
-                if prompt and prompt.strip():
-                    prompt_lower = prompt.lower()
-                    scores = []
-                    for idx, row in dfcode.iterrows():
-                        score = 0
-                        problem = str(row.get('problem_statement', '')).lower()
-                        topic = str(row.get('topic', '')).lower()
-                        language = str(row.get('language', '')).lower()
-                        # Higher score for exact language match, then partial match
-                        prompt_words = prompt_lower.split()
-                        
-                        # Handle language aliases
-                        language_aliases = {
-                            'c++': ['cpp', 'c++', 'c plus plus'],
-                            'c': ['c'],
-                            'python': ['python', 'py'],
-                            'java': ['java']
-                        }
-                        
-                        # Check for exact match or alias match
-                        exact_match = False
-                        for lang_key, aliases in language_aliases.items():
-                            if language == lang_key and any(alias in prompt_words for alias in aliases):
-                                score += 20  # Exact match gets highest score
-                                exact_match = True
-                                break
-                        
-                        if not exact_match:
-                            # Check for partial matches, but avoid C matching C++
-                            if 'c' in prompt_words and language == 'c++':
-                                score += 0  # Don't match C to C++
-                            elif 'c++' in prompt_words and language == 'c':
-                                score += 0  # Don't match C++ to C
-                            elif any(word in language for word in prompt_words):
-                                score += 15
+                    
+                    # Remove variant suffixes like "(Variant 1)" from prompt
+                    clean_prompt = prompt
+                    if prompt and prompt.strip():
+                        import re
+                        clean_prompt = re.sub(r'\s*\(Variant\s+\d+\)', '', prompt).strip()
+                    
+                    if clean_prompt and clean_prompt.strip():
+                        prompt_lower = clean_prompt.lower()
+                        scores = []
+                        for idx, row in dfcode.iterrows():
+                            score = 0
+                            problem = str(row.get('problem_statement', '')).lower()
+                            topic = str(row.get('topic', '')).lower()
+                            language = str(row.get('language', '')).lower()
+                            # Higher score for exact language match, then partial match
+                            prompt_words = prompt_lower.split()
                             
-                            # Enhanced concept matching with specific keywords
-                            concept_keywords = {
-                                'if': ['if', 'else', 'elif', 'conditional', 'condition'],
-                                'loop': ['loop', 'for', 'while', 'iteration', 'iterate'],
-                                'function': ['function', 'def', 'method', 'procedure'],
-                                'array': ['array', 'list', 'vector', 'collection'],
-                                'string': ['string', 'text', 'char', 'character'],
-                                'algorithm': ['algorithm', 'sort', 'search', 'binary', 'linear'],
-                                'grade': ['grade', 'score', 'mark', 'rating'],
-                                'factorial': ['factorial', 'fact'],
-                                'even': ['even', 'odd', 'parity'],
-                                'max': ['max', 'maximum', 'largest', 'biggest'],
-                                'min': ['min', 'minimum', 'smallest']
+                            # Handle language aliases
+                            language_aliases = {
+                                'c++': ['cpp', 'c++', 'c plus plus'],
+                                'c': ['c'],
+                                'python': ['python', 'py'],
+                                'java': ['java']
                             }
                             
-                            # Check for programming concept matches with higher precision
-                            for concept, keywords in concept_keywords.items():
-                                if any(keyword in prompt_lower for keyword in keywords):
-                                    # If the problem statement contains the exact concept, give high bonus
-                                    if any(keyword in problem for keyword in keywords):
-                                        score += 25  # Higher bonus for exact concept match
-                                    # If the topic matches, give points
-                                    if concept in topic:
-                                        score += 15
-                                    # Special handling for specific concepts
-                                    if concept == 'grade' and 'grade' in prompt_lower and 'grade' in problem:
-                                        score += 30  # Extra bonus for exact grade match
-                                    if concept == 'factorial' and 'factorial' in prompt_lower and 'factorial' in problem:
-                                        score += 30  # Extra bonus for exact factorial match
+                            # Check for exact match or alias match
+                            exact_match = False
+                            for lang_key, aliases in language_aliases.items():
+                                if language == lang_key and any(alias in prompt_words for alias in aliases):
+                                    score += 50  # Exact match gets highest score
+                                    exact_match = True
+                                    break
                             
+                            if not exact_match:
+                                # Check for partial matches, but avoid C matching C++
+                                if 'c' in prompt_words and language == 'c++':
+                                    score += 0  # Don't match C to C++
+                                elif 'c++' in prompt_words and language == 'c':
+                                    score += 0  # Don't match C++ to C
+                                elif any(word in language for word in prompt_words):
+                                    score += 15
+                                
+                                # Enhanced concept matching with specific keywords
+                                concept_keywords = {
+                                    'if': ['if', 'else', 'elif', 'conditional', 'condition'],
+                                    'loop': ['loop', 'for', 'while', 'iteration', 'iterate'],
+                                    'function': ['function', 'def', 'method', 'procedure'],
+                                    'array': ['array', 'list', 'vector', 'collection'],
+                                    'string': ['string', 'text', 'char', 'character'],
+                                    'algorithm': ['algorithm', 'sort', 'search', 'binary', 'linear'],
+                                    'grade': ['grade', 'score', 'mark', 'rating'],
+                                    'factorial': ['factorial', 'fact'],
+                                    'even': ['even', 'odd', 'parity'],
+                                    'max': ['max', 'maximum', 'largest', 'biggest'],
+                                    'min': ['min', 'minimum', 'smallest']
+                                }
+                                
+                                # Check for programming concept matches with higher precision
+                                for concept, keywords in concept_keywords.items():
+                                    if any(keyword in prompt_lower for keyword in keywords):
+                                        # If the problem statement contains the exact concept, give high bonus
+                                        if any(keyword in problem for keyword in keywords):
+                                            score += 25  # Higher bonus for exact concept match
+                                        # If the topic matches, give points
+                                        if concept in topic:
+                                            score += 15
+                                        # Special handling for specific concepts
+                                        if concept == 'grade' and 'grade' in prompt_lower and 'grade' in problem:
+                                            score += 30  # Extra bonus for exact grade match
+                                        if concept == 'factorial' and 'factorial' in prompt_lower and 'factorial' in problem:
+                                            score += 30  # Extra bonus for exact factorial match
+                                
                         if any(word in topic for word in prompt_lower.split()):
                             score += 10
                         if any(word in problem for word in prompt_lower.split()):
                             score += 5
+                            
+                            # Add random factor to ensure variety when generating multiple questions
+                            import random
+                            random_factor = random.uniform(0, 5)
+                            score += random_factor
+                            
                         scores.append((score, idx))
                     scores.sort(reverse=True)
                     if scores and scores[0][0] > 0:
-                            selected_problem = dfcode.iloc[scores[0][1]]
+                        selected_problem = dfcode.iloc[scores[0][1]]
                     
                     # If no match found or no prompt, select random
                     if selected_problem is None:
                         import random
+                        # If we have a specific language request, try to find that language first
+                        if clean_prompt and any(word in clean_prompt.lower() for word in ['python', 'py', 'c', 'c++', 'cpp', 'java']):
+                            lang_filtered = dfcode[dfcode['language'].str.lower().isin(['python', 'c', 'c++', 'java'])]
+                            if not lang_filtered.empty:
+                                selected_problem = lang_filtered.sample(n=1).iloc[0]
+                        else:
+                            selected_problem = dfcode.sample(n=1).iloc[0]
+                    else:
                         selected_problem = dfcode.sample(n=1).iloc[0]
                     
                     # Create sample code with hints
@@ -1815,7 +1836,7 @@ def evaluate_code_with_custom_system(code_answer, question_text, question_unit_t
             
             # Use custom evaluator
             is_correct, score, feedback = code_evaluator.evaluate_code(code_answer, problem_id, language)
-        
+            
         return is_correct, score, feedback
         
     except Exception as e:
