@@ -1,5 +1,317 @@
-problem_id,topic,language,problem_statement
-1,Algorithms,Python,Write a function that takes a list of numbers and returns their sum
-2,Algorithms,C,Implement a function that returns the sum of an integer array
-3,Algorithms,C++,Implement a function that returns the sum of a vector of integers
-4,Algorithms,Java,Write a method that returns the sum of an int array
+"problem_id","topic","language","problem_statement","unit_tests","expected_outputs","scoring_criteria","max_score","hints"
+"1","Algorithms","Python","Write a Python code that takes a list of numbers and returns their sum","def test_sum_function():
+    assert sum_numbers([1, 2, 3, 4]) == 10
+    assert sum_numbers([]) == 0
+    assert sum_numbers([-1, 1]) == 0
+    assert sum_numbers([5]) == 5
+    assert sum_numbers([1, 2, 3, 4, 5]) == 15","10
+0
+0
+5
+15","Function correctly implemented: 40 points
+Handles empty list: 20 points
+Handles negative numbers: 20 points
+Handles single element: 10 points
+Handles multiple elements: 10 points","100","Use 'sum_numbers' as the function name"
+"2","Algorithms","C","Implement a function in C that returns the sum of an integer array","#include <assert.h>
+int main() {
+    int arr1[] = {1, 2, 3, 4};
+    int arr2[] = {};
+    int arr3[] = {-1, 1};
+    int arr4[] = {5};
+    assert(sum_array(arr1, 4) == 10);
+    assert(sum_array(arr2, 0) == 0);
+    assert(sum_array(arr3, 2) == 0);
+    assert(sum_array(arr4, 1) == 5);
+    return 0;
+}","10
+0
+0
+5","Function correctly implemented: 40 points
+Handles empty array: 20 points
+Handles negative numbers: 20 points
+Handles single element: 10 points
+Handles multiple elements: 10 points","100","Use 'sum_array' as the function name, 'arr' for array parameter, 'size' for array size"
+"3","Algorithms","C++","Implement a function in C++ that returns the sum of a vector of integers","#include <vector>
+#include <cassert>
+int main() {
+    std::vector<int> v1 = {1, 2, 3, 4};
+    std::vector<int> v2 = {};
+    std::vector<int> v3 = {-1, 1};
+    std::vector<int> v4 = {5};
+    assert(sum_vector(v1) == 10);
+    assert(sum_vector(v2) == 0);
+    assert(sum_vector(v3) == 0);
+    assert(sum_vector(v4) == 5);
+    return 0;
+}","10
+0
+0
+5","Function correctly implemented: 40 points
+Handles empty vector: 20 points
+Handles negative numbers: 20 points
+Handles single element: 10 points
+Handles multiple elements: 10 points","100","Use 'sum_vector' as the function name, 'v' for vector parameter"
+"4","Algorithms","Java","Write a Java code that returns the sum of an int array","public class TestSum {
+    public static void main(String[] args) {
+        int[] arr1 = {1, 2, 3, 4};
+        int[] arr2 = {};
+        int[] arr3 = {-1, 1};
+        int[] arr4 = {5};
+        assert sumArray(arr1) == 10;
+        assert sumArray(arr2) == 0;
+        assert sumArray(arr3) == 0;
+        assert sumArray(arr4) == 5;
+    }
+}","10
+0
+0
+5","Function correctly implemented: 40 points
+Handles empty array: 20 points
+Handles negative numbers: 20 points
+Handles single element: 10 points
+Handles multiple elements: 10 points","100","Use 'sumArray' as the method name, 'arr' for array parameter"
+"5","Conditionals","Python","Write a function that checks if a number is even or odd and returns 'Even' or 'Odd'","def test_even_odd():
+    assert even_or_odd(2) == 'Even'
+    assert even_or_odd(3) == 'Odd'
+    assert even_or_odd(0) == 'Even'
+    assert even_or_odd(-4) == 'Even'
+    assert even_or_odd(-7) == 'Odd'","Even
+Odd
+Even
+Even
+Odd","Correctly identifies even numbers: 40 points
+Correctly identifies odd numbers: 40 points
+Handles zero: 10 points
+Handles negative numbers: 10 points","100","Use 'even_or_odd' as the function name"
+"6","Conditionals","Python","Write a function that returns 'Positive', 'Negative', or 'Zero' depending on the number","def test_number_sign():
+    assert number_sign(5) == 'Positive'
+    assert number_sign(-3) == 'Negative'
+    assert number_sign(0) == 'Zero'","Positive
+Negative
+Zero","Correctly handles positive numbers: 40 points
+Correctly handles negative numbers: 40 points
+Handles zero: 20 points","100","Use if-elif-else statements"
+"7","Conditionals","Python","Write a function that returns 'Pass' if score >= 75, otherwise 'Fail'","def test_pass_fail():
+    assert pass_fail(80) == 'Pass'
+    assert pass_fail(74) == 'Fail'
+    assert pass_fail(75) == 'Pass'","Pass
+Fail
+Pass","Handles boundary conditions: 40 points
+Correct output for Pass: 30 points
+Correct output for Fail: 30 points","100","Use comparison operators and if-else"
+"8","Conditionals","Python","Write a function that returns the largest of two numbers","def test_max_two():
+    assert max_two(3, 7) == 7
+    assert max_two(10, 5) == 10
+    assert max_two(-1, -3) == -1","7
+10
+-1","Handles greater number correctly: 50 points
+Handles negative numbers: 30 points
+Handles equality: 20 points","100","Use if-else comparison"
+"9","Conditionals","Python","Write a function that returns the largest of three numbers","def test_max_three():
+    assert max_three(3, 7, 5) == 7
+    assert max_three(10, 5, 15) == 15
+    assert max_three(-1, -3, -2) == -1","7
+15
+-1","Correctly identifies largest: 50 points
+Handles negative numbers: 30 points
+Handles equal values: 20 points","100","Use nested if-else"
+"10","Switch Case","Python","Use match-case to return a day name given a number (1=Monday, ..., 7=Sunday)","def test_day_name():
+    assert day_name(1) == 'Monday'
+    assert day_name(5) == 'Friday'
+    assert day_name(7) == 'Sunday'
+    assert day_name(8) == 'Invalid'","Monday
+Friday
+Sunday
+Invalid","Correctly maps days 1–7: 70 points
+Handles invalid input: 30 points","100","Use match-case structure (Python 3.10+)"
+"11","Switch Case","Python","Use match-case to return traffic light meaning ('red' → 'Stop', 'yellow' → 'Caution', 'green' → 'Go')","def test_traffic_light():
+    assert traffic_light('red') == 'Stop'
+    assert traffic_light('yellow') == 'Caution'
+    assert traffic_light('green') == 'Go'
+    assert traffic_light('blue') == 'Invalid'","Stop
+Caution
+Go
+Invalid","Correctly matches each case: 70 points
+Handles invalid color: 30 points","100","Use lowercase strings and match-case"
+"12","Loops","Python","Write a function that returns the sum of numbers from 1 to n using a loop","def test_sum_n():
+    assert sum_to_n(5) == 15
+    assert sum_to_n(1) == 1
+    assert sum_to_n(0) == 0","15
+1
+0","Correct loop implementation: 50 points
+Handles 0: 30 points
+Handles small numbers: 20 points","100","Use a for loop to accumulate the sum"
+"13","Loops","Python","Write a function that returns the factorial of a number using a loop","def test_factorial():
+    assert factorial(5) == 120
+    assert factorial(0) == 1
+    assert factorial(1) == 1","120
+1
+1","Correctly computes factorial: 60 points
+Handles 0 and 1: 40 points","100","Use a for loop multiplying numbers from 1 to n"
+"14","Loops","Python","Write a function that counts how many even numbers are in a list","def test_count_even():
+    assert count_even([1, 2, 3, 4]) == 2
+    assert count_even([1, 3, 5]) == 0
+    assert count_even([]) == 0","2
+0
+0","Correctly counts evens: 50 points
+Handles empty list: 30 points
+Handles all odd: 20 points","100","Use a for loop and modulo operator"
+"15","Loops","Python","Write a function that prints numbers 1 to n and returns a list of them","def test_print_numbers():
+    assert print_numbers(5) == [1, 2, 3, 4, 5]
+    assert print_numbers(0) == []","[1, 2, 3, 4, 5]
+[]","Correctly generates range: 60 points
+Handles zero: 40 points","100","Use range() in a for loop"
+"16","Loops","Python","Write a function that returns the sum of even numbers from 1 to n","def test_sum_even_n():
+    assert sum_even_n(5) == 6
+    assert sum_even_n(10) == 30
+    assert sum_even_n(1) == 0","6
+30
+0","Correctly sums even numbers: 60 points
+Handles odd limits: 40 points","100","Use modulo operator inside a loop"
+"17","Conditionals","Python","Write a function that checks if a year is a leap year","def test_leap_year():
+    assert leap_year(2020) == True
+    assert leap_year(1900) == False
+    assert leap_year(2000) == True","True
+False
+True","Handles divisible by 4 rule: 40 points
+Handles century rule: 40 points
+Handles 400-year rule: 20 points","100","Use nested if-else conditions"
+"18","Switch Case","Python","Use match-case to return operation result ('add','sub','mul','div') on two numbers","def test_calculator():
+    assert calculator('add',2,3) == 5
+    assert calculator('sub',5,2) == 3
+    assert calculator('mul',3,4) == 12
+    assert calculator('div',6,3) == 2
+    assert calculator('mod',5,2) == 'Invalid'","5
+3
+12
+2
+Invalid","Handles all valid operations: 70 points
+Handles invalid operation: 30 points","100","Use match-case to select arithmetic operation"
+"19","Conditionals","Python","Write a function that returns the absolute value of a number without using abs()","def test_absolute():
+    assert absolute(-5) == 5
+    assert absolute(3) == 3
+    assert absolute(0) == 0","5
+3
+0","Handles negatives: 40 points
+Handles positives: 40 points
+Handles zero: 20 points","100","Use if-else to check sign"
+"20","Loops","Python","Write a function that counts the number of vowels in a string","def test_count_vowels():
+    assert count_vowels('hello') == 2
+    assert count_vowels('sky') == 0
+    assert count_vowels('AEIOU') == 5","2
+0
+5","Counts lowercase vowels: 50 points
+Counts uppercase vowels: 30 points
+Handles empty strings: 20 points","100","Use a for loop and check membership in 'aeiouAEIOU'"
+"21","Conditionals","Python","Write a function that returns the grade letter given a score","def test_grade_letter():
+    assert grade_letter(95) == 'A'
+    assert grade_letter(82) == 'B'
+    assert grade_letter(70) == 'C'
+    assert grade_letter(60) == 'D'
+    assert grade_letter(40) == 'F'","A
+B
+C
+D
+F","Correct grade classification: 80 points
+Handles lower limits: 20 points","100","Use if-elif-else chain"
+"22","Loops","Python","Write a function that reverses a string using a loop","def test_reverse_string():
+    assert reverse_string('abc') == 'cba'
+    assert reverse_string('') == ''
+    assert reverse_string('a') == 'a'","cba
+ 
+a","Correct reversal: 60 points
+Handles empty and single character: 40 points","100","Use a for loop iterating backward"
+"23","Loops","Python","Write a function that returns the product of all numbers in a list","def test_product_list():
+    assert product_list([1, 2, 3, 4]) == 24
+    assert product_list([5]) == 5
+    assert product_list([]) == 1","24
+5
+1","Correct multiplication logic: 50 points
+Handles empty list (return 1): 50 points","100","Use a for loop with multiplication"
+"24","Conditionals","Python","Write a function that returns True if a number is divisible by both 3 and 5","def test_divisible_by_3_and_5():
+    assert divisible_by_3_and_5(15) == True
+    assert divisible_by_3_and_5(10) == False
+    assert divisible_by_3_and_5(9) == False","True
+False
+False","Correctly checks divisibility: 80 points
+Handles negatives and zero: 20 points","100","Use modulo and logical operators"
+"25","Loops","Python","Write a function that finds the smallest number in a list","def test_min_in_list():
+    assert min_in_list([3,1,2]) == 1
+    assert min_in_list([-5,-2,-9]) == -9
+    assert min_in_list([7]) == 7","1
+-9
+7","Correct minimum logic: 60 points
+Handles negatives and single element: 40 points","100","Use a for loop comparing each element"
+"26","Control Structures","Python","Write a Python function that checks if a number is even or odd using if-else statements","def test_even_odd():
+    assert check_even_odd(4) == 'even'
+    assert check_even_odd(7) == 'odd'
+    assert check_even_odd(0) == 'even'
+    assert check_even_odd(-2) == 'even'
+    assert check_even_odd(-3) == 'odd'","even
+odd
+even
+even
+odd","Correct if-else logic: 50 points
+Handles zero and negatives: 30 points
+Proper return values: 20 points","100","Use 'check_even_odd' as function name, 'num' for parameter"
+"27","Control Structures","Python","Write a Python function that finds the maximum of three numbers using if-else statements","def test_max_three():
+    assert max_three(1, 2, 3) == 3
+    assert max_three(5, 2, 1) == 5
+    assert max_three(1, 5, 2) == 5
+    assert max_three(3, 3, 3) == 3
+    assert max_three(-1, -2, -3) == -1","3
+5
+5
+3
+-1","Correct comparison logic: 60 points
+Handles equal values: 20 points
+Handles negatives: 20 points","100","Use 'max_three' as function name, 'a', 'b', 'c' for parameters"
+"28","Control Structures","Python","Write a Python function that determines the grade based on score using if-elif-else","def test_grade():
+    assert get_grade(95) == 'A'
+    assert get_grade(85) == 'B'
+    assert get_grade(75) == 'C'
+    assert get_grade(65) == 'D'
+    assert get_grade(55) == 'F'
+    assert get_grade(100) == 'A'
+    assert get_grade(0) == 'F'","A
+B
+C
+D
+F
+A
+F","Correct grade logic: 50 points
+Handles all grade ranges: 30 points
+Edge cases (0, 100): 20 points","100","Use 'get_grade' as function name, 'score' for parameter"
+"29","Loops","Python","Write a Python function that prints numbers from 1 to n using a for loop","def test_count_up():
+    # This test checks the function exists and can be called
+    try:
+        count_up(5)
+        result = True
+    except:
+        result = False
+    assert result == True","True","Function exists and runs: 100 points","100","Use 'count_up' as function name, 'n' for parameter"
+"30","Loops","Python","Write a Python function that calculates factorial using a for loop","def test_factorial():
+    assert factorial(5) == 120
+    assert factorial(3) == 6
+    assert factorial(1) == 1
+    assert factorial(0) == 1
+    assert factorial(4) == 24","120
+6
+1
+1
+24","Correct factorial logic: 60 points
+Handles edge cases (0, 1): 40 points","100","Use 'factorial' as function name, 'n' for parameter"
+"31","Algorithms","Python","Write a Python function that adds two integers","def test_add_function():
+    assert add_two_numbers(a=2, b=3) == 5
+    assert add_two_numbers(a=-1, b=-4) == -5
+    assert add_two_numbers(a=-2, b=5) == 3
+    assert add_two_numbers(a=0, b=7) == 7
+    assert add_two_numbers(a=0, b=0) == 0","5
+-5
+3
+7
+0","Function correctly implemented using 'a' and 'b': 50 points
+Handles positive numbers: 20 points
+Handles negative numbers: 20 points
+Handles zeros: 10 points","100","Use 'a' as the first variable, 'b' as the second variable, and 'add_two_numbers' as the function name"

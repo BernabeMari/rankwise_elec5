@@ -44,7 +44,19 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-    <script src="{{ url_for('static', filename='js/ai-connector.js') }}"></script>
+    <!-- Monaco Editor loader - offline version -->
+    <script>
+        window.require || (function() {
+            var s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js';
+            s.onload = function() {
+                window.require.config({
+                    paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' }
+                });
+            };
+            document.head.appendChild(s);
+        })();
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

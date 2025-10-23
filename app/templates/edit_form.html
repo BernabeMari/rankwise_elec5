@@ -307,12 +307,35 @@
                     <!-- Coding Question Fields (initially hidden) -->
                     <div id="codingFields" class="mb-3" style="display: none;">
                         <div class="mb-3">
-                            <label for="sample_code" class="form-label">Sample Code</label>
-                            <textarea class="form-control code-editor" id="sample_code" name="sample_code" rows="5"></textarea>
+                            <label class="form-label" for="coding_language">Language</label>
+                            <select class="form-select" id="coding_language" name="coding_language">
+                                <option value="Python" selected>Python</option>
+                                <option value="C">C</option>
+                                <option value="C++">C++</option>
+                                <option value="Java">Java</option>
+                            </select>
                         </div>
                         <div class="mb-3">
-                            <label for="expected_output" class="form-label">Expected Solution Approach</label>
-                            <textarea class="form-control" id="expected_output" name="expected_output" rows="2"></textarea>
+                            <label for="sample_code" class="form-label">Sample Code</label>
+                            <div id="sample_code_editor" style="height:220px;border:1px solid #ddd;border-radius:6px;"></div>
+                            <textarea class="form-control code-editor" id="sample_code" name="sample_code" rows="5" style="display:none;"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="expected_output" class="form-label">Unit Tests (Admin Only)</label>
+                            <div id="unit_tests_editor" style="height:220px;border:1px solid #ddd;border-radius:6px;"></div>
+                            <textarea class="form-control" id="expected_output" name="expected_output" rows="6" style="display:none;" placeholder="def test_sum_function():
+    assert sum_numbers([1,2,3,4]) == 10
+    assert sum_numbers([]) == 0"></textarea>
+                            <div class="form-text">These tests will be used to automatically grade student code. Students cannot see this.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="hints" class="form-label">Hints (Variable Names)</label>
+                            <input type="text" class="form-control" id="hints" name="hints" placeholder="Use 'sum_numbers' as the function name, 'arr' for array parameter">
+                            <div class="form-text">Provide hints about required variable/function names. These will be shown to students in the sample code.</div>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="append_to_dataset" name="append_to_dataset" value="1">
+                            <label class="form-check-label" for="append_to_dataset">Add this coding problem to dataset (it_olympics_coding.csv)</label>
                         </div>
                     </div>
                     
@@ -455,12 +478,6 @@
                             </div>
                         {% endif %}
                         
-                        {% if question.expected_output %}
-                            <div class="mt-3">
-                                <strong>Expected Solution Approach:</strong>
-                                <pre class="mt-2">{{ question.expected_output }}</pre>
-                            </div>
-                        {% endif %}
                     {% elif question.question_type == 'checkbox' and question.options %}
                         <div class="mt-3">
                             <strong>Options:</strong>
@@ -510,14 +527,14 @@
 <div id="aiModal" class="ai-modal">
     <div class="ai-modal-content">
         <div class="ai-modal-header">
-            <h3><i class="bi bi-robot"></i> DeepSeek Coder AI Question Generator</h3>
+            <h3><i class="bi bi-lightning"></i> Question Generator</h3>
             <span class="ai-close">&times;</span>
         </div>
         <div id="aiInputForm">
             <div class="ai-form-group">
-                <label class="ai-label" for="aiPrompt">What kind of question do you want DeepSeek Coder to generate?</label>
+                <label class="ai-label" for="aiPrompt">Describe the question you want to generate</label>
                 <input type="text" id="aiPrompt" class="ai-input" placeholder="e.g., Python question about loops">
-                <small class="form-text text-muted">This prompt will be sent to the DeepSeek Coder 6.7B model to generate a question</small>
+                <small class="form-text text-muted">The app will generate draft questions based on your prompt</small>
             </div>
             <div class="ai-form-group">
                 <label class="ai-label" for="aiQuestionType">Question Type</label>
@@ -536,14 +553,14 @@
                 <small class="form-text text-muted">Up to 20 at a time. Exact duplicates are automatically removed.</small>
             </div>
             <button id="aiGenerateBtn" class="ai-btn">
-                <i class="bi bi-magic"></i> Generate with DeepSeek Coder AI
+                <i class="bi bi-magic"></i> Generate Question
             </button>
             <div class="ai-error-container"></div>
         </div>
         
         <div id="aiLoading" class="ai-loading">
             <div class="spinner"></div>
-            <p>DeepSeek Coder AI is thinking about your question...</p>
+            <p>Generating your question...</p>
         </div>
         
         <div id="aiResult" class="ai-result">
@@ -592,6 +609,33 @@
             } else if (questionType === 'coding') {
                 $('#codingFields').show();
                 enableSection('#codingFields');
+                // Lazy load Monaco and create editors if not present
+                if (window.require && !window.__monacoLoaded) {
+                    window.require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' }});
+                    window.require(['vs/editor/editor.main'], function() {
+                        window.__monacoLoaded = true;
+                        
+                        // Sample code editor (light theme)
+                        window.__monacoEditor = monaco.editor.create(document.getElementById('sample_code_editor'), {
+                            value: '',
+                            language: ($('#coding_language').val() || 'Python').toLowerCase().replace('c++','cpp'),
+                            theme: 'vs-light',
+                            minimap: { enabled: false },
+                            fontSize: 14,
+                            automaticLayout: true
+                        });
+                        
+                        // Unit tests editor (dark theme)
+                        window.__unitTestsEditor = monaco.editor.create(document.getElementById('unit_tests_editor'), {
+                            value: 'def test_sum_function():\n    assert sum_numbers([1, 2, 3, 4]) == 10\n    assert sum_numbers([]) == 0',
+                            language: 'python',
+                            theme: 'vs-dark',
+                            minimap: { enabled: false },
+                            fontSize: 14,
+                            automaticLayout: true
+                        });
+                    });
+                }
             } else if (questionType === 'checkbox') {
                 $('#checkboxOptions').show();
                 updateCheckboxCorrectAnswers();
@@ -668,6 +712,24 @@
                 $correctAnswerSelect.val(currentValue);
             }
         }
+
+        // Handle language change for coding questions
+        $('#coding_language').change(function() {
+            if (window.__monacoEditor) {
+                const lang = $(this).val().toLowerCase().replace('c++', 'cpp');
+                monaco.editor.setModelLanguage(window.__monacoEditor.getModel(), lang);
+            }
+        });
+
+        // On submit, copy Monaco content to hidden textareas so backend receives it
+        $('#questionForm').on('submit', function() {
+            if (window.__monacoEditor) {
+                $('#sample_code').val(window.__monacoEditor.getValue());
+            }
+            if (window.__unitTestsEditor) {
+                $('#expected_output').val(window.__unitTestsEditor.getValue());
+            }
+        });
 
         // Add option for checkbox
         $('#addOptionCheckbox').click(function() {
@@ -876,11 +938,24 @@
                     } else if (typeValue === 'identification') {
                         previewHtml += `<p><strong>Correct Answer:</strong> <span class="badge bg-success">${data.correct_answer || 'Not specified'}</span></p>`;
                     } else if (typeValue === 'coding') {
+                        if (data.language) {
+                            previewHtml += `<p><strong>Language:</strong> <span class="badge bg-info">${data.language}</span></p>`;
+                        }
+                        if (data.topic) {
+                            previewHtml += `<p><strong>Topic:</strong> <span class="badge bg-secondary">${data.topic}</span></p>`;
+                        }
                         if (data.sample_code) {
                             previewHtml += `
                                 <div class="mb-3">
                                     <h5>Sample Code:</h5>
                                     <pre class="p-3 bg-light border rounded"><code>${data.sample_code}</code></pre>
+                                </div>`;
+                        }
+                        if (data.expected_output) {
+                            previewHtml += `
+                                <div class="mb-3">
+                                    <h5>Unit Tests:</h5>
+                                    <pre class="p-3 bg-dark text-light border rounded"><code>${data.expected_output}</code></pre>
                                 </div>`;
                         }
                     } else if (typeValue === 'checkbox' && data.options) {
@@ -1046,6 +1121,8 @@
                     if (questionData.question_type === 'coding') {
                         if (questionData.sample_code) addField('sample_code', questionData.sample_code);
                         if (questionData.expected_output) addField('expected_output', questionData.expected_output);
+                        if (questionData.language) addField('coding_language', questionData.language);
+                        if (questionData.hints) addField('hints', questionData.hints);
                     }
                     if (questionData.question_type === 'checkbox') {
                         if (Array.isArray(questionData.options)) {

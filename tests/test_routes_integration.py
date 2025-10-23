@@ -29,8 +29,8 @@ def test_submit_form_scoring(student_session, app, sample_form):
         form = Form.query.get(sample_form)
         form.is_visible = True
         db.session.commit()
-    # Mock AI evaluation for coding
-    with patch('app.routes.evaluate_code_with_ai', return_value=(True, 90, 'SCORE_VERDICT: MINOR_FLAW (90%)')):
+    # Mock custom evaluation for coding
+    with patch('app.routes.evaluate_code_with_custom_system', return_value=(True, 90, 'All tests passed')):
         resp = client.post(f'/form/{sample_form}/submit', data={}, follow_redirects=False)
     # fetch created response
     with app.app_context():
@@ -52,7 +52,7 @@ def test_submit_form_with_answers(student_session, app, sample_form):
         form.is_visible = True
         db.session.commit()
         q_by_type = {q.question_type: q for q in Question.query.filter_by(form_id=form.id).all()}
-    with patch('app.routes.evaluate_code_with_ai', return_value=(True, 100, 'SCORE_VERDICT: PERFECT (100%)')):
+    with patch('app.routes.evaluate_code_with_custom_system', return_value=(True, 100, 'All tests passed')):
         resp = client.post(f'/form/{sample_form}/submit', data={
             f'question_{q_by_type["multiple_choice"].id}': '4',
             f'question_{q_by_type["identification"].id}': 'javascript',
@@ -105,7 +105,7 @@ def test_view_response_badges_and_speed(student_session, app, sample_form):
         form.is_visible = True
         db.session.commit()
         q_by_type = {q.question_type: q for q in Question.query.filter_by(form_id=form.id).all()}
-    with patch('app.routes.evaluate_code_with_ai', return_value=(True, 100, 'SCORE_VERDICT: PERFECT (100%)')):
+    with patch('app.routes.evaluate_code_with_custom_system', return_value=(True, 100, 'All tests passed')):
         client.post(f'/form/{sample_form}/submit', data={
             f'question_{q_by_type["multiple_choice"].id}': '4',
             f'question_{q_by_type["identification"].id}': 'javascript',

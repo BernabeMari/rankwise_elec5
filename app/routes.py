@@ -199,6 +199,57 @@ def add_question(form_id):
     # Handle coding question fields
     if question_type == 'coding':
         question.sample_code = request.form.get('sample_code')
+        # Repurpose expected_output field to store unit tests
+        unit_tests = request.form.get('expected_output') or request.form.get('unit_tests')
+        question.expected_output = unit_tests
+        # If admin wants to append to dataset, add a row to CSV
+        try:
+            append_flag = request.form.get('append_to_dataset') in ('1', 'true', 'on', 'yes')
+            print(f"DEBUG: append_flag={append_flag}, unit_tests length={len(unit_tests) if unit_tests else 0}")
+            if append_flag and unit_tests:
+                import pandas as pd
+                import os
+                csv_path = os.path.join(os.path.dirname(__file__), 'data', 'datasets', 'it_olympics_coding.csv')
+                print(f"DEBUG: CSV path = {csv_path}")
+                print(f"DEBUG: CSV exists = {os.path.exists(csv_path)}")
+                # Compute next problem_id safely
+                if os.path.exists(csv_path):
+                    df = pd.read_csv(csv_path)
+                    next_id = (df['problem_id'].max() + 1) if not df.empty else 1
+                    print(f"DEBUG: Current max problem_id = {df['problem_id'].max()}, next_id = {next_id}")
+                else:
+                    next_id = 1
+                # Prepare row
+                lang = request.form.get('coding_language') or 'Python'
+                hints = request.form.get('hints') or ''
+                new_row = {
+                    'problem_id': int(next_id),
+                    'topic': 'Algorithms',
+                    'language': lang,
+                    'problem_statement': question_text,
+                    'unit_tests': unit_tests,
+                    'expected_outputs': '',
+                    'scoring_criteria': 'Auto-graded by unit tests',
+                    'max_score': 100,
+                    'hints': hints,
+                }
+                print(f"DEBUG: New row = {new_row}")
+                # Append
+                if os.path.exists(csv_path):
+                    df = pd.read_csv(csv_path)
+                    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+                else:
+                    df = pd.DataFrame([new_row])
+                # Write with proper encoding and quoting
+                df.to_csv(csv_path, index=False, encoding='utf-8', quoting=1)  # quoting=1 for QUOTE_ALL
+                print(f"DEBUG: Successfully wrote to CSV. New length = {len(df)}")
+                flash('Coding problem added to dataset.', 'success')
+            else:
+                print(f"DEBUG: Not appending - append_flag={append_flag}, unit_tests={bool(unit_tests)}")
+        except Exception as e:
+            print('Failed to append coding problem to dataset:', e)
+            import traceback
+            traceback.print_exc()
     
     # Handle sample code for identification questions
     if question_type == 'identification':
@@ -209,58 +260,7 @@ def add_question(form_id):
     
     return redirect(url_for('main.edit_form', form_id=form_id))
 
-def query_lm_studio(prompt, max_tokens=1500, timeout=60, model_path=None):
-    """
-    Query the LM Studio API with a prompt - Optimized for DeepSeek-Coder-V2-Lite-Instruct
-    """
-    # Using the confirmed working endpoint
-    endpoint = "http://localhost:1234/v1/completions"
-    
-    headers = {
-        "Content-Type": "application/json"
-    }
-    
-    # Parameters optimized for the model
-    data = {
-        "prompt": prompt,
-        "temperature": 0.6,  # Slightly lower temperature for more focused responses
-        "max_tokens": max_tokens,
-        "stop": ["###"],
-        "top_p": 0.9,        # Add top_p sampling for better quality
-        "frequency_penalty": 0.1,  # Slight penalty to reduce repetition
-        "presence_penalty": 0.1    # Slight penalty to encourage more diverse outputs
-    }
-    
-    # Use custom model path if provided
-    if model_path:
-        data["model"] = model_path
-    
-    # Increased timeout and added retry logic
-    max_retries = 3
-    current_retry = 0
-    
-    while current_retry < max_retries:
-        try:
-            print(f"Calling LM Studio API at: {endpoint} (attempt {current_retry + 1}/{max_retries})")
-            response = requests.post(endpoint, headers=headers, json=data, timeout=timeout)
-            response.raise_for_status()
-            response_json = response.json()
-            
-            # Handle response from OpenAI-compatible API
-            if 'choices' in response_json and len(response_json['choices']) > 0:
-                if 'text' in response_json['choices'][0]:
-                    return response_json['choices'][0]['text']
-                elif 'message' in response_json['choices'][0]:
-                    return response_json['choices'][0]['message']['content']
-            
-            return "Failed to parse response from LM Studio"
-        except requests.exceptions.RequestException as e:
-            current_retry += 1
-            if current_retry >= max_retries:
-                print(f"Error calling LM Studio API after {max_retries} attempts: {e}")
-                raise Exception(f"Failed to connect to LM Studio API: {str(e)}. Is LM Studio running?")
-            print(f"Retry {current_retry}/{max_retries} due to: {e}")
-            time.sleep(2)  # Wait 2 seconds before retrying
+# LM Studio integration removed - using custom code evaluation system
 
 
 
@@ -672,7 +672,7 @@ def generate_question_from_datasets(prompt, question_type):
         }
 
     if question_type == 'coding':
-        # Prefer problems from new IT Olympics coding CSV or legacy coding_evaluation_samples.csv
+        # Use problems from IT Olympics coding CSV
         try:
             import pandas as pd
             import os
@@ -680,7 +680,9 @@ def generate_question_from_datasets(prompt, question_type):
             new_path = os.path.join(base, 'it_olympics_coding.csv')
             if os.path.exists(new_path):
                 dfcode = pd.read_csv(new_path)
+                if not dfcode.empty:
                 # Search for coding problems matching prompt
+                    selected_problem = None
                 if prompt and prompt.strip():
                     prompt_lower = prompt.lower()
                     scores = []
@@ -689,9 +691,64 @@ def generate_question_from_datasets(prompt, question_type):
                         problem = str(row.get('problem_statement', '')).lower()
                         topic = str(row.get('topic', '')).lower()
                         language = str(row.get('language', '')).lower()
-                        # Higher score for language match, then topic, then problem text
-                        if any(word in language for word in prompt_lower.split()):
-                            score += 15
+                        # Higher score for exact language match, then partial match
+                        prompt_words = prompt_lower.split()
+                        
+                        # Handle language aliases
+                        language_aliases = {
+                            'c++': ['cpp', 'c++', 'c plus plus'],
+                            'c': ['c'],
+                            'python': ['python', 'py'],
+                            'java': ['java']
+                        }
+                        
+                        # Check for exact match or alias match
+                        exact_match = False
+                        for lang_key, aliases in language_aliases.items():
+                            if language == lang_key and any(alias in prompt_words for alias in aliases):
+                                score += 20  # Exact match gets highest score
+                                exact_match = True
+                                break
+                        
+                        if not exact_match:
+                            # Check for partial matches, but avoid C matching C++
+                            if 'c' in prompt_words and language == 'c++':
+                                score += 0  # Don't match C to C++
+                            elif 'c++' in prompt_words and language == 'c':
+                                score += 0  # Don't match C++ to C
+                            elif any(word in language for word in prompt_words):
+                                score += 15
+                            
+                            # Enhanced concept matching with specific keywords
+                            concept_keywords = {
+                                'if': ['if', 'else', 'elif', 'conditional', 'condition'],
+                                'loop': ['loop', 'for', 'while', 'iteration', 'iterate'],
+                                'function': ['function', 'def', 'method', 'procedure'],
+                                'array': ['array', 'list', 'vector', 'collection'],
+                                'string': ['string', 'text', 'char', 'character'],
+                                'algorithm': ['algorithm', 'sort', 'search', 'binary', 'linear'],
+                                'grade': ['grade', 'score', 'mark', 'rating'],
+                                'factorial': ['factorial', 'fact'],
+                                'even': ['even', 'odd', 'parity'],
+                                'max': ['max', 'maximum', 'largest', 'biggest'],
+                                'min': ['min', 'minimum', 'smallest']
+                            }
+                            
+                            # Check for programming concept matches with higher precision
+                            for concept, keywords in concept_keywords.items():
+                                if any(keyword in prompt_lower for keyword in keywords):
+                                    # If the problem statement contains the exact concept, give high bonus
+                                    if any(keyword in problem for keyword in keywords):
+                                        score += 25  # Higher bonus for exact concept match
+                                    # If the topic matches, give points
+                                    if concept in topic:
+                                        score += 15
+                                    # Special handling for specific concepts
+                                    if concept == 'grade' and 'grade' in prompt_lower and 'grade' in problem:
+                                        score += 30  # Extra bonus for exact grade match
+                                    if concept == 'factorial' and 'factorial' in prompt_lower and 'factorial' in problem:
+                                        score += 30  # Extra bonus for exact factorial match
+                            
                         if any(word in topic for word in prompt_lower.split()):
                             score += 10
                         if any(word in problem for word in prompt_lower.split()):
@@ -699,15 +756,25 @@ def generate_question_from_datasets(prompt, question_type):
                         scores.append((score, idx))
                     scores.sort(reverse=True)
                     if scores and scores[0][0] > 0:
-                        pick = dfcode.iloc[scores[0][1]]
-                    else:
-                        pick = dfcode.sample(n=1).iloc[0]
-                else:
-                    pick = dfcode.sample(n=1).iloc[0]
-                text = str(pick.get('problem_statement','')).strip()
-                lang = str(pick.get('language','')).strip()
-                result = {'text': text, 'question_type': 'coding', 'sample_code': str(pick.get('sample_code','')).strip()}
-                return result
+                            selected_problem = dfcode.iloc[scores[0][1]]
+                    
+                    # If no match found or no prompt, select random
+                    if selected_problem is None:
+                        import random
+                        selected_problem = dfcode.sample(n=1).iloc[0]
+                    
+                    # Create sample code with hints
+                    hints = selected_problem.get('hints', '')
+                    sample_code = f"# Hints: {hints}\n# Write your code below:" if hints else "# Write your code below:"
+                    
+                    return {
+                        'text': selected_problem['problem_statement'],
+                        'question_type': 'coding',
+                        'sample_code': sample_code,
+                        'expected_output': selected_problem['unit_tests'],  # Include unit tests
+                        'language': selected_problem['language'],
+                        'topic': selected_problem['topic']
+                    }
             target_cols = {'problem_statement', 'language', 'sample_code'}
             candidates = []
             for dsm, dfm in frames:
@@ -1471,14 +1538,14 @@ def submit_form(form_id):
                     score_percentage = 0
                     is_correct = False
             
-            # For coding questions, use AI to evaluate the answer
+            # For coding questions, use custom evaluation system
             elif question.question_type == 'coding' and answer_text:
-                model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\bartowski\\DeepSeek-Coder-V2-Lite-Instruct-GGUF\\DeepSeek-Coder-V2-Lite-Instruct-Q8_0_L.gguf"
-                is_correct, score_percentage, explanation = evaluate_code_with_ai(
+                is_correct, score_percentage, explanation = evaluate_code_with_custom_system(
                     code_answer=answer_text,
-                    question_text=question.question_text
+                    question_text=question.question_text,
+                    question_unit_tests=question.expected_output
                 )
-                print(f"AI Code Evaluation for Question {question.id}:")
+                print(f"Custom Code Evaluation for Question {question.id}:")
                 print(f"Is correct: {is_correct}")
                 print(f"Score percentage: {score_percentage}%")
                 print(f"Explanation: {explanation}")
@@ -1627,138 +1694,135 @@ def view_response(response_id):
         student_name = student_id
     return render_template('view_response.html', form=form, response=response, overall_pct=overall_pct, badges=badges, student_name=student_name, student_id=student_id)
 
-def evaluate_code_with_ai(code_answer, question_text):
-    """Evaluate code with AI and return (is_correct, score_percentage, explanation)."""
+def evaluate_code_with_custom_system(code_answer, question_text, question_unit_tests=None):
+    """Evaluate code using custom unit testing system and return (is_correct, score_percentage, explanation)."""
     try:
-        # Get coding evaluation samples for context from new CSV files
-        evaluation_context = ""
-        try:
-            # Try to load the IT Olympics coding CSV for context
-            csv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'datasets', 'it_olympics_coding.csv')
-            if os.path.exists(csv_path):
-                import pandas as pd
-                df = pd.read_csv(csv_path)
-                if not df.empty:
-                    evaluation_context += f"\n\nReference Problems:\n"
-                    for _, row in df.head(3).iterrows():  # Show first 3 problems as context
-                        evaluation_context += f"- Problem: {row.get('problem_statement', 'N/A')}\n"
-                        evaluation_context += f"  Language: {row.get('language', 'N/A')}\n"
+        from app.code_evaluator import code_evaluator
+        
+        # Detect language from the actual code content
+        language = "python"  # Default language
+        code_lower = code_answer.lower().strip()
+        
+        # Language detection based on code patterns
+        if code_lower.startswith('#include') or 'int main(' in code_lower or 'printf(' in code_lower or 'scanf(' in code_lower:
+            if 'std::' in code_lower or 'using namespace std' in code_lower or 'cout' in code_lower or 'cin' in code_lower:
+                language = "cpp"
             else:
-                # Fallback to old dataset if new CSV doesn't exist
-                active_datasets = Dataset.query.filter_by(is_active=True, is_builtin=True).all()
-                for dataset in active_datasets:
-                    if 'coding_evaluation_samples' in dataset.filename:
-                        sample_data = dataset.get_sample_data(3)  # First 3 samples
-                        evaluation_context += f"\n\nCoding Evaluation Examples:\n"
-                        for sample in sample_data:
-                            evaluation_context += f"- Problem: {sample.get('problem_statement', '')[:100]}...\n"
-                            evaluation_context += f"  Sample Solution: {sample.get('sample_code', '')[:150]}...\n"
-                            evaluation_context += f"  Scoring Criteria: {sample.get('scoring_criteria', '')}\n"
-                            evaluation_context += f"  Common Mistakes: {sample.get('common_mistakes', '')}\n"
-                        break
-        except Exception as e:
-            print(f"Error getting evaluation context: {e}")
+                language = "c"
+        elif code_lower.startswith('public class') or 'public static void main' in code_lower or 'system.out.println' in code_lower:
+            language = "java"
+        elif code_lower.startswith('def ') or 'print(' in code_lower or 'import ' in code_lower:
+            language = "python"
+        elif 'function' in code_lower or 'console.log' in code_lower or 'var ' in code_lower:
+            language = "javascript"
+        else:
+            # Fallback: try to extract from question text
+            question_lower = question_text.lower()
+            if "python" in question_lower:
+                language = "python"
+            elif "c++" in question_lower or "cpp" in question_lower:
+                language = "cpp"
+            elif "c " in question_lower and "c++" not in question_lower:
+                language = "c"
+            elif "java" in question_lower:
+                language = "java"
+            elif "javascript" in question_lower or "js" in question_lower:
+                language = "javascript"
         
-        prompt = f"""You are a programming evaluator.
-First, analyze the student's code for the given task. Then output a single final verdict line.
-
-IMPORTANT: Ignore use of variable names, naming conventions, and coding style. Focus ONLY on whether the code works and solves the task correctly.
-
-If the problem statement specifies a programming language (e.g., Python, JavaScript, C#, etc.) and the student's code is written in a different language, you MUST assign ZERO (0) and clearly state the mismatch in the analysis.
-
-Question:
-{question_text}
-
-Student Code:
-{code_answer}
-
-{evaluation_context}
-
-Scoring rubric (pick ONE):
-
--PERFECT (100): Runs correctly, fully solves the task.
-- MINOR_FLAW (90): Small issues (syntax, variables, minor logic). Example: "The code runs correctly, but the variable names used are different or exchanged (Ex. instead of using num the student used num1). Even if the program output is correct, using variable names not matching the required ones results in this deduction."
-- MAJOR_FLAW (70): Major issues (wrong data types). Example: "The code runs correctly, but the data types are incorrect."
-- SO_SO (50): Code is mostly wrong but has some correct parts.
-- EFFORT (25): Input some coding but mostly wrong.
-- ZERO (0): No meaningful attempt OR the code is written in a different programming language than required by the problem.
-
-Output format (exact):
-1) An "Analysis:" section (1-5 short sentences or bullets) explaining correctness and issues
-2) A single last line: SCORE_VERDICT: <PERFECT|MINOR_FLAW|MAJOR_FLAW|SO_SO|EFFORT|ZERO>
-"""
-        
-        model_path = "C:\\Users\\Zyb\\.lmstudio\\models\\bartowski\\DeepSeek-Coder-V2-Lite-Instruct-GGUF\\DeepSeek-Coder-V2-Lite-Instruct-Q8_0_L.gguf"
-        try:
-            ai_resp = query_lm_studio(prompt, max_tokens=400, timeout=60, model_path=model_path) or ""
-            
-            scores = {'PERFECT': 100, 'MINOR_FLAW': 90, 'MAJOR_FLAW': 70, 'SO_SO': 50, 'EFFORT': 25, 'ZERO': 0}
-            text = (ai_resp or '').strip()
-            analysis = None
+        # Check if we have custom unit tests from the question
+        if question_unit_tests and question_unit_tests.strip():
+            # Use the question's own unit tests
+            print(f"DEBUG: Using custom unit tests from question")
+            is_correct, score, feedback = code_evaluator.evaluate_code_with_custom_tests(
+                code_answer, question_unit_tests, language
+            )
+        else:
+            # Try to find a matching problem in the dataset based on language and content
+            problem_id = None
             try:
-                import re
-                # Clean up the text first - remove duplicate analysis sections
-                lines = text.split('\n')
-                cleaned_lines = []
-                analysis_sections = []
-                verdict_found = False
+                import pandas as pd
+                import os
+                current_dir = os.path.dirname(os.path.abspath(__file__))
+                csv_path = os.path.join(current_dir, 'data', 'datasets', 'it_olympics_coding.csv')
                 
-                for line in lines:
-                    line = line.strip()
-                    if not line:
-                        continue
+                if os.path.exists(csv_path):
+                    df = pd.read_csv(csv_path)
+                    # Find problems with matching language
+                    matching_problems = df[df['language'].str.lower() == language.lower()]
                     
-                    # Check if this is a SCORE_VERDICT line
-                    if re.match(r"SCORE_VERDICT\s*:\s*(PERFECT|MINOR_FLAW|MAJOR_FLAW|SO_SO|EFFORT|ZERO)", line, re.I):
-                        if not verdict_found:
-                            cleaned_lines.append(line)
-                            verdict_found = True
-                    elif line.lower().startswith('analysis:'):
-                        # Start of analysis section
-                        analysis_sections.append(line)
-                    elif analysis_sections and not verdict_found:
-                        # Continue analysis section
-                        analysis_sections.append(line)
-                    elif not verdict_found:
-                        # Other content before verdict
-                        cleaned_lines.append(line)
-                
-                # Use the last analysis section if multiple found
-                if analysis_sections:
-                    analysis = '\n'.join(analysis_sections[-1:])  # Take only the last analysis
+                    if not matching_problems.empty:
+                        # Try to find the best match based on question content
+                        question_lower = question_text.lower()
+                        best_match = None
+                        best_score = 0
+                        
+                        for idx, row in matching_problems.iterrows():
+                            score = 0
+                            problem_statement = str(row.get('problem_statement', '')).lower()
+                            topic = str(row.get('topic', '')).lower()
+                            
+                            # Score based on content similarity
+                            question_words = question_lower.split()
+                            for word in question_words:
+                                if word in problem_statement:
+                                    score += 10
+                                if word in topic:
+                                    score += 5
+                            
+                            # Extra scoring for exact phrase matches
+                            if 'grade' in question_lower and 'grade' in problem_statement:
+                                score += 20
+                            if 'factorial' in question_lower and 'factorial' in problem_statement:
+                                score += 20
+                            if 'even' in question_lower and 'even' in problem_statement:
+                                score += 20
+                            if 'odd' in question_lower and 'odd' in problem_statement:
+                                score += 20
+                            
+                            # Special scoring for programming concepts
+                            concept_keywords = {
+                                'if': ['if', 'else', 'elif', 'conditional', 'condition'],
+                                'loop': ['loop', 'for', 'while', 'iteration', 'iterate'],
+                                'function': ['function', 'def', 'method', 'procedure'],
+                                'grade': ['grade', 'score', 'mark', 'rating'],
+                                'factorial': ['factorial', 'fact'],
+                                'even': ['even', 'odd', 'parity'],
+                                'max': ['max', 'maximum', 'largest', 'biggest'],
+                                'min': ['min', 'minimum', 'smallest']
+                            }
+                            
+                            for concept, keywords in concept_keywords.items():
+                                if any(keyword in question_lower for keyword in keywords):
+                                    if any(keyword in problem_statement for keyword in keywords):
+                                        score += 15
+                            
+                            if score > best_score:
+                                best_score = score
+                                best_match = row
+                        
+                        if best_match is not None:
+                            problem_id = best_match['problem_id']
+                        else:
+                            # Fallback to first matching language problem
+                            problem_id = matching_problems.iloc[0]['problem_id']
+                    else:
+                        # Fallback to first problem
+                        problem_id = df.iloc[0]['problem_id']
                 else:
-                    analysis = '\n'.join(cleaned_lines)
-                
-                # Find the verdict
-                pattern = re.compile(r"SCORE_VERDICT\s*:\s*(PERFECT|MINOR_FLAW|MAJOR_FLAW|SO_SO|EFFORT|ZERO)", re.I)
-                matches = pattern.findall(text)
-                if matches:
-                    category = matches[-1].upper()
-                else:
-                    # Fallback: choose the category that appears latest in the text
-                    upper = text.upper()
-                    positions = [(upper.rfind(k), k) for k in scores.keys() if upper.rfind(k) != -1]
-                    category = max(positions)[1] if positions else 'ZERO'
-                    
-            except Exception:
-                category = 'ZERO'
-                analysis = text.strip()
-            score = scores[category]
+                    problem_id = 1  # Fallback
+            except Exception as e:
+                problem_id = 1  # Fallback
             
-            feedback_lines = []
-            if analysis:
-                feedback_lines.append("Analysis:\n" + analysis)
-            feedback_lines.append(f"SCORE_VERDICT: {category} ({score}%)")
-            feedback = "\n\n".join(feedback_lines)
-            
-            return score >= 75, score, feedback
-        except Exception as e:
-            # LM Studio unavailable - return error
-            print(f"LM Studio unavailable for code evaluation: {e}")
-            return False, 0, "SCORE_VERDICT: ZERO (0%)\nAnalysis: LM Studio is unavailable for code evaluation."
+            # Use custom evaluator
+            is_correct, score, feedback = code_evaluator.evaluate_code(code_answer, problem_id, language)
+        
+        return is_correct, score, feedback
+        
     except Exception as e:
-        print(f"Error evaluating code: {e}")
-        return False, 0, "SCORE_VERDICT: ZERO (0%)\nAnalysis: Code evaluation failed."
+        print(f"Error evaluating code with custom system: {e}")
+        import traceback
+        traceback.print_exc()
+        return False, 0, f"Code evaluation failed: {str(e)}"
 
 def initialize_builtin_datasets():
     """Initialize built-in datasets from CSV files."""
