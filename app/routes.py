@@ -944,6 +944,74 @@ def execute_python_code(code, user_inputs=[]):
                     'error': f'Security restriction: {pattern} is not allowed'
                 }
         
+        # Add basic static analysis to catch undefined variables and typos
+        import ast
+        try:
+            tree = ast.parse(code)
+            defined_names = set()
+            used_names = set()
+            param_names = set()
+            
+            for node in ast.walk(tree):
+                if isinstance(node, ast.FunctionDef):
+                    defined_names.add(node.name)
+                    # Get function parameters
+                    for arg in node.args.args:
+                        param_names.add(arg.arg)
+                    # Get variables defined within the function
+                    for child in ast.walk(node):
+                        if isinstance(child, ast.Name) and isinstance(child.ctx, ast.Store):
+                            defined_names.add(child.id)
+                elif isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
+                    used_names.add(node.id)
+            
+            # Check for undefined variables (used but not defined)
+            all_defined = defined_names | param_names
+            undefined_vars = used_names - all_defined
+            # Remove built-in Python functions
+            builtins = {'print', 'input', 'int', 'str', 'float', 'bool', 'len', 'range', 'list', 'dict', 'set', 'tuple', 'abs', 'max', 'min', 'sum', 'sorted', 'reversed', 'enumerate', 'zip', 'open', 'type', 'isinstance', 'hasattr', 'getattr', 'setattr', 'delattr', 'all', 'any', 'iter', 'next', 'filter', 'map', 'reduce'}
+            undefined_vars = undefined_vars - builtins
+            
+            # Look for common typos (similar variable names)
+            if undefined_vars:
+                suspicious_vars = []
+                for var in undefined_vars:
+                    # Check if there's a similar defined variable
+                    for defined in all_defined:
+                        # Check if the undefined var is just a plural/singular variant
+                        if var == defined + 's' or var == defined[:-1] or defined == var + 's':
+                            suspicious_vars.append(f"{var} (did you mean '{defined}'?)")
+                            break
+                    else:
+                        suspicious_vars.append(var)
+                
+                if suspicious_vars:
+                    error_msg = '⚠️ Potential undefined variable(s):\n'
+                    for var in suspicious_vars:
+                        error_msg += f'  • {var}\n'
+                    error_msg += '\nTip: Make sure all variable names are spelled correctly throughout your code.'
+                    
+                    return {
+                        'success': False,
+                        'output': '',
+                        'error': error_msg
+                    }
+        except SyntaxError:
+            # If we can't parse, just continue with execution
+            pass
+        except Exception:
+            # If analysis fails, just continue with execution
+            pass
+        
+        # Check if code needs input (has input()) but no input provided
+        needs_input = 'input(' in code
+        if needs_input and not user_inputs:
+            return {
+                'success': False,
+                'output': '',
+                'error': '⚠️ This code requires input but none was provided.\n\nTip: Enter input in the input field above the "Run Code" button.'
+            }
+        
         # Create a temporary file
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
             f.write(code)
@@ -1054,10 +1122,27 @@ def execute_java_code(code, user_inputs=[]):
             )
             
             if compile_result.returncode != 0:
+                error_msg = compile_result.stderr
+                # Make error messages more user-friendly
+                if 'cannot find symbol' in error_msg or 'variable' in error_msg.lower():
+                    error_msg = '⚠️ Compilation Error: Check for undefined variables\n\n' + error_msg
+                    error_msg += '\n\nTip: Make sure all variable names are spelled correctly.'
+                else:
+                    error_msg = '⚠️ Compilation Error:\n\n' + error_msg
+                
                 return {
                     'success': False,
                     'output': '',
-                    'error': f'Compilation error: {compile_result.stderr}'
+                    'error': error_msg
+                }
+            
+            # Check if code needs input (has Scanner) but no input provided
+            needs_input = 'scanner' in code.lower() and ('nextint' in code.lower() or 'nextline' in code.lower() or 'nextdouble' in code.lower())
+            if needs_input and not user_inputs:
+                return {
+                    'success': False,
+                    'output': '',
+                    'error': '⚠️ This code requires input but none was provided.\n\nTip: Enter input in the input field above the "Run Code" button.'
                 }
             
             # Combine all inputs with newlines
@@ -1157,10 +1242,27 @@ def execute_cpp_code(code, user_inputs=[]):
             )
             
             if compile_result.returncode != 0:
+                error_msg = compile_result.stderr
+                # Make error messages more user-friendly
+                if 'not declared' in error_msg or 'variable' in error_msg.lower():
+                    error_msg = '⚠️ Compilation Error: Check for undefined variables\n\n' + error_msg
+                    error_msg += '\n\nTip: Make sure all variable names are spelled correctly.'
+                else:
+                    error_msg = '⚠️ Compilation Error:\n\n' + error_msg
+                
                 return {
                     'success': False,
                     'output': '',
-                    'error': f'Compilation error: {compile_result.stderr}'
+                    'error': error_msg
+                }
+            
+            # Check if code needs input (has scanf/cin) but no input provided
+            needs_input = any(pattern in code.lower() for pattern in ['cin', 'scanf'])
+            if needs_input and not user_inputs:
+                return {
+                    'success': False,
+                    'output': '',
+                    'error': '⚠️ This code requires input but none was provided.\n\nTip: Enter input in the input field above the "Run Code" button.'
                 }
             
             # Combine all inputs with newlines
@@ -1259,10 +1361,27 @@ def execute_c_code(code, user_inputs=[]):
             )
             
             if compile_result.returncode != 0:
+                error_msg = compile_result.stderr
+                # Make error messages more user-friendly
+                if 'not declared' in error_msg or 'variable' in error_msg.lower():
+                    error_msg = '⚠️ Compilation Error: Check for undefined variables\n\n' + error_msg
+                    error_msg += '\n\nTip: Make sure all variable names are spelled correctly.'
+                else:
+                    error_msg = '⚠️ Compilation Error:\n\n' + error_msg
+                
                 return {
                     'success': False,
                     'output': '',
-                    'error': f'Compilation error: {compile_result.stderr}'
+                    'error': error_msg
+                }
+            
+            # Check if code needs input (has scanf) but no input provided
+            needs_input = 'scanf' in code.lower()
+            if needs_input and not user_inputs:
+                return {
+                    'success': False,
+                    'output': '',
+                    'error': '⚠️ This code requires input but none was provided.\n\nTip: Enter input in the input field above the "Run Code" button.'
                 }
             
             # Combine all inputs with newlines
@@ -1368,7 +1487,7 @@ def edit_question(question_id):
     
     if qtype == 'coding':
         question.sample_code = request.form.get('sample_code')
-        question.correct_answer = request.form.get('correct_answer')
+        question.expected_output = request.form.get('expected_output')
         
     if qtype == 'identification':
         question.sample_code = request.form.get('sample_code')
@@ -1564,7 +1683,9 @@ def submit_form(form_id):
                 is_correct, score_percentage, explanation = evaluate_code_with_custom_system(
                     code_answer=answer_text,
                     question_text=question.question_text,
-                    question_unit_tests=question.expected_output
+                    question_unit_tests=question.expected_output,
+                    interactive_inputs=None,
+                    expected_outputs=None
                 )
                 print(f"Custom Code Evaluation for Question {question.id}:")
                 print(f"Is correct: {is_correct}")
@@ -1715,7 +1836,7 @@ def view_response(response_id):
         student_name = student_id
     return render_template('view_response.html', form=form, response=response, overall_pct=overall_pct, badges=badges, student_name=student_name, student_id=student_id)
 
-def evaluate_code_with_custom_system(code_answer, question_text, question_unit_tests=None):
+def evaluate_code_with_custom_system(code_answer, question_text, question_unit_tests=None, interactive_inputs=None, expected_outputs=None):
     """Evaluate code using custom unit testing system and return (is_correct, score_percentage, explanation)."""
     try:
         from app.code_evaluator import code_evaluator
@@ -1751,91 +1872,22 @@ def evaluate_code_with_custom_system(code_answer, question_text, question_unit_t
                 language = "javascript"
         
         # Check if we have custom unit tests from the question
-        if question_unit_tests and question_unit_tests.strip():
+        print(f"DEBUG: question_unit_tests = '{question_unit_tests}' (type: {type(question_unit_tests)})")
+        has_unit_tests = question_unit_tests and question_unit_tests.strip() and question_unit_tests.strip() != ""
+        print(f"DEBUG: has_unit_tests = {has_unit_tests}")
+        
+        if has_unit_tests:
             # Use the question's own unit tests
             print(f"DEBUG: Using custom unit tests from question")
             is_correct, score, feedback = code_evaluator.evaluate_code_with_custom_tests(
-                code_answer, question_unit_tests, language
+                code_answer, question_unit_tests, language, interactive_inputs, expected_outputs
             )
         else:
-            # Try to find a matching problem in the dataset based on language and content
-            problem_id = None
-            try:
-                import pandas as pd
-                import os
-                current_dir = os.path.dirname(os.path.abspath(__file__))
-                csv_path = os.path.join(current_dir, 'data', 'datasets', 'it_olympics_coding.csv')
-                
-                if os.path.exists(csv_path):
-                    df = pd.read_csv(csv_path)
-                    # Find problems with matching language
-                    matching_problems = df[df['language'].str.lower() == language.lower()]
-                    
-                    if not matching_problems.empty:
-                        # Try to find the best match based on question content
-                        question_lower = question_text.lower()
-                        best_match = None
-                        best_score = 0
-                        
-                        for idx, row in matching_problems.iterrows():
-                            score = 0
-                            problem_statement = str(row.get('problem_statement', '')).lower()
-                            topic = str(row.get('topic', '')).lower()
-                            
-                            # Score based on content similarity
-                            question_words = question_lower.split()
-                            for word in question_words:
-                                if word in problem_statement:
-                                    score += 10
-                                if word in topic:
-                                    score += 5
-                            
-                            # Extra scoring for exact phrase matches
-                            if 'grade' in question_lower and 'grade' in problem_statement:
-                                score += 20
-                            if 'factorial' in question_lower and 'factorial' in problem_statement:
-                                score += 20
-                            if 'even' in question_lower and 'even' in problem_statement:
-                                score += 20
-                            if 'odd' in question_lower and 'odd' in problem_statement:
-                                score += 20
-                            
-                            # Special scoring for programming concepts
-                            concept_keywords = {
-                                'if': ['if', 'else', 'elif', 'conditional', 'condition'],
-                                'loop': ['loop', 'for', 'while', 'iteration', 'iterate'],
-                                'function': ['function', 'def', 'method', 'procedure'],
-                                'grade': ['grade', 'score', 'mark', 'rating'],
-                                'factorial': ['factorial', 'fact'],
-                                'even': ['even', 'odd', 'parity'],
-                                'max': ['max', 'maximum', 'largest', 'biggest'],
-                                'min': ['min', 'minimum', 'smallest']
-                            }
-                            
-                            for concept, keywords in concept_keywords.items():
-                                if any(keyword in question_lower for keyword in keywords):
-                                    if any(keyword in problem_statement for keyword in keywords):
-                                        score += 15
-                            
-                            if score > best_score:
-                                best_score = score
-                                best_match = row
-                        
-                        if best_match is not None:
-                            problem_id = best_match['problem_id']
-                        else:
-                            # Fallback to first matching language problem
-                            problem_id = matching_problems.iloc[0]['problem_id']
-                    else:
-                        # Fallback to first problem
-                        problem_id = df.iloc[0]['problem_id']
-                else:
-                    problem_id = 1  # Fallback
-            except Exception as e:
-                problem_id = 1  # Fallback
-            
-            # Use custom evaluator
-            is_correct, score, feedback = code_evaluator.evaluate_code(code_answer, problem_id, language)
+            # No unit tests provided - use AI-only evaluation
+            print(f"DEBUG: No unit tests provided, using AI-only evaluation")
+            is_correct, score, feedback = code_evaluator.evaluate_code_with_custom_tests(
+                code_answer, "", language, None, None
+            )
             
         return is_correct, score, feedback
         
@@ -2184,27 +2236,81 @@ def form_analytics(form_id):
                          avg_score=avg_score,
                          score_ranges=score_ranges)
 
-@main.route('/form/ai-question', methods=['POST'])
-def generate_ai_question_standalone():
+@main.route('/generate_ai_question_with_context', methods=['POST'])
+def generate_ai_question_with_context():
     """
-    Generate a question from datasets only (no AI)
-    This endpoint is called directly from the JavaScript frontend
+    Generate a question using AI with dataset context
+    This endpoint uses AI (LM Studio) with dataset examples as context
     """
     # Get the prompt from the request
     data = request.get_json() if request.is_json else request.form
     prompt = data.get('prompt')
-    question_type = data.get('question_type', 'multiple_choice')
+    language = data.get('language', 'Python')
+    question_type = data.get('question_type', 'coding')
     
     if not prompt:
         return jsonify({'error': 'Prompt is required'}), 400
     
     try:
-        # Use only offline dataset generation (no AI)
-        question_data = generate_question_from_datasets(prompt, question_type)
+        # Import AI question generator
+        from app.ai_question_generator import ai_question_generator
+        
+        # Generate question using AI with dataset context
+        question_data = ai_question_generator.generate_question(prompt, language)
         
         # Return the generated question data
-        return jsonify(question_data)
+        return jsonify({
+            'success': True,
+            'question_data': question_data,
+            'message': 'Question generated successfully using AI with dataset context'
+        })
     
     except Exception as e:
-        print(f"Dataset question generation error: {str(e)}")
+        print(f"AI question generation error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@main.route('/form/ai-question', methods=['POST'])
+def generate_ai_question_standalone():
+    """
+    Generate a question using AI with dataset context, or fallback to datasets if AI unavailable
+    This endpoint is called directly from the JavaScript frontend
+    """
+    # Get the prompt from the request
+    data = request.get_json() if request.is_json else request.form
+    prompt = data.get('prompt')
+    language = data.get('language', 'Python')
+    question_type = data.get('question_type', 'coding')
+    
+    if not prompt:
+        return jsonify({'error': 'Prompt is required'}), 400
+    
+    try:
+        # Import the AI question generator
+        from app.ai_question_generator import ai_question_generator
+        
+        # Use AI question generator with LM Studio integration
+        question_data = ai_question_generator.generate_question(prompt, language, question_type)
+        
+        # Convert to the format expected by the frontend
+        frontend_data = {
+            'text': question_data.get('question_text', ''),
+            'sample_code': question_data.get('sample_code', ''),
+            'unit_tests': question_data.get('unit_tests', ''),
+            'expected_outputs': question_data.get('expected_outputs', ''),
+            'scoring_criteria': question_data.get('scoring_criteria', ''),
+            'max_score': question_data.get('max_score', 100),
+            'hints': question_data.get('hints', ''),
+            'topic': question_data.get('topic', ''),
+            'language': question_data.get('language', language),
+            'question_type': question_data.get('question_type', question_type),
+            'options': question_data.get('options', []),
+            'correct_answer': question_data.get('correct_answer', ''),
+            'explanation': question_data.get('explanation', '')
+        }
+        
+        # Return the generated question data
+        return jsonify(frontend_data)
+    
+    except Exception as e:
+        print(f"AI question generation error: {str(e)}")
         return jsonify({'error': str(e)}), 500
