@@ -103,18 +103,32 @@ class AIQuestionGenerator:
             'algorithm', 'sort', 'search', 'recursion', 'iteration', 'data structure',
             'even', 'odd', 'prime', 'factorial', 'fibonacci', 'palindrome', 'reverse',
             'maximum', 'minimum', 'average', 'sum', 'count', 'length', 'size',
-            'positive', 'negative', 'zero', 'grade', 'score', 'rating', 'mark'
+            'positive', 'negative', 'zero', 'grade', 'score', 'rating', 'mark',
+            'machine learning', 'ml', 'ai', 'artificial intelligence', 'neural',
+            'deep learning', 'supervised', 'unsupervised', 'reinforcement',
+            'cybersecurity', 'security', 'network', 'networking', 'database',
+            'sql', 'query', 'join', 'table', 'python', 'java', 'javascript',
+            'programming', 'code', 'software', 'hardware', 'computer', 'data',
+            'encryption', 'firewall', 'protocol', 'http', 'https', 'ssl', 'tls'
         ]
         
         # Extract keywords that appear in the prompt
         found_keywords = []
+        prompt_lower = prompt.lower()
+        
         for keyword in programming_keywords:
-            if keyword in prompt:
+            if keyword in prompt_lower:
                 found_keywords.append(keyword)
         
-        # Also extract individual words
+        # Also extract individual words (including compound words)
         words = re.findall(r'\b\w+\b', prompt)
-        found_keywords.extend([word for word in words if len(word) > 3])
+        found_keywords.extend([word for word in words if len(word) > 2])
+        
+        # Add partial matches for common tech terms
+        tech_terms = ['e-sports', 'esports', 'e-sport', 'ml', 'ai', 'sql', 'http', 'https']
+        for term in tech_terms:
+            if term.lower() in prompt_lower:
+                found_keywords.append(term.lower())
         
         return list(set(found_keywords))  # Remove duplicates
     
@@ -158,6 +172,7 @@ class AIQuestionGenerator:
     def _calculate_relevance_for_dataset(self, row: Dict, keywords: List[str], prompt: str, filename: str) -> int:
         """Calculate relevance score for a dataset row based on actual column names"""
         score = 0
+        prompt_lower = prompt.lower()
         
         # Get the main text content based on dataset type
         if 'identification' in filename:
@@ -183,14 +198,45 @@ class AIQuestionGenerator:
             question_text = str(row.get('question', row.get('problem_statement', ''))).lower()
             topic = str(row.get('topic', '')).lower()
         
-        # Score based on keyword matches in question text
+        # Topic matching with flexible scoring
+        topic_terms = topic.split()
+        prompt_terms = prompt_lower.split()
+        for pt in prompt_terms:
+            for tt in topic_terms:
+                # Exact match gets high score
+                if pt == tt:
+                    score += 15
+                # Partial match gets lower score
+                elif pt in tt or tt in pt:
+                    score += 8
+        
+        # Score based on keyword matches in question text and topic
         for keyword in keywords:
             if keyword in question_text:
                 score += 10
             if keyword in topic:
-                score += 5
+                score += 8  # Increased from 5
+            if keyword in answer_text if 'identification' in filename else keyword in (option_text if 'multiple_choice' in filename or 'checkbox' in filename else ''):
+                score += 6
         
         # Score based on exact phrase matches
+        if 'machine learning' in prompt_lower or 'ml' in prompt_lower:
+            if any(term in question_text for term in ['machine learning', 'ml', 'neural', 'ai', 'artificial']):
+                score += 25
+            if any(term in topic for term in ['machine learning', 'ml', 'neural', 'ai', 'artificial']):
+                score += 20
+        if 'ai' in prompt_lower or 'artificial' in prompt_lower:
+            if any(term in question_text for term in ['ai', 'artificial', 'intelligence']):
+                score += 25
+            if any(term in topic for term in ['ai', 'artificial', 'intelligence']):
+                score += 20
+        if 'e-sports' in prompt_lower or 'esports' in prompt_lower:
+            if any(term in question_text for term in ['e-sports', 'esports', 'gaming', 'sport']):
+                score += 25
+            if any(term in topic for term in ['e-sports', 'esports', 'gaming', 'sport']):
+                score += 20
+        
+        # Standard programming concepts
         if 'even' in prompt and 'even' in question_text:
             score += 20
         if 'odd' in prompt and 'odd' in question_text:
@@ -211,13 +257,13 @@ class AIQuestionGenerator:
             score += 10
         
         # For multiple choice, also check options
-        if 'multiple_choice' in filename or 'checkbox' in filename:
+        if ('multiple_choice' in filename or 'checkbox' in filename) and 'option_text' in locals():
             for keyword in keywords:
                 if keyword in option_text:
                     score += 5
         
         # For identification, also check answer
-        if 'identification' in filename:
+        if 'identification' in filename and 'answer_text' in locals():
             for keyword in keywords:
                 if keyword in answer_text:
                     score += 8
@@ -394,8 +440,17 @@ Generate a question that follows the patterns from the dataset examples but is u
             context_section += f"Topic: {example['topic']}\n"
             context_section += f"Language: {example['language']}\n"
             context_section += f"Problem: {example['problem_statement']}\n"
+            
+            # Add options and correct answers for multiple choice and checkbox
+            if 'options' in example and example['options']:
+                context_section += f"Options: {example['options']}\n"
+            if 'correct_answer' in example and example['correct_answer']:
+                context_section += f"Correct Answer: {example['correct_answer']}\n"
+            
             if example['unit_tests']:
                 context_section += f"Unit Tests: {example['unit_tests'][:200]}...\n"
+            if example.get('expected_outputs'):
+                context_section += f"Expected Outputs: {example['expected_outputs'][:150]}...\n"
             if example['hints']:
                 context_section += f"Hints: {example['hints']}\n"
             context_section += f"Scoring: {example['scoring_criteria']}\n"
@@ -427,15 +482,16 @@ Generate a question that follows the patterns from the dataset examples but is u
                 'description': 'a multiple choice question',
                 'format': '''{
     "question_text": "The main question",
-    "options": ["Option A", "Option B", "Option C", "Option D"],
-    "correct_answer": "The correct option text",
+    "options": ["Option A text", "Option B text", "Option C text", "Option D text"],
+    "correct_answer": "The complete text of the correct option (e.g., 'Option B text', NOT just 'B')",
     "explanation": "Explanation of why this answer is correct",
     "topic": "Topic category",
     "language": "Python"
 }''',
                 'specific_instructions': [
-                    "Provide 4 options (A, B, C, D)",
+                    "Provide 4 options with full text descriptions",
                     "Make sure only one option is correct",
+                    "The correct_answer field MUST contain the COMPLETE TEXT of the correct option, NOT just the letter (e.g., use 'Machine Learning' not 'B')",
                     "Include an explanation for the correct answer",
                     "Make distractors plausible but incorrect"
                 ]
@@ -492,15 +548,16 @@ Generate a question that follows the patterns from the dataset examples but is u
                 'description': 'a checkbox question',
                 'format': '''{
     "question_text": "The main question",
-    "options": ["Option A", "Option B", "Option C", "Option D"],
-    "correct_answer": ["Correct Option 1", "Correct Option 2"],
+    "options": ["Option A text", "Option B text", "Option C text", "Option D text"],
+    "correct_answer": ["Complete text of correct option 1", "Complete text of correct option 2"],
     "explanation": "Explanation of why these answers are correct",
     "topic": "Topic category",
     "language": "Python"
 }''',
                 'specific_instructions': [
-                    "Provide 4 options",
+                    "Provide 4 options with full text descriptions",
                     "Allow multiple correct answers",
+                    "The correct_answer array MUST contain the COMPLETE TEXT of each correct option, NOT just letters (e.g., use ['Machine Learning', 'Deep Learning'] not ['B', 'D'])",
                     "Include an explanation for the correct answers",
                     "Make sure incorrect options are clearly wrong"
                 ]
@@ -519,17 +576,18 @@ QUESTION TYPE: {question_type.upper()}
 
 INSTRUCTIONS:
 1. Generate {type_info['description']} that matches the user's request
-2. Use the dataset examples as inspiration for:
+2. IMPORTANT: If the user request is about a specific topic (like "E-sports ML"), generate a question that is DIRECTLY related to that topic, not just a generic question
+3. Use the dataset examples as a STRICT template for:
    - Question structure and format
-   - Difficulty level
+   - Difficulty level  
    - Answer patterns
    - Topic categorization
-3. {chr(10).join(f"   - {instruction}" for instruction in type_info['specific_instructions'])}
+4. {chr(10).join(f"   - {instruction}" for instruction in type_info['specific_instructions'])}
 
 REQUIRED OUTPUT FORMAT (JSON):
 {type_info['format']}
 
-Generate a question that follows the patterns from the dataset examples but is unique and educational."""
+Generate a question that follows the EXACT patterns from the dataset examples and is DIRECTLY relevant to the user's request."""
 
         return prompt
     
@@ -595,6 +653,50 @@ Generate a question that follows the patterns from the dataset examples but is u
         
         return None
     
+    def _fix_correct_answer(self, question_data: Dict[str, Any], question_type: str) -> Dict[str, Any]:
+        """Fix correct_answer if it's just a letter (e.g., 'B') and convert it to the actual option text"""
+        if question_type not in ['multiple_choice', 'checkbox', 'true_false']:
+            return question_data
+        
+        options = question_data.get('options', [])
+        if not options or len(options) == 0:
+            return question_data
+        
+        correct_answer = question_data.get('correct_answer', '')
+        
+        if question_type == 'checkbox':
+            # Handle list of correct answers
+            if isinstance(correct_answer, list):
+                fixed_answers = []
+                for ans in correct_answer:
+                    # If answer is a single letter like 'B', convert to option text
+                    if len(str(ans).strip()) == 1 and str(ans).strip().upper() in ['A', 'B', 'C', 'D', 'E']:
+                        idx = ord(str(ans).strip().upper()) - ord('A')
+                        if 0 <= idx < len(options):
+                            fixed_answers.append(options[idx])
+                        else:
+                            fixed_answers.append(str(ans))
+                    else:
+                        fixed_answers.append(str(ans))
+                question_data['correct_answer'] = fixed_answers
+        else:
+            # Handle single correct answer
+            if len(str(correct_answer).strip()) == 1 and str(correct_answer).strip().upper() in ['A', 'B', 'C', 'D', 'E', 'T', 'F']:
+                # It's a letter, convert to text
+                letter = str(correct_answer).strip().upper()
+                if question_type == 'true_false':
+                    if letter == 'T':
+                        question_data['correct_answer'] = 'True'
+                    elif letter == 'F':
+                        question_data['correct_answer'] = 'False'
+                else:
+                    # For multiple choice, convert letter to option text
+                    idx = ord(letter) - ord('A')
+                    if 0 <= idx < len(options):
+                        question_data['correct_answer'] = options[idx]
+        
+        return question_data
+    
     def generate_question(self, prompt: str, language: str = None, question_type: str = 'coding') -> Dict[str, Any]:
         """Generate a question using LM Studio with dataset context, or fallback to datasets if LM Studio unavailable"""
         try:
@@ -636,6 +738,10 @@ Generate a question that follows the patterns from the dataset examples but is u
                 try:
                     question_data = json.loads(ai_response)
                     print("Successfully generated question using LM Studio")
+                    
+                    # Fix correct_answer if it's just a letter (convert to actual text)
+                    question_data = self._fix_correct_answer(question_data, question_type)
+                    
                     return question_data
                 except json.JSONDecodeError as e:
                     print(f"Error parsing LM Studio response: {e}")
@@ -646,6 +752,10 @@ Generate a question that follows the patterns from the dataset examples but is u
                         try:
                             question_data = json.loads(json_match.group(0))
                             print("Successfully extracted JSON from LM Studio response")
+                            
+                            # Fix correct_answer if it's just a letter (convert to actual text)
+                            question_data = self._fix_correct_answer(question_data, question_type)
+                            
                             return question_data
                         except json.JSONDecodeError:
                             pass
@@ -669,6 +779,10 @@ Return JSON format based on question type: {question_type}"""
                         try:
                             question_data = json.loads(retry_response)
                             print("Successfully generated question using LM Studio (retry)")
+                            
+                            # Fix correct_answer if it's just a letter (convert to actual text)
+                            question_data = self._fix_correct_answer(question_data, question_type)
+                            
                             return question_data
                         except json.JSONDecodeError:
                             return self._create_question_from_ai_response(retry_response, prompt, context_examples, language, question_type)
