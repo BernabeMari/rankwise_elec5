@@ -100,11 +100,6 @@ Please provide your evaluation in the following JSON format:
     "feedback": "Focus on specific code strengths and weaknesses in 1-3 sentences. Mention specific lines, functions, or patterns. Include scoring rationale."
 }}
 
-Examples of good feedback:
-- "The algorithm is efficient with O(n) complexity, but line 5 has a potential null pointer exception. Score: 90% due to minor flaw."
-- "Good use of recursion and clean variable names, but missing input validation on line 3. Score: 75% due to major flaw."
-- "Code is syntactically correct but the nested loops create O(n²) complexity that could be optimized. Score: 100% - all correct."
-
 Avoid generic comments - be specific about the code."""
 
         return prompt

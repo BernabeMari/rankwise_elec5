@@ -157,19 +157,33 @@ class CodeEvaluator:
         
         # Build comprehensive feedback
         feedback_parts = []
-        
-        # Add AI feedback if available
-        if AI_AVAILABLE and ai_feedback:
-            feedback_parts.append(f"AI Analysis (Confidence: {ai_confidence}%):")
-            feedback_parts.append(ai_feedback)
-            feedback_parts.append("")  # Empty line for separation
-        
-        # Add unit test feedback
-        feedback_parts.append(f"Unit Test Results:")
-        feedback_parts.append(unit_feedback)
+
+        # Detect "AI-only" path where there are no unit tests and the unit feedback
+        # already contains an AI evaluation header. In that case, avoid duplicating
+        # analysis sections and just return the single AI-only block.
+        unit_fb_lower = (unit_feedback or "").lower()
+        ai_only = ("no unit tests provided" in unit_fb_lower) or unit_fb_lower.strip().startswith("ai evaluation")
+
+        if not ai_only:
+            # Add AI feedback if available
+            if AI_AVAILABLE and ai_feedback:
+                feedback_parts.append(f"AI Analysis (Confidence: {ai_confidence}%):")
+                feedback_parts.append(ai_feedback)
+                feedback_parts.append("")  # Empty line for separation
+            
+            # Add unit test feedback section
+            feedback_parts.append(f"Unit Test Results:")
+            feedback_parts.append(unit_feedback)
+        else:
+            # Single consolidated block when no unit tests exist
+            feedback_parts.append(unit_feedback)
         
         # Determine final result based on the specified logic
-        if ai_correct is not None:
+        if ai_only:
+            # AI-only evaluation path - unit_score already contains the converted AI score
+            final_score = unit_score
+            # No additional status messages needed, feedback already complete
+        elif ai_correct is not None:
             # AI evaluation available
             if unit_correct:
                 # Unit test says correct - this is authoritative
@@ -191,7 +205,8 @@ class CodeEvaluator:
         else:
             # No AI evaluation available - use unit test results
             final_score = unit_score
-            feedback_parts.append(f"\nINFO: Evaluation based on unit tests only (AI unavailable)")
+            if not ai_only:
+                feedback_parts.append(f"\nINFO: Evaluation based on unit tests only (AI unavailable)")
         
         # Determine if code is correct (score >= 75%)
         is_correct = final_score >= int(0.75 * max_score)
@@ -578,16 +593,15 @@ class CodeEvaluator:
             # Determine if code is correct (score >= 75%)
             is_correct = score >= 75
             
-            # Build feedback
-            feedback_parts = [f"AI Evaluation (No unit tests provided):"]
+            # Build feedback (no penalty for missing unit tests)
+            feedback_parts = [f"AI Evaluation:"]
             feedback_parts.append(ai_feedback)
             
             if has_input:
                 feedback_parts.append("\nNote: Code contains input() calls which cannot be tested without interactive input.")
             if has_print and not has_input:
                 feedback_parts.append("\nNote: Code uses print() instead of return statements - consider returning values for better function design.")
-            
-            feedback_parts.append(f"\nScore: {score}/100")
+
             feedback = "\n".join(feedback_parts)
             
             return is_correct, score, feedback
@@ -724,10 +738,10 @@ class CodeEvaluator:
             
             # Check for interactive code issues first
             if has_input and not has_function_def:
-                return False, 75, "AI Evaluation (No unit tests provided): Code uses input() but doesn't define a function as requested - major structural issue. Score: 75/100"
+                return False, 75, "AI Evaluation (No unit tests provided): Code uses input() but doesn't define a function as requested - major structural issue."
             
             if has_print and not has_return and has_function_def:
-                return True, 90, "AI Evaluation (No unit tests provided): Code defines function correctly but uses print() instead of return statements. Score: 90/100"
+                return True, 90, "AI Evaluation (No unit tests provided): Code defines function correctly but uses print() instead of return statements."
             
             # 100%: All correct, perfect implementation
             if (has_function_def and has_return and not has_undefined_vars and 

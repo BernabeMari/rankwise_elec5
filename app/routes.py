@@ -2296,6 +2296,8 @@ def generate_ai_question_standalone():
             'text': question_data.get('question_text', ''),
             'sample_code': question_data.get('sample_code', ''),
             'unit_tests': question_data.get('unit_tests', ''),
+            # For legacy frontend code paths, also expose unit tests as 'expected_output'
+            'expected_output': question_data.get('unit_tests', ''),
             'expected_outputs': question_data.get('expected_outputs', ''),
             'scoring_criteria': question_data.get('scoring_criteria', ''),
             'max_score': question_data.get('max_score', 100),
