@@ -1200,6 +1200,12 @@
                                 </div>
                             {% endif %}
                             
+                            {% if question.expected_output %}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Unit Tests:</label>
+                                    <pre class="code-editor bg-dark text-light">{{ question.expected_output }}</pre>
+                                </div>
+                            {% endif %}
                             
                             <!-- Language Selection -->
                             <div class="mb-3">

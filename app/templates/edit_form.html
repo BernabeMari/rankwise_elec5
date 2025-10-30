@@ -187,19 +187,37 @@
         padding: 20px;
     }
     
-    .ai-loading .spinner {
-        border: 4px solid rgba(255, 255, 255, 0.3);
-        border-radius: 50%;
-        border-top: 4px solid #9c57d3;
-        width: 40px;
-        height: 40px;
-        margin: 0 auto 15px auto;
-        animation: spin 1s linear infinite;
+    .ai-progress-container {
+        width: 100%;
+        margin-bottom: 15px;
     }
     
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+    .ai-progress-bar-bg {
+        width: 100%;
+        height: 30px;
+        background-color: #e9ecef;
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .ai-progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #9c57d3, #5a40b0);
+        border-radius: 15px;
+        transition: width 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .ai-progress-text {
+        margin-top: 10px;
+        font-size: 16px;
+        color: #6c757d;
     }
     
     .ai-result {
@@ -627,6 +645,14 @@
                         <input type="checkbox" id="cat_esports" value="Esports">
                         <label for="cat_esports">Esports</label>
                     </div>
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_c++" value="C++">
+                        <label for="cat_c++">C++</label>
+                    </div>
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_c" value="C">
+                        <label for="cat_c">C</label>
+                    </div>
                 </div>
                 <small class="form-text text-muted">Select one or more categories to generate questions</small>
             </div>
@@ -676,8 +702,12 @@
         </div>
         
         <div id="aiLoading" class="ai-loading">
-            <div class="spinner"></div>
-            <p>Generating your question...</p>
+            <div class="ai-progress-container">
+                <div class="ai-progress-bar-bg">
+                    <div class="ai-progress-bar-fill" id="aiProgressBar" style="width: 0%;">0%</div>
+                </div>
+                <div class="ai-progress-text" id="aiProgressText">Initializing...</div>
+            </div>
         </div>
         
         <div id="aiResult" class="ai-result">
@@ -1032,17 +1062,38 @@
             aiAddQuestionBtn.style.display = 'inline-block';
             
             try {
-                const tasks = [];
-                // Generate questions for each category and type combination
+                // Calculate total questions to generate
+                const totalQuestions = selectedCategories.length * selectedTypes.length * count;
+                const results = [];
+                let currentProgress = 0;
+                
+                // Helper function to update progress
+                const updateProgress = (completed) => {
+                    currentProgress = completed;
+                    const percentage = Math.round((completed / totalQuestions) * 100);
+                    document.getElementById('aiProgressBar').style.width = percentage + '%';
+                    document.getElementById('aiProgressBar').textContent = percentage + '%';
+                    document.getElementById('aiProgressText').textContent = 
+                        `Generating questions... ${completed}/${totalQuestions}`;
+                };
+                
+                updateProgress(0);
+                
+                // Generate questions sequentially with progress updates
                 for (const category of selectedCategories) {
                     for (const typeValue of selectedTypes) {
                         for (let i = 0; i < count; i++) {
-                            const categoryPrompt = `${category} (${i + 1})`;
-                            tasks.push(generateQuestionFromDatasets(categoryPrompt, typeValue));
+                            try {
+                                const categoryPrompt = `${category} (${i + 1})`;
+                                const result = await generateQuestionFromDatasets(categoryPrompt, typeValue);
+                                results.push({ status: 'fulfilled', value: result });
+                            } catch (error) {
+                                results.push({ status: 'rejected', reason: error });
+                            }
+                            updateProgress(currentProgress + 1);
                         }
                     }
                 }
-                const results = await Promise.allSettled(tasks);
                 
                 // Dedupe by normalized question text (less aggressive for coding questions)
                 const unique = [];
