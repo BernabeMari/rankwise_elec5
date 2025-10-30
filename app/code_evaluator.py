@@ -15,8 +15,11 @@ import pandas as pd
 # Import AI evaluator
 try:
     from .ai_evaluator import ai_evaluator
-    AI_AVAILABLE = True
-except ImportError:
+    # Check if AI is actually available by testing LM Studio
+    AI_AVAILABLE = ai_evaluator._check_lm_studio_available()
+    if not AI_AVAILABLE:
+        print("AI evaluator available but LM Studio is not running - using unit tests only")
+except (ImportError, AttributeError):
     AI_AVAILABLE = False
     print("AI evaluator not available - running without AI integration")
 
