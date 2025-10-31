@@ -155,6 +155,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     {% endif %}
     {% endfor %}
+    
+    // Student Categories functionality
+    const viewStudentCategoriesBtn = document.getElementById('viewStudentCategories');
+    const studentCategoriesModal = new bootstrap.Modal(document.getElementById('studentCategoriesModal'));
+    
+    // Replace dynamic generation with server-rendered content
+    viewStudentCategoriesBtn.addEventListener('click', function() {
+        const content = document.getElementById('studentCategoriesContent');
+        const server = document.getElementById('studentCategoriesServerContent');
+        if (server && content) {
+            content.innerHTML = server.innerHTML;
+        }
+        studentCategoriesModal.show();
+    });
 });
 </script>
 {% endblock %}
@@ -261,11 +275,101 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                 </div>
+                <hr>
+                <div class="text-center mt-3">
+                    <button class="btn btn-primary" id="viewStudentCategories">
+                        <i class="bi bi-trophy"></i> View Student Categories
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Student Categories Modal -->
+<div class="modal fade" id="studentCategoriesModal" tabindex="-1" aria-labelledby="studentCategoriesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="studentCategoriesModalLabel">
+                    <i class="bi bi-trophy"></i> Top Students by Category
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="studentCategoriesContent">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Pre-rendered server content for student categories -->
+                <div id="studentCategoriesServerContent" style="display:none;">
+                    <div class="accordion" id="studentCategoriesAccordionServer">
+                        {% set cat_order = categories_order or [] %}
+                        {% for cat in cat_order %}
+                            {% set rows = category_leaders.get(cat) %}
+                            {% if rows %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading_srv_{{ loop.index }}">
+                                    <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_srv_{{ loop.index }}" aria-expanded="{% if loop.first %}true{% else %}false{% endif %}">
+                                        <strong>{{ cat }}</strong>
+                                        <span class="badge bg-primary ms-2">{{ rows|length }} student{{ '' if rows|length == 1 else 's' }}</span>
+                                    </button>
+                                </h2>
+                                <div id="collapse_srv_{{ loop.index }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}" data-bs-parent="#studentCategoriesAccordionServer">
+                                    <div class="accordion-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Rank</th>
+                                                        <th>Student Name</th>
+                                                        <th>Score</th>
+                                                        <th>Points Earned</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in rows %}
+                                                    <tr>
+                                                        <td>{% if loop.first %}<span class="badge bg-warning"><i class="bi bi-trophy"></i></span>{% else %}#{{ loop.index }}{% endif %}</td>
+                                                        <td><strong>{{ row.submitted_by }}</strong></td>
+                                                        <td>
+                                                            <div class="progress" style="height:25px;">
+                                                                {% set pct = row.percentage %}
+                                                                {% set bar = 'bg-danger' %}
+                                                                {% if pct >= 90 %}{% set bar = 'bg-success' %}
+                                                                {% elif pct >= 80 %}{% set bar = 'bg-info' %}
+                                                                {% elif pct >= 70 %}{% set bar = 'bg-primary' %}
+                                                                {% elif pct >= 60 %}{% set bar = 'bg-warning' %}
+                                                                {% endif %}
+                                                                <div class="progress-bar {{ bar }}" style="width: {{ '%.1f'|format(pct) }}%">{{ '%.1f'|format(pct) }}%</div>
+                                                            </div>
+                                                        </td>
+                                                        <td>{{ '%.1f'|format(row.earned_points) }} points</td>
+                                                        <td>
+                                                            <a href="/response/view/{{ row.response_id }}" class="btn btn-sm btn-outline-primary">
+                                                                <i class="bi bi-eye"></i> View Response
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Question Performance with Individual Charts -->
 <div class="row">

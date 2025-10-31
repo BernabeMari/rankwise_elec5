@@ -2226,6 +2226,94 @@ def form_analytics(form_id):
         else:
             score_ranges['0-49'] += 1
     
+    # Build category leaders: infer categories per question by keywords
+    def infer_categories(question: Question) -> set:
+        text = f"{question.question_text or ''} {question.sample_code or ''}".lower()
+        cats = set()
+        if any(k in text for k in ['cyber', 'security', 'xss', 'sql injection', 'encryption', 'malware']):
+            cats.add('Cybersecurity')
+        if any(k in text for k in ['digital electronics', 'logic gate', 'flip-flop', 'flip flop', 'verilog', 'binary', 'combinational', 'sequential circuit']):
+            cats.add('Digital Electronics')
+        if any(k in text for k in ['linux', 'bash', 'shell', 'systemd', 'apt', 'yum', 'cron']):
+            cats.add('Linux Administration')
+        if any(k in text for k in ['network', 'tcp', 'udp', 'ip address', 'subnet', 'router', 'switch', 'dns', 'dhcp']):
+            cats.add('Networking')
+        if any(k in text for k in ['robot', 'arduino', 'raspberry', 'ros', 'sensor', 'motor', 'servo']):
+            cats.add('Robotics')
+        if any(k in text for k in ['android', 'kotlin', 'android studio', 'apk', 'activity', 'fragment']):
+            cats.add('Android App Development')
+        if any(k in text for k in ['database', 'sql', 'mysql', 'postgres', 'sqlite', 'mongodb', 'nosql', 'index', 'join']):
+            cats.add('Database')
+        if 'java' in text:
+            cats.add('Java')
+        # c# matching: look for c# or csharp
+        if 'c#' in text or 'csharp' in text:
+            cats.add('C#')
+        if 'python' in text or 'def ' in text and question.question_type == 'coding':
+            cats.add('Python')
+        if any(k in text for k in ['html', 'css', 'javascript', 'react', 'vue', 'web ' , 'frontend', 'front-end']):
+            cats.add('Web Design')
+        if 'esports' in text or 'tournament' in text or 'league' in text:
+            cats.add('Esports')
+        # C and C++
+        if ' c++' in text or 'cpp' in text or '#include <' in text and 'using namespace std' in text:
+            cats.add('C++')
+        # crude C detection (avoid matching 'c ' in common words)
+        if ' int main(' in text or '#include <stdio.h>' in text:
+            cats.add('C')
+        return cats
+
+    # Precompute question -> categories
+    question_id_to_categories = {q.id: infer_categories(q) for q in questions}
+
+    # Precompute total possible points per category
+    categories_order = [
+        'Cybersecurity','Digital Electronics','Linux Administration','Networking','Robotics',
+        'Android App Development','Database','Java','C#','Python','Web Design','Esports','C','C++'
+    ]
+    category_total_points = {c: 0.0 for c in categories_order}
+    for q in questions:
+        for cat in question_id_to_categories.get(q.id, set()):
+            category_total_points[cat] += float(q.points or 0)
+
+    # Compute per-response earned points per category
+    from collections import defaultdict
+    category_student_rows = {c: [] for c in categories_order}
+    response_id_to_response = {r.id: r for r in responses}
+
+    for response in responses:
+        per_cat_points = defaultdict(float)
+        for answer in response.answers:
+            q = next((qq for qq in questions if qq.id == answer.question_id), None)
+            if not q:
+                continue
+            cats = question_id_to_categories.get(q.id, set())
+            if not cats:
+                continue
+            earned = (float(answer.score_percentage or 0) / 100.0) * float(q.points or 0)
+            for cat in cats:
+                per_cat_points[cat] += earned
+        # Convert to percentage per category
+        for cat, earned_points in per_cat_points.items():
+            total_cat_pts = category_total_points.get(cat, 0.0) or 0.0
+            if total_cat_pts <= 0:
+                continue
+            percentage = (earned_points / total_cat_pts) * 100.0
+            category_student_rows[cat].append({
+                'submitted_by': response.submitted_by,
+                'percentage': percentage,
+                'earned_points': earned_points,
+                'response_id': response.id
+            })
+
+    # Sort each category by percentage desc
+    for cat in categories_order:
+        category_student_rows[cat].sort(key=lambda r: r['percentage'], reverse=True)
+
+    category_leaders = {
+        cat: rows for cat, rows in category_student_rows.items() if rows
+    }
+
     return render_template('form_analytics.html', 
                          form=form,
                          total_responses=total_responses,
@@ -2234,7 +2322,9 @@ def form_analytics(form_id):
                          response_stats=response_stats,
                          question_stats=question_stats,
                          avg_score=avg_score,
-                         score_ranges=score_ranges)
+                         score_ranges=score_ranges,
+                         category_leaders=category_leaders,
+                         categories_order=categories_order)
 
 @main.route('/generate_ai_question_with_context', methods=['POST'])
 def generate_ai_question_with_context():
