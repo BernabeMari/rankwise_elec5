@@ -1207,99 +1207,36 @@
                                 </div>
                             {% endif %}
                             
-                            <!-- Language Selection -->
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Choose Programming Language:</label>
-                                <div class="language-selector">
-                                    <div class="language-option" data-language="python" data-question="{{ question.id }}">
-                                        <i class="fab fa-python"></i>
-                                        <span>Python</span>
-                                    </div>
-                                    <div class="language-option" data-language="java" data-question="{{ question.id }}">
-                                        <i class="fab fa-java"></i>
-                                        <span>Java</span>
-                                    </div>
-                                    <div class="language-option" data-language="cpp" data-question="{{ question.id }}">
-                                        <i class="fas fa-code"></i>
-                                        <span>C++</span>
-                                    </div>
-                                    <div class="language-option" data-language="c" data-question="{{ question.id }}">
-                                        <i class="fas fa-terminal"></i>
-                                        <span>C</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- IDE Container -->
-                            <div class="ide-container" id="ide-container-{{ question.id }}" style="display: none;">
-                                <div class="ide-header">
-                                    <div class="ide-tabs">
-                                        <div class="ide-tab active" data-tab="editor">
-                                            <i class="fas fa-code"></i> Editor
-                                        </div>
-                                        <div class="ide-tab" data-tab="output">
-                                            <i class="fas fa-terminal"></i> Output
-                                        </div>
-                                    </div>
-                                    <div class="ide-actions">
-                                        <div class="input-group me-2" style="max-width: 450px;">
-                                            <span class="input-group-text">
-                                                <i class="fas fa-keyboard"></i>
-                                            </span>
-                                            <input type="text" class="form-control form-control-sm" 
-                                                   placeholder="Enter input for your code (e.g., 'John', '42')" 
-                                                   id="input-{{ question.id }}"
-                                                   title="Enter input that your code expects (like user input from input(), Scanner, etc.)">
-                                            <button class="btn btn-outline-primary btn-sm" type="button" id="send-input-{{ question.id }}">
-                                                <i class="fas fa-paper-plane"></i> Send
-                                            </button>
-                                        </div>
-                                        <button type="button" class="btn btn-success btn-sm run-code-btn" data-question="{{ question.id }}">
-                                            <i class="fas fa-play"></i> Run Code
-                                        </button>
-                                        <button type="button" class="btn btn-danger btn-sm ms-1 stop-code-btn" data-question="{{ question.id }}" style="display: none;">
-                                            <i class="fas fa-stop"></i> Stop
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="ide-content">
-                                    <div class="ide-panel active" id="editor-panel-{{ question.id }}">
-                                        <div class="monaco-editor" id="monaco-editor-{{ question.id }}"></div>
-                                    </div>
-                                    <div class="ide-panel" id="output-panel-{{ question.id }}">
-                                        <div class="output-container">
-                                            <div class="output-header">
-                                                <span class="output-label">Output:</span>
-                                                <button type="button" class="btn btn-sm btn-outline-secondary clear-output-btn" data-question="{{ question.id }}">
-                                                    <i class="fas fa-trash"></i> Clear
-                                                </button>
+                            <!-- Programmiz-like IDE -->
+                            <div class="prog-ide" id="prog-ide-{{ question.id }}">
+                                <div class="row g-3">
+                                    <div class="col-12 col-lg-8">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <label class="form-label mb-0">Language</label>
+                                                <select class="form-select form-select-sm" style="width:auto;" id="prog-lang-{{ question.id }}">
+                                                    <option value="python">Python</option>
+                                                    <option value="java">Java</option>
+                                                    <option value="cpp">C++</option>
+                                                    <option value="c">C</option>
+                                                    <option value="csharp">C#</option>
+                                                </select>
                                             </div>
-                                            <div class="output-content" id="output-content-{{ question.id }}">
-                                                <div class="output-placeholder">
-                                                    <i class="fas fa-play-circle"></i>
-                                                    <p>Click "Run Code" to see the output here</p>
-                                                    <small class="text-muted">
-                                                        <i class="fas fa-info-circle"></i>
-                                                        If your code needs input, you'll be prompted to enter it interactively.
-                                                    </small>
-                                                </div>
-                                            </div>
-                                            <!-- Interactive Input Area -->
-                                            <div class="interactive-input-area" id="interactive-input-{{ question.id }}" style="display: none;">
-                                                <div class="input-prompt">
-                                                    <span class="prompt-text">Enter input:</span>
-                                                    <div class="input-group">
-                                                        <input type="text" class="form-control interactive-input" 
-                                                               placeholder="Type your input here..." 
-                                                               id="user-input-{{ question.id }}">
-                                                        <button class="btn btn-primary btn-sm submit-input-btn" 
-                                                                data-question="{{ question.id }}">
-                                                            <i class="fas fa-arrow-right"></i> Send
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                            <div>
+                                                <button type="button" class="btn btn-success btn-sm" data-prog-run="{{ question.id }}"><i class="fas fa-play"></i> Run</button>
                                             </div>
                                         </div>
+                                        <div class="border rounded" style="height:320px;">
+                                            <div class="monaco-editor" id="prog-editor-{{ question.id }}" style="height:100%;"></div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <label class="form-label">Input (one per line)</label>
+                                            <textarea class="form-control" rows="4" id="prog-inputs-{{ question.id }}" placeholder="e.g.\n5\n10"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-lg-4">
+                                        <label class="form-label">Output</label>
+                                        <pre class="p-3 bg-dark text-light border rounded" style="height:400px; overflow:auto;" id="prog-output-{{ question.id }}">Click Run to see output</pre>
                                     </div>
                                 </div>
                             </div>
@@ -1498,62 +1435,47 @@
     }
     
     function initializeIDEEvents() {
-        // Language selection
-        $(document).on('click', '.language-option', function() {
-            const language = $(this).data('language');
-            const questionId = $(this).data('question');
-            
-            // Update selection
-            $(`.language-option[data-question="${questionId}"]`).removeClass('selected');
-            $(this).addClass('selected');
-            
-            // Store selected language
-            selectedLanguages[questionId] = language;
-            
-            // Show IDE
-            $(`#ide-container-${questionId}`).show();
-            
-            // Ensure editor tab is active
-            $(`#ide-container-${questionId} .ide-tab`).removeClass('active');
-            $(`#ide-container-${questionId} .ide-tab[data-tab="editor"]`).addClass('active');
-            $(`#ide-container-${questionId} .ide-panel`).removeClass('active');
-            $(`#editor-panel-${questionId}`).addClass('active');
-            
-            // Initialize Monaco Editor for this question
-            initializeEditorForQuestion(questionId, language);
-        });
-        
-        // IDE Tab switching
-        $(document).on('click', '.ide-tab', function() {
-            const tab = $(this).data('tab');
-            const questionId = $(this).closest('.ide-container').attr('id').replace('ide-container-', '');
-            
-            // Update tab states
-            $(`#ide-container-${questionId} .ide-tab`).removeClass('active');
-            $(this).addClass('active');
-            
-            // Update panel states
-            $(`#ide-container-${questionId} .ide-panel`).removeClass('active');
-            $(`#${tab}-panel-${questionId}`).addClass('active');
-        });
-        
-        // Run code button
-        $(document).on('click', '.run-code-btn', function() {
-            const questionId = $(this).data('question');
-            runCode(questionId);
-        });
-        
-        // Stop code button
-        $(document).on('click', '.stop-code-btn', function() {
-            const questionId = $(this).data('question');
-            stopExecution(questionId);
-        });
-        
-        
-        // Clear output button
-        $(document).on('click', '.clear-output-btn', function() {
-            const questionId = $(this).data('question');
-            clearOutput(questionId);
+        // Programmiz-like: initialize editors and run handlers
+        $('[id^="prog-ide-"]').each(function() {
+            const questionId = $(this).attr('id').replace('prog-ide-', '');
+            const langSelect = $(`#prog-lang-${questionId}`);
+            // Initialize Monaco for default language
+            initializeEditorForQuestion(questionId, langSelect.val());
+            // On language change, re-init editor template
+            langSelect.on('change', function() {
+                initializeEditorForQuestion(questionId, $(this).val());
+            });
+            // Run click
+            $(`[data-prog-run="${questionId}"]`).on('click', function() {
+                const language = $(`#prog-lang-${questionId}`).val();
+                const code = monacoEditors[questionId] ? monacoEditors[questionId].getValue() : '';
+                const inputsRaw = ($(`#prog-inputs-${questionId}`).val() || '').toString();
+                const inputs = inputsRaw ? inputsRaw.split(/\r?\n/) : [];
+                const outputEl = $(`#prog-output-${questionId}`);
+                outputEl.text('Running...');
+                fetch('/execute-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, language, inputs })
+                }).then(r => r.json()).then(data => {
+                    if (data.success) {
+                        outputEl.text(data.output || '');
+                    } else {
+                        const msg = (data.output ? data.output + '\n\n' : '') + (data.error || 'Execution failed');
+                        outputEl.text(msg);
+                        if (data.awaiting_input) {
+                            // Focus inputs box to simulate interactive prompt
+                            const box = $(`#prog-inputs-${questionId}`);
+                            if (!box.val()) {
+                                box.attr('placeholder', 'Program is waiting for input... type here, one line per input');
+                            }
+                            box.focus();
+                        }
+                    }
+                }).catch(err => {
+                    outputEl.text('Error: ' + err.message);
+                });
+            });
         });
     }
     
@@ -1578,9 +1500,10 @@
             monacoEditors[questionId].dispose();
         }
         
-        const editorContainer = document.getElementById(`monaco-editor-${questionId}`);
+        // Support both legacy and new Programmiz-like editor containers
+        const editorContainer = document.getElementById(`prog-editor-${questionId}`) || document.getElementById(`monaco-editor-${questionId}`);
         if (!editorContainer) {
-            console.error('Editor container not found:', `monaco-editor-${questionId}`);
+            console.error('Editor container not found:', `prog-editor-${questionId}`);
             return;
         }
         
@@ -1589,7 +1512,8 @@
             'python': 'python',
             'java': 'java',
             'cpp': 'cpp',
-            'c': 'c'
+            'c': 'c',
+            'csharp': 'csharp'
         };
         
         // Default code templates
@@ -1651,6 +1575,24 @@ int main() {
     
     // Your code here
     return 0;
+}`,
+            'csharp': `using System;
+using System.Linq;
+using System.Collections.Generic;
+
+public class Program {
+    public static void Main(string[] args) {
+        Console.WriteLine("Hello, World!");
+
+        // Example with input
+        Console.Write("Enter your name: ");
+        string name = Console.ReadLine();
+        Console.WriteLine($"Hello, {name}!");
+
+        // Arrays example
+        // string[] arr = Console.ReadLine().Split(' ');
+        // Console.WriteLine(string.Join(",", arr));
+    }
 }`
         };
         
@@ -1770,8 +1712,13 @@ int main() {
             console.log(`Code needs ${expectedInputs} inputs for ${language}`);
         }
         
-        // Start execution with no inputs first
-        executeCodeWithInputs(questionId, code, language, []);
+        // Gather initial inputs from the input field (supports multi-line for multiple inputs)
+        const initialInputText = ($(`#input-${questionId}`).val() || '').toString();
+        const initialInputs = initialInputText
+            ? initialInputText.split(/\r?\n/).filter(line => line.length > 0)
+            : [];
+        // Start execution with collected inputs first
+        executeCodeWithInputs(questionId, code, language, initialInputs);
     }
     
     function executeCodeWithInputs(questionId, code, language, inputs) {
@@ -1939,6 +1886,9 @@ int main() {
                 needsInput = codeLower.includes('scanf') || codeLower.includes('fgets') || 
                            codeLower.includes('getchar') || codeLower.includes('gets');
                 break;
+            case 'csharp':
+                needsInput = codeLower.includes('console.readline(') || codeLower.includes('readline(');
+                break;
         }
         
         return needsInput;
@@ -1979,6 +1929,11 @@ int main() {
                            (fgetsMatches ? fgetsMatches.length : 0) + 
                            (getcharMatches ? getcharMatches.length : 0) + 
                            (getsMatches ? getsMatches.length : 0);
+                break;
+            case 'csharp':
+                // Count Console.ReadLine calls
+                const rlMatches = code.match(/Console\.ReadLine\s*\(\)/gi);
+                inputCount = rlMatches ? rlMatches.length : 0;
                 break;
         }
         

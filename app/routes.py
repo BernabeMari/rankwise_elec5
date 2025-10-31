@@ -877,6 +877,8 @@ def execute_code():
             result = execute_cpp_code(code, user_inputs)
         elif language == 'c':
             result = execute_c_code(code, user_inputs)
+        elif language in ['c#','csharp','cs']:
+            result = execute_csharp_code(code, user_inputs)
         else:
             return jsonify({'success': False, 'error': f'Unsupported language: {language}'})
         
@@ -916,6 +918,10 @@ def check_input_needed():
             if any(pattern in code.lower() for pattern in ['cin', 'scanf', 'fgets', 'getline']):
                 needs_input = True
                 input_prompt = "Enter input:"
+        elif language in ['c#','csharp','cs']:
+            if any(pattern in code.lower() for pattern in ['console.readline', 'readline(']):
+                needs_input = True
+                input_prompt = "Enter input:"
         
         return jsonify({
             'needs_input': needs_input,
@@ -944,7 +950,7 @@ def execute_python_code(code, user_inputs=[]):
                     'error': f'Security restriction: {pattern} is not allowed'
                 }
         
-        # Add basic static analysis to catch undefined variables and typos
+        # Add basic static analysis to warn about undefined variables and typos (non-blocking)
         import ast
         try:
             tree = ast.parse(code)
@@ -985,17 +991,12 @@ def execute_python_code(code, user_inputs=[]):
                     else:
                         suspicious_vars.append(var)
                 
+                analysis_warning = ''
                 if suspicious_vars:
-                    error_msg = '⚠️ Potential undefined variable(s):\n'
+                    analysis_warning = '⚠️ Potential undefined variable(s):\n'
                     for var in suspicious_vars:
-                        error_msg += f'  • {var}\n'
-                    error_msg += '\nTip: Make sure all variable names are spelled correctly throughout your code.'
-                    
-                    return {
-                        'success': False,
-                        'output': '',
-                        'error': error_msg
-                    }
+                        analysis_warning += f'  • {var}\n'
+                    analysis_warning += '\nTip: Make sure all variable names are spelled correctly throughout your code.'
         except SyntaxError:
             # If we can't parse, just continue with execution
             pass
@@ -1036,6 +1037,12 @@ def execute_python_code(code, user_inputs=[]):
             error = result.stderr
             
             if result.returncode == 0:
+                # Append non-blocking analysis warnings if available
+                try:
+                    if analysis_warning:
+                        output = (output or '') + ('\n\n' + analysis_warning)
+                except Exception:
+                    pass
                 return {
                     'success': True,
                     'output': output or 'Code executed successfully.',
@@ -1141,8 +1148,9 @@ def execute_java_code(code, user_inputs=[]):
             if needs_input and not user_inputs:
                 return {
                     'success': False,
+                    'awaiting_input': True,
                     'output': '',
-                    'error': '⚠️ This code requires input but none was provided.\n\nTip: Enter input in the input field above the "Run Code" button.'
+                    'error': 'Input required. Provide input lines and run again.'
                 }
             
             # Combine all inputs with newlines
@@ -1172,8 +1180,9 @@ def execute_java_code(code, user_inputs=[]):
                 if 'NoSuchElementException' in error or 'InputMismatchException' in error:
                     return {
                         'success': False,
+                        'awaiting_input': True,
                         'output': output,
-                        'error': f'Input required: {error}\n\nTip: Enter input in the input field above the "Run Code" button.'
+                        'error': 'Input required. Provide next input lines and run again.'
                     }
                 else:
                     return {
@@ -1261,8 +1270,9 @@ def execute_cpp_code(code, user_inputs=[]):
             if needs_input and not user_inputs:
                 return {
                     'success': False,
+                    'awaiting_input': True,
                     'output': '',
-                    'error': '⚠️ This code requires input but none was provided.\n\nTip: Enter input in the input field above the "Run Code" button.'
+                    'error': 'Input required. Provide input lines and run again.'
                 }
             
             # Combine all inputs with newlines
@@ -1292,8 +1302,9 @@ def execute_cpp_code(code, user_inputs=[]):
                 if 'EOFError' in error or 'NoSuchElementException' in error or 'scanf' in error.lower():
                     return {
                         'success': False,
+                        'awaiting_input': True,
                         'output': output,
-                        'error': f'Input required: {error}\n\nTip: Enter input in the input field above the "Run Code" button.'
+                        'error': 'Input required. Provide next input lines and run again.'
                     }
                 else:
                     return {
@@ -1380,8 +1391,9 @@ def execute_c_code(code, user_inputs=[]):
             if needs_input and not user_inputs:
                 return {
                     'success': False,
+                    'awaiting_input': True,
                     'output': '',
-                    'error': '⚠️ This code requires input but none was provided.\n\nTip: Enter input in the input field above the "Run Code" button.'
+                    'error': 'Input required. Provide input lines and run again.'
                 }
             
             # Combine all inputs with newlines
@@ -1411,8 +1423,9 @@ def execute_c_code(code, user_inputs=[]):
                 if 'EOFError' in error or 'NoSuchElementException' in error or 'scanf' in error.lower():
                     return {
                         'success': False,
+                        'awaiting_input': True,
                         'output': output,
-                        'error': f'Input required: {error}\n\nTip: Enter input in the input field above the "Run Code" button.'
+                        'error': 'Input required. Provide next input lines and run again.'
                     }
                 else:
                     return {
@@ -1434,6 +1447,117 @@ def execute_c_code(code, user_inputs=[]):
             'success': False,
             'output': '',
             'error': 'Code execution timed out (10 seconds)'
+        }
+
+def execute_csharp_code(code, user_inputs=[]):
+    """Execute C# code and return output. Requires .NET SDK (csc) or dotnet."""
+    try:
+        # Basic security check
+        dangerous_patterns = [
+            'System.IO', 'System.Net', 'Process.Start', 'File.', 'Directory.', 'Socket', 'HttpClient'
+        ]
+        code_lower = code.lower()
+        for pattern in dangerous_patterns:
+            if pattern.lower() in code_lower:
+                return {
+                    'success': False,
+                    'output': '',
+                    'error': f'Security restriction: {pattern} is not allowed'
+                }
+
+        temp_dir = tempfile.mkdtemp()
+        cs_file = os.path.join(temp_dir, 'Program.cs')
+        exe_file = os.path.join(temp_dir, 'Program.exe')
+
+        # If code does not define a Program/Main, wrap it
+        wrapped_code = code
+        if 'static void Main' not in code and 'static int Main' not in code:
+            wrapped_code = (
+                'using System;\nusing System.Linq;\nusing System.Collections.Generic;\n'
+                'public class Program {\n'
+                '    public static void Main(string[] args) {\n'
+                f'        {code}\n'
+                '    }\n'
+                '}'
+            )
+
+        with open(cs_file, 'w', encoding='utf-8') as f:
+            f.write(wrapped_code)
+
+        # Try compile with csc (Roslyn); if not available, fallback to dotnet new+run
+        compile_result = None
+        try:
+            compile_result = subprocess.run(['csc', '/nologo', cs_file, '/out:' + exe_file], capture_output=True, text=True, timeout=20, cwd=temp_dir)
+            use_dotnet = False
+        except FileNotFoundError:
+            use_dotnet = True
+
+        if use_dotnet:
+            # Create a minimal console project and replace Program.cs
+            try:
+                init_result = subprocess.run(['dotnet', 'new', 'console', '--force', '--name', 'App', '--output', temp_dir], capture_output=True, text=True, timeout=30)
+                if init_result.returncode != 0:
+                    return {
+                        'success': False,
+                        'output': '',
+                        'error': 'C# toolchain not found. Please install .NET SDK to run C# code.'
+                    }
+                # Overwrite Program.cs
+                prog_path = os.path.join(temp_dir, 'Program.cs')
+                with open(prog_path, 'w', encoding='utf-8') as f:
+                    f.write(wrapped_code)
+                # Restore packages
+                subprocess.run(['dotnet', 'restore'], capture_output=True, text=True, timeout=30, cwd=temp_dir)
+                # Build then execute with inputs (avoid missing exe errors)
+                build_result = subprocess.run(['dotnet', 'build', '-c', 'Debug'], capture_output=True, text=True, timeout=40, cwd=temp_dir)
+                if build_result.returncode != 0:
+                    return { 'success': False, 'output': '', 'error': build_result.stderr or 'C# build failed' }
+                combined_input = '\n'.join(user_inputs) if user_inputs else ''
+                exec_result = subprocess.run(['dotnet', 'run', '-c', 'Debug'], capture_output=True, text=True, timeout=30, cwd=temp_dir, input=combined_input)
+                if exec_result.returncode == 0:
+                    return { 'success': True, 'output': exec_result.stdout or 'Code executed successfully.', 'error': None }
+                else:
+                    return { 'success': False, 'output': exec_result.stdout, 'error': exec_result.stderr or 'Code execution failed' }
+            except Exception as e:
+                return { 'success': False, 'output': '', 'error': f'C# execution error: {str(e)}' }
+
+        if compile_result.returncode != 0:
+            return {
+                'success': False,
+                'output': '',
+                'error': '⚠️ Compilation Error:\n\n' + (compile_result.stderr or compile_result.stdout)
+            }
+
+        # Combine inputs
+        combined_input = '\n'.join(user_inputs) if user_inputs else ''
+
+        # Execute
+        exec_cmd = [exe_file]
+        exec_result = subprocess.run(exec_cmd, capture_output=True, text=True, timeout=10, cwd=temp_dir, input=combined_input)
+
+        if exec_result.returncode == 0:
+            return {
+                'success': True,
+                'output': exec_result.stdout or 'Code executed successfully.',
+                'error': None
+            }
+        else:
+            return {
+                'success': False,
+                'output': exec_result.stdout,
+                'error': exec_result.stderr or 'Code execution failed'
+            }
+    except subprocess.TimeoutExpired:
+        return {
+            'success': False,
+            'output': '',
+            'error': 'Code execution timed out (10 seconds)'
+        }
+    except Exception as e:
+        return {
+            'success': False,
+            'output': '',
+            'error': f'Execution error: {str(e)}'
         }
     except Exception as e:
         return {
