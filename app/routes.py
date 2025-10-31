@@ -1836,6 +1836,39 @@ def view_response(response_id):
         student_name = student_id
     return render_template('view_response.html', form=form, response=response, overall_pct=overall_pct, badges=badges, student_name=student_name, student_id=student_id)
 
+@main.route('/answer/<int:answer_id>/manual', methods=['POST'])
+@admin_required
+def manual_mark_answer(answer_id):
+    """Allow admin to manually mark an answer correct/wrong or set a score percentage."""
+    answer = Answer.query.get_or_404(answer_id)
+    action = request.form.get('action')  # 'correct' | 'wrong' | None
+    pct_raw = request.form.get('score_percentage')
+
+    try:
+        if action == 'correct':
+            answer.is_correct = True
+            answer.score_percentage = 100.0
+        elif action == 'wrong':
+            answer.is_correct = False
+            answer.score_percentage = 0.0
+
+        if pct_raw is not None and pct_raw != '':
+            pct = float(pct_raw)
+            if pct < 0:
+                pct = 0.0
+            if pct > 100:
+                pct = 100.0
+            answer.score_percentage = pct
+            answer.is_correct = True if pct >= 99.5 else False
+
+        db.session.commit()
+        flash('Answer updated successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Failed to update answer: {e}', 'danger')
+
+    return redirect(url_for('main.view_response', response_id=answer.response_id))
+
 def evaluate_code_with_custom_system(code_answer, question_text, question_unit_tests=None, interactive_inputs=None, expected_outputs=None):
     """Evaluate code using custom unit testing system and return (is_correct, score_percentage, explanation)."""
     try:
