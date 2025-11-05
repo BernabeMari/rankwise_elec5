@@ -992,11 +992,6 @@ def execute_python_code(code, user_inputs=[]):
                         suspicious_vars.append(var)
                 
                 analysis_warning = ''
-                if suspicious_vars:
-                    analysis_warning = '⚠️ Potential undefined variable(s):\n'
-                    for var in suspicious_vars:
-                        analysis_warning += f'  • {var}\n'
-                    analysis_warning += '\nTip: Make sure all variable names are spelled correctly throughout your code.'
         except SyntaxError:
             # If we can't parse, just continue with execution
             pass
@@ -1959,6 +1954,11 @@ def view_response(response_id):
     except Exception:
         student_name = student_id
     return render_template('view_response.html', form=form, response=response, overall_pct=overall_pct, badges=badges, student_name=student_name, student_id=student_id)
+
+@main.route('/response/view/<int:response_id>', methods=['GET'])
+def view_response_alias(response_id):
+    """Backward-compatible alias for viewing a single response."""
+    return redirect(url_for('main.view_response', response_id=response_id))
 
 @main.route('/answer/<int:answer_id>/manual', methods=['POST'])
 @admin_required

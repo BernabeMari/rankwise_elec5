@@ -52,6 +52,27 @@ def test_parse_identification_response_variants():
     assert data['correct_answer'].lower() == 'javascript'
 
 
+def test_parse_checkbox_response():
+    content = 'Which are programming languages?\nA) Python\nB) HTML\nC) Java\nD) CSS\nCorrect answers: A, C'
+    data = parse_ai_response(content, 'checkbox')
+    assert data['question_type'] == 'checkbox'
+    assert 'Python' in data.get('options', [])
+    assert 'Java' in data.get('options', [])
+
+
+def test_parse_true_false_response():
+    content = 'Python is a compiled language.\nCorrect answer: False'
+    data = parse_ai_response(content, 'true_false')
+    assert data['question_type'] == 'true_false'
+    assert data['correct_answer'] in ['True', 'False']
+
+
+def test_parse_enumeration_response():
+    content = 'Name three data types in Python.\nCorrect answer: int, str, float'
+    data = parse_ai_response(content, 'enumeration')
+    assert data['question_type'] == 'enumeration'
+
+
 def test_parse_coding_response_extracts_problem():
     content = 'Problem: Write a function to sum two integers.\n\nSample Code:'
     data = parse_ai_response(content, 'coding')
