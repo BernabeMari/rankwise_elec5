@@ -240,18 +240,6 @@ def get_all_students():
     
     return students
 
-def get_student_by_id(student_id):
-    """Return Student object for a given student ID, or None if not found."""
-    if not student_id:
-        return None
-    
-    sections = get_all_sections()
-    for section in sections:
-        for student in section.students:
-            if student.student_id == student_id:
-                return student
-    return None
-
 # Save a new section from uploaded Excel file
 def save_section_from_excel(section_name, excel_file):
     # Ensure directories exist

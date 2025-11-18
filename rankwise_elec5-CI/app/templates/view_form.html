@@ -1,0 +1,2252 @@
+{% extends "base.html" %}
+
+{% block title %}{{ form.title }}{% endblock %}
+
+{% block head %}
+<style>
+    .form-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        padding: 3rem 2.5rem;
+        border-radius: 20px;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 15px 40px rgba(123, 76, 160, 0.25);
+        transform: translateY(0);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .form-header::before {
+        content: '';
+        position: absolute;
+        top: -30%;
+        right: -30%;
+        width: 120%;
+        height: 160%;
+        background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+        transform: rotate(15deg);
+        z-index: 0;
+    }
+    
+    .form-header::after {
+        content: '';
+        position: absolute;
+        bottom: -20%;
+        left: -20%;
+        width: 80%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+        z-index: 0;
+    }
+    
+    .form-header h2, .form-header p {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .form-header h2 {
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .form-header p {
+        font-size: 1.2rem;
+        opacity: 0.95;
+        font-weight: 400;
+    }
+    
+    .form-header:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 50px rgba(123, 76, 160, 0.35);
+    }
+    
+    .submit-btn {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border: none;
+        padding: 1rem 2rem;
+        font-weight: 700;
+        font-size: 1.1rem;
+        letter-spacing: 0.5px;
+        border-radius: 15px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 6px 20px rgba(123, 76, 160, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .submit-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .submit-btn:hover::before {
+        left: 100%;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(123, 76, 160, 0.4);
+    }
+    
+    .submit-btn i {
+        margin-right: 10px;
+        transition: transform 0.3s ease;
+    }
+    
+    .submit-btn:hover i {
+        transform: translateX(4px);
+    }
+    
+    .form-floating-icon {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary-color);
+        opacity: 0.8;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus + .form-floating-icon {
+        opacity: 1;
+        transform: translateY(-50%) scale(1.1);
+    }
+    
+    /* Enhanced Question Cards */
+    .question-card {
+        background: white;
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 8px 25px rgba(123, 76, 160, 0.08);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .question-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        transition: width 0.3s ease;
+    }
+    
+    .question-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 15px 35px rgba(123, 76, 160, 0.15);
+    }
+    
+    .question-card:hover::before {
+        width: 8px;
+    }
+    
+    .question-card h5 {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        line-height: 1.4;
+    }
+    
+    .question-card .badge {
+        background: linear-gradient(135deg, #17a2b8, #138496);
+        border: none;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+    
+    .run-btn {
+        background: linear-gradient(135deg, #34c759, #2ea043);
+        border: none;
+        margin-bottom: 15px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 700;
+        font-size: 0.95rem;
+        border-radius: 12px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(52, 199, 89, 0.3);
+    }
+    
+    .run-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(52, 199, 89, 0.4);
+    }
+    
+    .run-btn i {
+        margin-right: 8px;
+        transition: transform 0.3s ease;
+    }
+    
+    .run-btn:hover i {
+        transform: scale(1.1);
+    }
+    
+    /* Enhanced Form Controls */
+    .form-control {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        padding: 0.875rem 1.25rem;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: #fafbfc;
+        font-weight: 500;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(123, 76, 160, 0.15);
+        background: white;
+        transform: translateY(-1px);
+    }
+    
+    .form-control::placeholder {
+        color: #adb5bd;
+        font-weight: 400;
+    }
+    
+    .code-editor {
+        font-family: 'Fira Code', 'Courier New', monospace;
+        background: linear-gradient(135deg, #1e1e2e, #2d2d44);
+        color: #e4e4e7;
+        border: 2px solid #3c3c54;
+        border-radius: 12px;
+        padding: 1.25rem;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        resize: vertical;
+        transition: all 0.3s ease;
+    }
+    
+    .code-editor:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(123, 76, 160, 0.15);
+        background: linear-gradient(135deg, #1e1e2e, #2d2d44);
+    }
+    
+    .code-output {
+        display: none;
+        font-family: 'Fira Code', 'Courier New', monospace;
+        background: linear-gradient(135deg, #1e1e2e, #2d2d44);
+        color: #e4e4e7;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        border: 1px solid #3c3c54;
+    }
+    
+    .code-error {
+        color: #ff6b6b;
+        font-weight: 600;
+    }
+    
+    /* Enhanced Radio and Checkbox Styling */
+    .custom-radio {
+        position: relative;
+        padding-left: 2.5rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 12px;
+        padding: 1rem 1rem 1rem 2.5rem;
+        background: #f8f9ff;
+        border: 2px solid transparent;
+    }
+    
+    .custom-radio:hover {
+        transform: translateX(5px);
+        background: #f0f2ff;
+        border-color: rgba(123, 76, 160, 0.2);
+    }
+    
+    .custom-radio input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    .radio-checkmark {
+        position: absolute;
+        top: 50%;
+        left: 1rem;
+        transform: translateY(-50%);
+        height: 24px;
+        width: 24px;
+        background: white;
+        border: 3px solid #dee2e6;
+        border-radius: 50%;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .custom-radio:hover .radio-checkmark {
+        border-color: var(--primary-color);
+        transform: translateY(-50%) scale(1.1);
+    }
+    
+    .custom-radio input:checked ~ .radio-checkmark {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 15px rgba(123, 76, 160, 0.3);
+    }
+    
+    .radio-checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+        top: 6px;
+        left: 6px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: white;
+    }
+    
+    .custom-radio input:checked ~ .radio-checkmark:after {
+        display: block;
+    }
+    
+    /* Enhanced Checkbox Styling */
+    .form-check {
+        margin-bottom: 1rem;
+        padding-left: 2.5rem;
+    }
+    
+    .form-check-input {
+        width: 1.25rem;
+        height: 1.25rem;
+        border-radius: 6px;
+        border: 3px solid #dee2e6;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 15px rgba(123, 76, 160, 0.3);
+    }
+    
+    .form-check-label {
+        color: #495057;
+        font-weight: 500;
+        cursor: pointer;
+        transition: color 0.3s ease;
+        font-size: 1rem;
+    }
+    
+    .form-check:hover .form-check-label {
+        color: var(--primary-color);
+    }
+    
+    /* AI Checking Modal Styles */
+    #aiCheckingModal .modal-content {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    #aiCheckingModal .spinner-border {
+        color: var(--primary-color);
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.8; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    #aiCheckingModal .modal-title {
+        animation: pulse 1.5s infinite;
+        color: var(--primary-color);
+    }
+    
+    /* Review Modal Styles */
+    #reviewModal .modal-content {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 20px 60px rgba(123, 76, 160, 0.15);
+        overflow: hidden;
+    }
+    
+    #reviewModal .modal-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border: none;
+        padding: 1.5rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    #reviewModal .modal-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 100%;
+        height: 200%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: rotate(15deg);
+        z-index: 0;
+    }
+    
+    #reviewModal .modal-title {
+        position: relative;
+        z-index: 1;
+        font-weight: 700;
+        font-size: 1.4rem;
+        margin: 0;
+    }
+    
+    #reviewModal .modal-body {
+        padding: 2rem;
+        background: linear-gradient(135deg, #fafbff, #f8f9ff);
+    }
+    
+    #reviewModal .alert {
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        color: #1565c0;
+        font-weight: 500;
+        margin-bottom: 2rem;
+    }
+    
+    #reviewModal .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(123, 76, 160, 0.08);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        background: white;
+    }
+    
+    #reviewModal .card:hover {
+        box-shadow: 0 8px 30px rgba(123, 76, 160, 0.12);
+        transform: translateY(-4px);
+    }
+    
+    #reviewModal .card-header {
+        background: linear-gradient(135deg, #f8f9ff, #f0f2ff);
+        border: none;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(123, 76, 160, 0.1);
+    }
+    
+    #reviewModal .card-header h6 {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin: 0;
+        font-size: 1.1rem;
+    }
+    
+    #reviewModal .card-body {
+        padding: 1.5rem;
+        background: white;
+    }
+    
+    #reviewModal .form-label {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+    }
+    
+    #reviewModal .form-control {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: #fafbfc;
+    }
+    
+    #reviewModal .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(123, 76, 160, 0.15);
+        background: white;
+        transform: translateY(-1px);
+    }
+    
+    #reviewModal .code-editor {
+        font-family: 'Fira Code', 'Courier New', monospace;
+        background: linear-gradient(135deg, #1e1e2e, #2d2d44);
+        color: #e4e4e7;
+        border: 2px solid #3c3c54;
+        border-radius: 12px;
+        padding: 1rem;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+    
+    #reviewModal .code-editor:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(123, 76, 160, 0.15);
+        background: linear-gradient(135deg, #1e1e2e, #2d2d44);
+    }
+    
+    #reviewModal .form-check {
+        margin-bottom: 0.75rem;
+        padding-left: 2rem;
+    }
+    
+    #reviewModal .form-check-input {
+        width: 1.2rem;
+        height: 1.2rem;
+        border-radius: 6px;
+        border: 2px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+    
+    #reviewModal .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        box-shadow: 0 2px 8px rgba(123, 76, 160, 0.3);
+    }
+    
+    #reviewModal .form-check-label {
+        color: #495057;
+        font-weight: 500;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+    
+    #reviewModal .form-check:hover .form-check-label {
+        color: var(--primary-color);
+    }
+    
+    #reviewModal .modal-footer {
+        background: linear-gradient(135deg, #f8f9ff, #f0f2ff);
+        border: none;
+        padding: 1.5rem 2rem;
+        gap: 1rem;
+    }
+    
+    #reviewModal .btn {
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+    }
+    
+    #reviewModal .btn-secondary {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+        color: white;
+    }
+    
+    #reviewModal .btn-secondary:hover {
+        background: linear-gradient(135deg, #5a6268, #495057);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+    
+    #reviewModal .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        box-shadow: 0 4px 15px rgba(123, 76, 160, 0.3);
+    }
+    
+    #reviewModal .btn-primary:hover {
+        background: linear-gradient(135deg, var(--primary-dark), #4a2c6b);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(123, 76, 160, 0.4);
+    }
+    
+    /* Review Code Container */
+    .review-code-container {
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .review-code-header {
+        background: linear-gradient(135deg, #f8f9ff, #f0f2ff);
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .review-code-container .code-editor {
+        border: none;
+        border-radius: 0;
+        margin: 0;
+    }
+    
+    /* Scrollbar styling for modal */
+    #reviewModal .modal-body::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    #reviewModal .modal-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+    
+    #reviewModal .modal-body::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 3px;
+    }
+    
+    #reviewModal .modal-body::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-dark);
+    }
+    
+    /* Enhanced Animations and Transitions */
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    @keyframes shimmer {
+        0% {
+            background-position: -200px 0;
+        }
+        100% {
+            background-position: calc(200px + 100%) 0;
+        }
+    }
+    
+    /* Loading animation for form elements */
+    .question-card {
+        animation: slideInUp 0.6s ease-out forwards;
+    }
+    
+    .form-header {
+        animation: fadeInScale 0.8s ease-out;
+    }
+    
+    /* Enhanced button animations */
+    .btn {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .btn:hover::before {
+        left: 100%;
+    }
+    
+    /* Professional spacing and typography */
+    .container {
+        max-width: 1200px;
+    }
+    
+    .form-header h2 {
+        background: linear-gradient(135deg, #ffffff, #f8f9ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    /* Enhanced focus states */
+    .form-control:focus,
+    .form-check-input:focus,
+    .custom-radio input:focus + .radio-checkmark {
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(123, 76, 160, 0.15);
+    }
+    
+    /* Professional shadows and depth */
+    .question-card {
+        box-shadow: 0 4px 20px rgba(123, 76, 160, 0.08);
+    }
+    
+    .question-card:hover {
+        box-shadow: 0 8px 30px rgba(123, 76, 160, 0.15);
+    }
+    
+    /* Enhanced mobile responsiveness */
+    @media (max-width: 768px) {
+        .form-header {
+            padding: 2rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-header h2 {
+            font-size: 2rem;
+        }
+        
+        .form-header p {
+            font-size: 1rem;
+        }
+        
+        .question-card {
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .question-card h5 {
+            font-size: 1.1rem;
+        }
+        
+        .submit-btn {
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+        }
+        
+        #reviewModal .modal-body {
+            padding: 1.5rem;
+        }
+        
+        #reviewModal .card-body {
+            padding: 1rem;
+        }
+    }
+    
+    /* Accessibility improvements */
+    .custom-radio:focus-within,
+    .form-check:focus-within {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+    
+    /* Professional color scheme consistency */
+    :root {
+        --primary-light: #9a6cb8;
+        --primary-dark: #5a3777;
+        --accent-color: #ff6b6b;
+        --success-color: #34c759;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --info-color: #17a2b8;
+    }
+    
+    /* IDE Styling */
+    .language-selector {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .language-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5rem 1rem;
+        background: linear-gradient(135deg, #f8f9ff, #f0f2ff);
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: center;
+    }
+    
+    .language-option:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(123, 76, 160, 0.15);
+        border-color: var(--primary-color);
+    }
+    
+    .language-option.selected {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        border-color: var(--primary-color);
+        box-shadow: 0 8px 25px rgba(123, 76, 160, 0.3);
+    }
+    
+    .language-option i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .language-option:hover i {
+        transform: scale(1.1);
+    }
+    
+    .language-option span {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    /* IDE Container */
+    .ide-container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(123, 76, 160, 0.12);
+        overflow: hidden;
+        margin-top: 1.5rem;
+        border: 1px solid #e9ecef;
+    }
+    
+    .ide-header {
+        background: linear-gradient(135deg, #f8f9ff, #f0f2ff);
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .ide-tabs {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .ide-tab {
+        padding: 0.5rem 1rem;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        color: #6c757d;
+    }
+    
+    .ide-tab:hover {
+        background: rgba(123, 76, 160, 0.1);
+        color: var(--primary-color);
+    }
+    
+    .ide-tab.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .ide-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .ide-actions .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+    
+    .ide-actions .input-group .btn {
+        border-radius: 0 8px 8px 0;
+        border-left: 1px solid #dee2e6;
+    }
+    
+    .ide-actions .input-group .btn:hover {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: white;
+    }
+    
+    .ide-actions .input-group.needs-input {
+        border: 2px solid #ffc107;
+        border-radius: 8px;
+        background-color: #fff3cd;
+    }
+    
+    
+    /* Interactive Input Area */
+    .interactive-input-area {
+        background: #2d2d44;
+        border-top: 1px solid #3c3c54;
+        padding: 1rem;
+        animation: slideInUp 0.3s ease-out;
+    }
+    
+    .input-prompt {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .prompt-text {
+        color: #e4e4e7;
+        font-weight: 600;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+    
+    .interactive-input-area .input-group {
+        flex: 1;
+        max-width: 400px;
+    }
+    
+    .interactive-input-area .form-control {
+        background: #1e1e2e;
+        border: 1px solid #3c3c54;
+        color: #e4e4e7;
+        font-family: 'Fira Code', 'Courier New', monospace;
+        font-size: 0.9rem;
+    }
+    
+    .interactive-input-area .form-control:focus {
+        background: #1e1e2e;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(123, 76, 160, 0.15);
+        color: #e4e4e7;
+    }
+    
+    .interactive-input-area .form-control::placeholder {
+        color: #6c757d;
+        font-style: italic;
+    }
+    
+    .interactive-input-area .btn {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        font-weight: 600;
+    }
+    
+    .interactive-input-area .btn:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+        transform: translateX(2px);
+    }
+    
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .ide-content {
+        position: relative;
+        height: 500px;
+    }
+    
+    .ide-panel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .ide-panel.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .monaco-editor {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    
+    /* Output Panel */
+    .output-container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .output-header {
+        padding: 1rem 1.5rem;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .output-label {
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .output-content {
+        flex: 1;
+        padding: 1.5rem;
+        background: #1e1e1e;
+        color: #e4e4e7;
+        font-family: 'Fira Code', 'Courier New', monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    
+    .output-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #6c757d;
+        text-align: center;
+    }
+    
+    .output-placeholder i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .output-placeholder p {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+    
+    /* Output Entry Styling */
+    .output-entry {
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border-left: 4px solid #28a745;
+    }
+    
+    .output-entry.error {
+        background: rgba(220, 53, 69, 0.1);
+        border-left-color: #dc3545;
+        color: #dc3545;
+    }
+    
+    .output-entry.success {
+        background: rgba(40, 167, 69, 0.1);
+        border-left-color: #28a745;
+        color: #28a745;
+    }
+    
+    .output-timestamp {
+        font-size: 0.8rem;
+        opacity: 0.7;
+        margin-bottom: 0.5rem;
+    }
+    
+    .output-text {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    
+    /* Code execution states */
+    .code-running {
+        position: relative;
+    }
+    
+    .code-running::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    
+    .code-running::before {
+        content: 'Running code...';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        z-index: 1001;
+    }
+    
+    /* Responsive IDE */
+    @media (max-width: 768px) {
+        .language-selector {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .language-option {
+            padding: 1rem 0.5rem;
+        }
+        
+        .language-option i {
+            font-size: 1.5rem;
+        }
+        
+        .language-option span {
+            font-size: 0.8rem;
+        }
+        
+        .ide-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+        }
+        
+        .ide-tabs {
+            justify-content: center;
+        }
+        
+        .ide-actions {
+            justify-content: center;
+        }
+        
+        .ide-content {
+            height: 400px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="form-header">
+            <h2 class="mb-3 display-5">{{ form.title }}</h2>
+            <p class="lead mb-0">{{ form.description or "" }}</p>
+        </div>
+        
+        <form method="POST" action="{{ url_for('main.submit_form', form_id=form.id) }}" class="animated-form">
+            {% for question in questions %}
+                <div class="question-card mb-4" data-animation-delay="{{ loop.index0 * 0.1 }}">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">{{ question.question_text }}</h5>
+                        <span class="badge bg-info">
+                            <i class="bi bi-award"></i> {{ question.points }} point{{ 's' if question.points != 1 else '' }}
+                        </span>
+                    </div>
+                    
+                    {% if question.question_type == 'multiple_choice' %}
+                        {% if question.sample_code %}
+                            <div class="mb-3">
+                                <label class="form-label">Sample Code:</label>
+                                <pre class="code-editor">{{ question.sample_code }}</pre>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            {% for option in question.get_options() %}
+                                <label class="custom-radio w-100 mb-3">
+                                    {{ option }}
+                                    <input type="radio" name="question_{{ question.id }}" value="{{ option }}" required>
+                                    <span class="radio-checkmark"></span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    
+                    {% elif question.question_type == 'identification' %}
+                        {% if question.sample_code %}
+                            <div class="mb-3">
+                                <label class="form-label">Sample Code:</label>
+                                <pre class="code-editor">{{ question.sample_code }}</pre>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3 position-relative">
+                            <input type="text" class="form-control" name="question_{{ question.id }}" 
+                                   placeholder="Your answer here..." required>
+                            <div class="form-floating-icon">
+                                <i class="bi bi-pencil-fill"></i>
+                            </div>
+                        </div>
+                    
+                    {% elif question.question_type == 'coding' %}
+                        <div class="mb-3">
+                            {% if question.sample_code %}
+                                <div class="mb-3">
+                                    <label class="form-label">Sample Code:</label>
+                                    <pre class="code-editor">{{ question.sample_code }}</pre>
+                                </div>
+                            {% endif %}
+                            
+                            {% if question.expected_output %}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Unit Tests:</label>
+                                    <pre class="code-editor bg-dark text-light">{{ question.expected_output }}</pre>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Programmiz-like IDE -->
+                            <div class="prog-ide" id="prog-ide-{{ question.id }}">
+                                <div class="row g-3">
+                                    <div class="col-12 col-lg-8">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <label class="form-label mb-0">Language</label>
+                                                <select class="form-select form-select-sm" style="width:auto;" id="prog-lang-{{ question.id }}">
+                                                    <option value="python">Python</option>
+                                                    <option value="java">Java</option>
+                                                    <option value="cpp">C++</option>
+                                                    <option value="c">C</option>
+                                                    <option value="csharp">C#</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <button type="button" class="btn btn-success btn-sm" data-prog-run="{{ question.id }}"><i class="fas fa-play"></i> Run</button>
+                                            </div>
+                                        </div>
+                                        <div class="border rounded" style="height:320px;">
+                                            <div class="monaco-editor" id="prog-editor-{{ question.id }}" style="height:100%;"></div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <label class="form-label">Input (one per line)</label>
+                                            <textarea class="form-control" rows="4" id="prog-inputs-{{ question.id }}" placeholder="e.g.\n5\n10"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-lg-4">
+                                        <label class="form-label">Output</label>
+                                        <pre class="p-3 bg-dark text-light border rounded" style="height:400px; overflow:auto;" id="prog-output-{{ question.id }}">Click Run to see output</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Hidden textarea for form submission -->
+                            <textarea class="form-control" name="question_{{ question.id }}" 
+                                id="code-{{ question.id }}" style="display: none;" required></textarea>
+                        </div>
+                    {% elif question.question_type == 'checkbox' %}
+                        {% if question.sample_code %}
+                            <div class="mb-3">
+                                <label class="form-label">Sample Code:</label>
+                                <pre class="code-editor">{{ question.sample_code }}</pre>
+                            </div>
+                        {% endif %}
+                        <div class="mb-3">
+                            {% for option in question.get_options() %}
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="question_{{ question.id }}" value="{{ option }}" id="q{{ question.id }}_{{ loop.index }}" {% if loop.first %}required{% endif %}>
+                                    <label class="form-check-label" for="q{{ question.id }}_{{ loop.index }}">{{ option }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% elif question.question_type == 'true_false' %}
+                        <div class="mb-3">
+                            <label class="custom-radio w-100 mb-3">
+                                True
+                                <input type="radio" name="question_{{ question.id }}" value="True" required>
+                                <span class="radio-checkmark"></span>
+                            </label>
+                            <label class="custom-radio w-100 mb-3">
+                                False
+                                <input type="radio" name="question_{{ question.id }}" value="False" required>
+                                <span class="radio-checkmark"></span>
+                            </label>
+                        </div>
+                    {% elif question.question_type == 'enumeration' %}
+                        <div class="mb-3">
+                            <textarea class="form-control" name="question_{{ question.id }}" rows="4" placeholder="List items separated by commas or new lines" required></textarea>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            {% if questions %}
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-primary submit-btn" id="reviewBtn">
+                        <i class="bi bi-eye-fill"></i> Review & Submit Answers
+                    </button>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> This form doesn't have any questions yet.
+                </div>
+                <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">Back to Forms</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+
+
+<!-- Review Answers Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="reviewModalLabel">
+                    <i class="bi bi-eye-fill me-2"></i>Review Your Answers
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Please review your answers below. You can edit them before final submission.
+                </div>
+                
+                <div id="reviewContent">
+                    <!-- Review content will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Form
+                </button>
+                <button type="button" class="btn btn-primary" id="finalSubmitBtn">
+                    <i class="bi bi-send-fill me-1"></i>Submit Final Answers
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Checking Modal -->
+<div class="modal fade" id="aiCheckingModal" tabindex="-1" aria-labelledby="aiCheckingModalLabel" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center p-4">
+                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5 class="modal-title mb-2" id="aiCheckingModalLabel">AI is checking your answers</h5>
+                <p class="text-muted">Please wait while our AI processes and evaluates your responses. This might take a moment...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<!-- Monaco Editor CDN -->
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script>
+    // Global variables for Monaco editors
+    let monacoEditors = {};
+    let selectedLanguages = {};
+    
+    $(document).ready(function() {
+        // Initialize Monaco Editor
+        initializeMonacoEditor();
+        
+        // Handle review button click
+        $('#reviewBtn').on('click', function(e) {
+            e.preventDefault();
+            collectFormData();
+            $('#reviewModal').modal('show');
+        });
+        
+        // Handle final submission
+        $('#finalSubmitBtn').on('click', function() {
+            // Update the original form with any changes from the modal
+            updateOriginalForm();
+            // Show the AI checking modal
+            $('#aiCheckingModal').modal('show');
+            // Submit the form
+            $('.animated-form').submit();
+        });
+    
+        // Add animation to form elements
+        $('.animated-form .question-card').each(function(i) {
+            const delay = $(this).data('animation-delay') || (i * 0.1);
+            $(this).css({
+                'animation': 'fadeIn 0.5s ease-out forwards',
+                'animation-delay': delay + 's',
+                'opacity': '0'
+            });
+        });
+        
+        // Add focus effects for form elements
+        $('.form-control').focus(function() {
+            $(this).closest('.question-card').css('border-left-width', '8px');
+        }).blur(function() {
+            $(this).closest('.question-card').css('border-left-width', '5px');
+        });
+        
+        // Add hover effects for radio buttons
+        $('.custom-radio').hover(
+            function() {
+                $(this).css('transform', 'translateX(5px)');
+            },
+            function() {
+                $(this).css('transform', 'translateX(0)');
+            }
+        );
+        
+        // IDE Event Handlers
+        initializeIDEEvents();
+    });
+    
+    function initializeMonacoEditor() {
+        require.config({ 
+            paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' },
+            'vs/nls': { availableLanguages: { '*': 'en' } }
+        });
+        require(['vs/editor/editor.main'], function () {
+            console.log('Monaco Editor loaded successfully');
+            // Ensure Monaco is available globally
+            window.monaco = monaco;
+            
+            // Set up Monaco environment
+            monaco.editor.setTheme('vs-dark');
+            
+            // Add a small delay to ensure everything is properly loaded
+            setTimeout(() => {
+                console.log('Monaco Editor fully initialized and ready');
+                // Trigger any pending editor initializations
+                $(document).trigger('monacoReady');
+            }, 100);
+        });
+    }
+    
+    function initializeIDEEvents() {
+        // Programmiz-like: initialize editors and run handlers
+        $('[id^="prog-ide-"]').each(function() {
+            const questionId = $(this).attr('id').replace('prog-ide-', '');
+            const langSelect = $(`#prog-lang-${questionId}`);
+            // Initialize Monaco for default language
+            initializeEditorForQuestion(questionId, langSelect.val());
+            // On language change, re-init editor template
+            langSelect.on('change', function() {
+                initializeEditorForQuestion(questionId, $(this).val());
+            });
+            // Run click
+            $(`[data-prog-run="${questionId}"]`).on('click', function() {
+                const language = $(`#prog-lang-${questionId}`).val();
+                const code = monacoEditors[questionId] ? monacoEditors[questionId].getValue() : '';
+                const inputsRaw = ($(`#prog-inputs-${questionId}`).val() || '').toString();
+                const inputs = inputsRaw ? inputsRaw.split(/\r?\n/) : [];
+                const outputEl = $(`#prog-output-${questionId}`);
+                outputEl.text('Running...');
+                fetch('/execute-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, language, inputs })
+                }).then(r => r.json()).then(data => {
+                    if (data.success) {
+                        outputEl.text(data.output || '');
+                    } else {
+                        const msg = (data.output ? data.output + '\n\n' : '') + (data.error || 'Execution failed');
+                        outputEl.text(msg);
+                        if (data.awaiting_input) {
+                            // Focus inputs box to simulate interactive prompt
+                            const box = $(`#prog-inputs-${questionId}`);
+                            if (!box.val()) {
+                                box.attr('placeholder', 'Program is waiting for input... type here, one line per input');
+                            }
+                            box.focus();
+                        }
+                    }
+                }).catch(err => {
+                    outputEl.text('Error: ' + err.message);
+                });
+            });
+        });
+    }
+    
+    function initializeEditorForQuestion(questionId, language) {
+        // Check if Monaco is loaded
+        if (typeof monaco === 'undefined') {
+            console.log('Monaco not loaded yet, retrying...');
+            // Listen for the monacoReady event
+            $(document).one('monacoReady', () => {
+                initializeEditorForQuestion(questionId, language);
+            });
+            // Also set a timeout as fallback
+            setTimeout(() => {
+                if (typeof monaco !== 'undefined') {
+                    initializeEditorForQuestion(questionId, language);
+                }
+            }, 1000);
+            return;
+        }
+        
+        if (monacoEditors[questionId]) {
+            monacoEditors[questionId].dispose();
+        }
+        
+        // Support both legacy and new Programmiz-like editor containers
+        const editorContainer = document.getElementById(`prog-editor-${questionId}`) || document.getElementById(`monaco-editor-${questionId}`);
+        if (!editorContainer) {
+            console.error('Editor container not found:', `prog-editor-${questionId}`);
+            return;
+        }
+        
+        // Language mapping
+        const languageMap = {
+            'python': 'python',
+            'java': 'java',
+            'cpp': 'cpp',
+            'c': 'c',
+            'csharp': 'csharp'
+        };
+        
+        // Default code templates
+        const codeTemplates = {
+            'python': `# Python solution
+print("Hello, World!")
+
+# Example with input
+name = input("Enter your name: ")
+print(f"Hello, {name}!")
+
+def main():
+    # Your code here
+    pass
+
+if __name__ == "__main__":
+    main()`,
+            'java': `import java.util.Scanner;
+
+public class Solution {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+        
+        // Example with input
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter your name: ");
+        String name = scanner.nextLine();
+        System.out.println("Hello, " + name + "!");
+        
+        // Your code here
+    }
+}`,
+            'cpp': `#include <iostream>
+#include <string>
+using namespace std;
+
+int main() {
+    cout << "Hello, World!" << endl;
+    
+    // Example with input
+    string name;
+    cout << "Enter your name: ";
+    getline(cin, name);
+    cout << "Hello, " << name << "!" << endl;
+    
+    // Your code here
+    return 0;
+}`,
+            'c': `#include <stdio.h>
+
+int main() {
+    printf("Hello, World!\\n");
+    
+    // Example with input
+    char name[100];
+    printf("Enter your name: ");
+    fgets(name, sizeof(name), stdin);
+    printf("Hello, %s!", name);
+    
+    // Your code here
+    return 0;
+}`,
+            'csharp': `using System;
+using System.Linq;
+using System.Collections.Generic;
+
+public class Program {
+    public static void Main(string[] args) {
+        Console.WriteLine("Hello, World!");
+
+        // Example with input
+        Console.Write("Enter your name: ");
+        string name = Console.ReadLine();
+        Console.WriteLine($"Hello, {name}!");
+
+        // Arrays example
+        // string[] arr = Console.ReadLine().Split(' ');
+        // Console.WriteLine(string.Join(",", arr));
+    }
+}`
+        };
+        
+        try {
+            const initialValue = codeTemplates[language] || '';
+            console.log(`Initializing Monaco editor for question ${questionId} with language ${language}`);
+            console.log(`Initial value:`, initialValue);
+            
+            monacoEditors[questionId] = monaco.editor.create(editorContainer, {
+                value: initialValue,
+                language: languageMap[language] || 'plaintext',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                fontSize: 14,
+                lineNumbers: 'on',
+                roundedSelection: false,
+                scrollBeyondLastLine: false,
+                readOnly: false,
+                minimap: { enabled: false },
+                wordWrap: 'on',
+                formatOnPaste: true,
+                formatOnType: true,
+                suggestOnTriggerCharacters: true,
+                acceptSuggestionOnEnter: 'on',
+                tabCompletion: 'on',
+                wordBasedSuggestions: 'off',
+                renderWhitespace: 'selection',
+                renderControlCharacters: true,
+                cursorBlinking: 'blink',
+                cursorStyle: 'line',
+                selectOnLineNumbers: true,
+                glyphMargin: true,
+                folding: true,
+                foldingStrategy: 'indentation',
+                showFoldingControls: 'always',
+                unfoldOnClickAfterEnd: false,
+                bracketPairColorization: { enabled: true },
+                guides: {
+                    bracketPairs: true,
+                    indentation: true
+                }
+            });
+            
+            // Force layout update to ensure proper rendering
+            setTimeout(() => {
+                if (monacoEditors[questionId]) {
+                    monacoEditors[questionId].layout();
+                    console.log(`Monaco editor layout updated for question ${questionId}`);
+                }
+            }, 100);
+            
+            // Update hidden textarea when editor content changes
+            monacoEditors[questionId].onDidChangeModelContent(function() {
+                const code = monacoEditors[questionId].getValue();
+                $(`#code-${questionId}`).val(code);
+                console.log(`Code updated for question ${questionId}:`, code.substring(0, 100) + '...');
+                
+                // Code updated - input detection will happen when running
+            });
+            
+            // Set initial value in hidden textarea
+            $(`#code-${questionId}`).val(initialValue);
+            
+            console.log(`Monaco editor successfully initialized for question ${questionId} with language ${language}`);
+        } catch (error) {
+            console.error('Error initializing Monaco editor:', error);
+            // Fallback: show error message in the editor container
+            editorContainer.innerHTML = `
+                <div style="padding: 20px; color: #ff6b6b; background: #ffe6e6; border-radius: 8px; text-align: center;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                    <p>Error loading code editor. Please refresh the page.</p>
+                    <small>Error: ${error.message}</small>
+                </div>
+            `;
+        }
+    }
+    
+    // Global variables for managing multiple inputs
+    let inputQueue = {};
+    let currentExecution = {};
+    
+    function runCode(questionId) {
+        const language = selectedLanguages[questionId];
+        const code = monacoEditors[questionId] ? monacoEditors[questionId].getValue() : '';
+        
+        console.log(`Running code for question ${questionId}, language: ${language}`);
+        console.log('Code:', code);
+        
+        if (!code.trim()) {
+            showOutput(questionId, 'Error: No code to run', 'error');
+            return;
+        }
+        
+        if (!language) {
+            showOutput(questionId, 'Error: No language selected', 'error');
+            return;
+        }
+        
+        // Initialize input queue and execution state
+        inputQueue[questionId] = [];
+        currentExecution[questionId] = {
+            code: code,
+            language: language,
+            inputs: [],
+            isRunning: true
+        };
+        
+        // Check if code needs input and highlight input field if it does
+        if (checkIfCodeNeedsInput(questionId, code, language)) {
+            const inputField = $(`#input-${questionId}`);
+            const inputGroup = inputField.closest('.input-group');
+            inputGroup.addClass('needs-input');
+            inputField.attr('placeholder', '⚠️ Input required! Enter your input here');
+            
+            // Debug information
+            const expectedInputs = countExpectedInputs(code, language);
+            console.log(`Code needs ${expectedInputs} inputs for ${language}`);
+        }
+        
+        // Gather initial inputs from the input field (supports multi-line for multiple inputs)
+        const initialInputText = ($(`#input-${questionId}`).val() || '').toString();
+        const initialInputs = initialInputText
+            ? initialInputText.split(/\r?\n/).filter(line => line.length > 0)
+            : [];
+        // Start execution with collected inputs first
+        executeCodeWithInputs(questionId, code, language, initialInputs);
+    }
+    
+    function executeCodeWithInputs(questionId, code, language, inputs) {
+        console.log(`Executing code with ${inputs.length} inputs:`, inputs);
+        console.log(`Language: ${language}, Code: ${code.substring(0, 100)}...`);
+        
+        // Show loading state
+        $(`#ide-container-${questionId}`).addClass('code-running');
+        $(`.run-code-btn[data-question="${questionId}"]`).hide();
+        $(`.stop-code-btn[data-question="${questionId}"]`).show();
+        showOutput(questionId, 'Executing code...', 'info');
+        
+        fetch('/execute-code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                code: code,
+                language: language,
+                inputs: inputs
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            $(`#ide-container-${questionId}`).removeClass('code-running');
+            $(`.run-code-btn[data-question="${questionId}"]`).show();
+            $(`.stop-code-btn[data-question="${questionId}"]`).hide();
+            
+            if (data.success) {
+                // Check if the output suggests more input is needed
+                const output = data.output || '';
+                const needsMoreInput = checkIfNeedsMoreInput(output, language);
+                
+                // For C/C++, also check if the code itself needs input and we haven't provided enough
+                let shouldPromptForInput = needsMoreInput;
+                if ((language === 'cpp' || language === 'c') && currentExecution[questionId]) {
+                    const codeNeedsInput = checkIfCodeNeedsInput(questionId, currentExecution[questionId].code, language);
+                    const expectedInputs = countExpectedInputs(currentExecution[questionId].code, language);
+                    
+                    // If code needs input and we haven't provided all expected inputs, prompt for more
+                    if (codeNeedsInput && inputs.length < expectedInputs) {
+                        shouldPromptForInput = true;
+                        console.log(`C/C++ needs ${expectedInputs} inputs, provided ${inputs.length}`);
+                    }
+                    
+                    // Additional check: if output is very short and code needs input, it might be waiting
+                    if (codeNeedsInput && output.trim().length < 50 && inputs.length < expectedInputs) {
+                        shouldPromptForInput = true;
+                        console.log(`C/C++ short output detected, prompting for input`);
+                    }
+                }
+                
+                if (shouldPromptForInput && currentExecution[questionId] && currentExecution[questionId].isRunning) {
+                    // Show current output and prompt for more input
+                    showOutput(questionId, output, 'success');
+                    promptForInput(questionId, inputs.length + 1);
+                } else {
+                    // Execution complete
+                    showOutput(questionId, output, 'success');
+                    currentExecution[questionId] = null;
+                    inputQueue[questionId] = [];
+                }
+            } else {
+                // Check if it's an input-related error
+                const error = data.error || 'Code execution failed';
+                let shouldPromptForInput = isInputError(error);
+                
+                // For C/C++, also check if we haven't provided enough inputs
+                if ((language === 'cpp' || language === 'c') && currentExecution[questionId]) {
+                    const codeNeedsInput = checkIfCodeNeedsInput(questionId, currentExecution[questionId].code, language);
+                    const expectedInputs = countExpectedInputs(currentExecution[questionId].code, language);
+                    
+                    if (codeNeedsInput && inputs.length < expectedInputs) {
+                        shouldPromptForInput = true;
+                        console.log(`C/C++ error - needs ${expectedInputs} inputs, provided ${inputs.length}`);
+                    }
+                }
+                
+                if (shouldPromptForInput && currentExecution[questionId] && currentExecution[questionId].isRunning) {
+                    // Show current output and prompt for input
+                    const currentOutput = data.output || '';
+                    showOutput(questionId, currentOutput, 'success');
+                    promptForInput(questionId, inputs.length + 1);
+                } else {
+                    // Real error
+                    showOutput(questionId, `Error: ${error}`, 'error');
+                    currentExecution[questionId] = null;
+                    inputQueue[questionId] = [];
+                }
+            }
+        })
+        .catch(error => {
+            $(`#ide-container-${questionId}`).removeClass('code-running');
+            $(`.run-code-btn[data-question="${questionId}"]`).show();
+            $(`.stop-code-btn[data-question="${questionId}"]`).hide();
+            console.error('Code execution error:', error);
+            showOutput(questionId, `Error: Failed to execute code - ${error.message}`, 'error');
+            currentExecution[questionId] = null;
+            inputQueue[questionId] = [];
+        });
+    }
+    
+    function checkIfNeedsMoreInput(output, language) {
+        const outputLower = output.toLowerCase();
+        
+        // Common patterns that indicate input is expected
+        const inputPatterns = [
+            'enter', 'input', 'please', 'what', 'how', '?', ':', '>',
+            'name:', 'age:', 'number:', 'value:', 'string:'
+        ];
+        
+        // Check if output ends with a prompt-like pattern
+        const endsWithPrompt = inputPatterns.some(pattern => 
+            outputLower.trim().endsWith(pattern.toLowerCase())
+        );
+        
+        // For C/C++, we need to check if the output suggests input is expected
+        // C/C++ programs often don't show the input prompt in stderr, so we check for common patterns
+        if (language === 'cpp' || language === 'c') {
+            // Check for common C/C++ input patterns in output
+            const cppInputPatterns = [
+                'enter', 'input', 'please', 'what', 'how', '?', ':', '>',
+                'name:', 'age:', 'number:', 'value:', 'string:',
+                'cin', 'scanf', 'getline'
+            ];
+            
+            // Also check if output ends with a colon or question mark (common prompt patterns)
+            const endsWithPromptPattern = /[:\?]\s*$/;
+            const hasPromptPattern = endsWithPromptPattern.test(output.trim());
+            
+            return cppInputPatterns.some(pattern => 
+                outputLower.includes(pattern.toLowerCase())
+            ) || endsWithPrompt || hasPromptPattern;
+        }
+        
+        // Check for specific language patterns
+        if (language === 'python') {
+            return endsWithPrompt || outputLower.includes('input(');
+        } else if (language === 'java') {
+            return endsWithPrompt || outputLower.includes('scanner') || outputLower.includes('next');
+        }
+        
+        return endsWithPrompt;
+    }
+    
+    // Enhanced function to check if code needs input by analyzing the code itself
+    function checkIfCodeNeedsInput(questionId, code, language) {
+        const codeLower = code.toLowerCase();
+        let needsInput = false;
+        
+        switch(language) {
+            case 'python':
+                needsInput = codeLower.includes('input(');
+                break;
+            case 'java':
+                needsInput = codeLower.includes('scanner') || codeLower.includes('nextint') || 
+                           codeLower.includes('nextline') || codeLower.includes('nextdouble');
+                break;
+            case 'cpp':
+                needsInput = codeLower.includes('cin') || codeLower.includes('scanf') || 
+                           codeLower.includes('fgets') || codeLower.includes('getline');
+                break;
+            case 'c':
+                needsInput = codeLower.includes('scanf') || codeLower.includes('fgets') || 
+                           codeLower.includes('getchar') || codeLower.includes('gets');
+                break;
+            case 'csharp':
+                needsInput = codeLower.includes('console.readline(') || codeLower.includes('readline(');
+                break;
+        }
+        
+        return needsInput;
+    }
+    
+    // Function to count how many inputs the code expects
+    function countExpectedInputs(code, language) {
+        const codeLower = code.toLowerCase();
+        let inputCount = 0;
+        
+        switch(language) {
+            case 'python':
+                // Count input() calls
+                const inputMatches = code.match(/input\s*\(/g);
+                inputCount = inputMatches ? inputMatches.length : 0;
+                break;
+            case 'java':
+                // Count Scanner method calls
+                const scannerMatches = code.match(/\.next(int|line|double|float|boolean|long|short|byte)\s*\(/g);
+                inputCount = scannerMatches ? scannerMatches.length : 0;
+                break;
+            case 'cpp':
+                // Count cin operations and getline calls
+                const cinMatches = code.match(/cin\s*>>/g);
+                const getlineMatches = code.match(/getline\s*\(/g);
+                const cinGetlineMatches = code.match(/cin\.getline\s*\(/g);
+                inputCount = (cinMatches ? cinMatches.length : 0) + 
+                           (getlineMatches ? getlineMatches.length : 0) + 
+                           (cinGetlineMatches ? cinGetlineMatches.length : 0);
+                break;
+            case 'c':
+                // Count scanf calls, fgets, and other input functions
+                const scanfMatches = code.match(/scanf\s*\(/g);
+                const fgetsMatches = code.match(/fgets\s*\(/g);
+                const getcharMatches = code.match(/getchar\s*\(/g);
+                const getsMatches = code.match(/gets\s*\(/g);
+                inputCount = (scanfMatches ? scanfMatches.length : 0) + 
+                           (fgetsMatches ? fgetsMatches.length : 0) + 
+                           (getcharMatches ? getcharMatches.length : 0) + 
+                           (getsMatches ? getsMatches.length : 0);
+                break;
+            case 'csharp':
+                // Count Console.ReadLine calls
+                const rlMatches = code.match(/Console\.ReadLine\s*\(\)/gi);
+                inputCount = rlMatches ? rlMatches.length : 0;
+                break;
+        }
+        
+        return inputCount;
+    }
+    
+    function isInputError(error) {
+        const errorLower = error.toLowerCase();
+        return errorLower.includes('eof') || 
+               errorLower.includes('nosuchelement') || 
+               errorLower.includes('input') ||
+               errorLower.includes('scanner');
+    }
+    
+    function promptForInput(questionId, inputNumber) {
+        const inputField = $(`#input-${questionId}`);
+        const inputGroup = inputField.closest('.input-group');
+        
+        // Update placeholder to show which input we're expecting
+        inputField.attr('placeholder', `Input ${inputNumber}: Enter your input here`);
+        
+        // Highlight the input field
+        inputGroup.addClass('needs-input');
+        inputField.focus();
+        
+        // Add debugging information
+        if (currentExecution[questionId]) {
+            const expectedInputs = countExpectedInputs(currentExecution[questionId].code, currentExecution[questionId].language);
+            console.log(`Prompting for input ${inputNumber} of ${expectedInputs} expected inputs`);
+        }
+        
+        // Add a message to the output
+        const currentOutput = $(`#output-${questionId}`).text();
+        showOutput(questionId, currentOutput + `\n\n⏳ Waiting for input ${inputNumber}...`, 'info');
+        
+        // Set up input handler for Send button
+        const sendButton = $(`#send-input-${questionId}`);
+        sendButton.off('click').on('click', function() {
+            const userInput = inputField.val().trim();
+            if (userInput) {
+                // Add input to the queue
+                if (!inputQueue[questionId]) inputQueue[questionId] = [];
+                inputQueue[questionId].push(userInput);
+                
+                // Clear the input field
+                inputField.val('');
+                
+                // Continue execution with all inputs
+                if (currentExecution[questionId]) {
+                    const allInputs = [...currentExecution[questionId].inputs, ...inputQueue[questionId]];
+                    currentExecution[questionId].inputs = allInputs;
+                    inputQueue[questionId] = [];
+                    
+                    executeCodeWithInputs(questionId, currentExecution[questionId].code, currentExecution[questionId].language, allInputs);
+                }
+            }
+        });
+        
+        // Also allow Enter key as alternative
+        inputField.off('keypress').on('keypress', function(e) {
+            if (e.which === 13) { // Enter key
+                e.preventDefault(); // Prevent form submission
+                sendButton.click(); // Trigger the send button click
+            }
+        });
+    }
+    
+    // Function to stop current execution
+    function stopExecution(questionId) {
+        if (currentExecution[questionId]) {
+            currentExecution[questionId].isRunning = false;
+            currentExecution[questionId] = null;
+            inputQueue[questionId] = [];
+            
+            // Reset UI state
+            $(`#ide-container-${questionId}`).removeClass('code-running');
+            $(`.run-code-btn[data-question="${questionId}"]`).show();
+            $(`.stop-code-btn[data-question="${questionId}"]`).hide();
+            
+            // Reset input field
+            const inputField = $(`#input-${questionId}`);
+            const inputGroup = inputField.closest('.input-group');
+            inputGroup.removeClass('needs-input');
+            inputField.attr('placeholder', 'Enter input for your code (e.g., "John", "42")');
+            inputGroup.find('.input-indicator').remove();
+            
+            showOutput(questionId, 'Execution stopped by user.', 'info');
+        }
+    }
+    
+    
+    
+    
+    function showOutput(questionId, output, type = 'success') {
+        const outputContent = $(`#output-content-${questionId}`);
+        const timestamp = new Date().toLocaleTimeString();
+        
+        // Escape HTML to prevent XSS
+        const escapeHtml = (text) => {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        };
+        
+        let outputHtml = `<div class="output-entry ${type}">
+            <div class="output-timestamp">[${timestamp}]</div>
+            <div class="output-text">${escapeHtml(output)}</div>
+        </div>`;
+        
+        // Remove placeholder if it exists
+        outputContent.find('.output-placeholder').remove();
+        
+        // Add new output
+        outputContent.append(outputHtml);
+        
+        // Scroll to bottom
+        outputContent.scrollTop(outputContent[0].scrollHeight);
+        
+        // Switch to output tab
+        $(`#ide-container-${questionId} .ide-tab[data-tab="output"]`).click();
+        
+        console.log(`Output displayed for question ${questionId}:`, output);
+    }
+    
+    function clearOutput(questionId) {
+        const outputContent = $(`#output-content-${questionId}`);
+        outputContent.html(`
+            <div class="output-placeholder">
+                <i class="fas fa-play-circle"></i>
+                <p>Click "Run Code" to see the output here</p>
+                <small class="text-muted">
+                    <i class="fas fa-info-circle"></i>
+                    If your code needs input (like input(), Scanner, cin), enter it in the input field above.
+                </small>
+            </div>
+        `);
+    }
+    
+    
+    function collectFormData() {
+        const formData = [];
+        const form = $('.animated-form');
+        const processedQuestions = new Set();
+        
+        // Collect all form data
+        form.find('input, textarea, select').each(function() {
+            const $this = $(this);
+            const name = $this.attr('name');
+            const type = $this.attr('type');
+            const questionId = name ? name.replace('question_', '') : null;
+            
+            if (questionId && type !== 'hidden' && !processedQuestions.has(questionId)) {
+                let value = '';
+                let questionType = '';
+                let questionText = '';
+                
+                // Get question text and type from the question card
+                const questionCard = $this.closest('.question-card');
+                questionText = questionCard.find('h5').text();
+                
+                // Determine question type based on form elements
+                if (type === 'radio') {
+                    questionType = 'multiple_choice';
+                    const checkedRadio = form.find(`input[name="question_${questionId}"]:checked`);
+                    if (checkedRadio.length) {
+                        value = checkedRadio.val();
+                    }
+                } else if (type === 'checkbox') {
+                    questionType = 'checkbox';
+                    const checkedBoxes = form.find(`input[name="question_${questionId}"]:checked`);
+                    if (checkedBoxes.length) {
+                        value = checkedBoxes.map(function() { return $(this).val(); }).get();
+                    }
+                } else if (type === 'text') {
+                    questionType = 'identification';
+                    value = $this.val();
+                } else if ($this.is('textarea')) {
+                    if ($this.hasClass('code-editor')) {
+                        questionType = 'coding';
+                    } else {
+                        questionType = 'enumeration';
+                    }
+                    value = $this.val();
+                }
+                
+                // Only add if we have a value or it's a required field
+                if (value !== '' || $this.prop('required')) {
+                    formData.push({
+                        questionId: questionId,
+                        questionText: questionText,
+                        questionType: questionType,
+                        value: value,
+                        element: $this
+                    });
+                    processedQuestions.add(questionId);
+                }
+            }
+        });
+        
+        // Generate review content
+        generateReviewContent(formData);
+    }
+    
+    function generateReviewContent(formData) {
+        let html = '';
+        
+        formData.forEach((item, index) => {
+            html += `
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="bi bi-question-circle me-2"></i>
+                            Question ${index + 1}: ${item.questionText}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Your Answer:</label>
+                            ${generateAnswerInput(item)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        $('#reviewContent').html(html);
+    }
+    
+    function generateAnswerInput(item) {
+        // Escape HTML to prevent XSS
+        const escapeHtml = (text) => {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        };
+        
+        switch(item.questionType) {
+            case 'multiple_choice':
+            case 'true_false':
+                return `
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="review_${item.questionId}" 
+                               value="${escapeHtml(item.value)}" id="review_${item.questionId}_${escapeHtml(item.value)}" checked>
+                        <label class="form-check-label" for="review_${item.questionId}_${escapeHtml(item.value)}">
+                            ${escapeHtml(item.value)}
+                        </label>
+                    </div>
+                `;
+            case 'checkbox':
+                const values = Array.isArray(item.value) ? item.value : [item.value];
+                return values.map(val => `
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="review_${item.questionId}[]" 
+                               value="${escapeHtml(val)}" id="review_${item.questionId}_${escapeHtml(val)}" checked>
+                        <label class="form-check-label" for="review_${item.questionId}_${escapeHtml(val)}">
+                            ${escapeHtml(val)}
+                        </label>
+                    </div>
+                `).join('');
+            case 'identification':
+                return `
+                    <input type="text" class="form-control" name="review_${item.questionId}" 
+                           value="${escapeHtml(item.value)}" id="review_${item.questionId}">
+                `;
+            case 'coding':
+                return `
+                    <div class="review-code-container">
+                        <div class="review-code-header">
+                            <span class="badge bg-info">${selectedLanguages[item.questionId] || 'Unknown'} Code</span>
+                        </div>
+                        <textarea class="form-control code-editor" name="review_${item.questionId}" 
+                                  rows="8" id="review_${item.questionId}">${escapeHtml(item.value)}</textarea>
+                    </div>
+                `;
+            case 'enumeration':
+                return `
+                    <textarea class="form-control" name="review_${item.questionId}" 
+                              rows="3" id="review_${item.questionId}">${escapeHtml(item.value)}</textarea>
+                `;
+            default:
+                return `<p class="text-muted">No answer provided</p>`;
+        }
+    }
+    
+    function updateOriginalForm() {
+        // Update the original form with any changes made in the review modal
+        $('#reviewContent input, #reviewContent textarea, #reviewContent select').each(function() {
+            const $this = $(this);
+            const name = $this.attr('name');
+            const originalName = name.replace('review_', 'question_');
+            const questionId = name.replace('review_', '');
+            
+            if ($this.attr('type') === 'radio') {
+                // Handle radio buttons
+                if ($this.is(':checked')) {
+                    // Uncheck all radio buttons for this question first
+                    $(`input[name="${originalName}"]`).prop('checked', false);
+                    // Check the selected one
+                    $(`input[name="${originalName}"][value="${$this.val()}"]`).prop('checked', true);
+                }
+            } else if ($this.attr('type') === 'checkbox') {
+                // Handle checkboxes
+                const isChecked = $this.is(':checked');
+                const value = $this.val();
+                $(`input[name="${originalName}"][value="${value}"]`).prop('checked', isChecked);
+            } else {
+                // Handle text inputs and textareas
+                const originalElement = $(`[name="${originalName}"]`);
+                if (originalElement.length) {
+                    originalElement.val($this.val());
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

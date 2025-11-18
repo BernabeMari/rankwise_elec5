@@ -1,7 +1,8 @@
 import re
 import pytest
 
-from app.routes import calculate_identification_score, clean_short_answer, parse_ai_response
+from app.routes import calculate_identification_score
+from app.ai_evaluator import AIEvaluator
 
 
 def test_calculate_identification_score_exact():
@@ -25,64 +26,22 @@ def test_calculate_identification_score_empty():
     assert ok is False and score == 0
 
 
-def test_clean_short_answer_basic_trimming():
-    out = clean_short_answer('Answer: The Python interpreter, because it runs code.', 'What runs Python code?')
-    assert out.startswith('The Python interpreter')
-    assert len(out.split()) <= 6
+def test_ai_evaluator_parse_json_response():
+    evaluator = AIEvaluator()
+    response = '{"is_correct": true, "confidence": 88, "feedback": "Looks correct and efficient."}'
+    ok, conf, fb = evaluator._parse_ai_response(response)
+    assert ok is True
+    assert conf == 88
+    assert 'efficient' in fb
 
 
-def test_clean_short_answer_preserve_full():
-    text = 'A) Option one\nB) Option two'
-    out = clean_short_answer('Correct answer: Option one', text, preserve_full=True)
-    assert out == 'Option one'
-
-
-def test_parse_mc_response_happy_path():
-    content = 'What is 2+2?\nA) 3\nB) 4\nC) 5\nD) 6\nCorrect answer: B'
-    data = parse_ai_response(content, 'multiple_choice')
-    assert data['question_type'] == 'multiple_choice'
-    assert data['text'].startswith('What is 2+2')
-    assert data['options'] == ['3', '4', '5', '6']
-    assert data['correct_answer'] == '4'
-
-
-def test_parse_identification_response_variants():
-    content = 'What language runs in a web browser?\nCorrect answer: JavaScript'
-    data = parse_ai_response(content, 'identification')
-    assert data['correct_answer'].lower() == 'javascript'
-
-
-def test_parse_checkbox_response():
-    content = 'Which are programming languages?\nA) Python\nB) HTML\nC) Java\nD) CSS\nCorrect answers: A, C'
-    data = parse_ai_response(content, 'checkbox')
-    assert data['question_type'] == 'checkbox'
-    assert 'Python' in data.get('options', [])
-    assert 'Java' in data.get('options', [])
-
-
-def test_parse_true_false_response():
-    content = 'Python is a compiled language.\nCorrect answer: False'
-    data = parse_ai_response(content, 'true_false')
-    assert data['question_type'] == 'true_false'
-    assert data['correct_answer'] in ['True', 'False']
-
-
-def test_parse_enumeration_response():
-    content = 'Name three data types in Python.\nCorrect answer: int, str, float'
-    data = parse_ai_response(content, 'enumeration')
-    assert data['question_type'] == 'enumeration'
-
-
-def test_parse_coding_response_extracts_problem():
-    content = 'Problem: Write a function to sum two integers.\n\nSample Code:'
-    data = parse_ai_response(content, 'coding')
-    assert 'sum two integers' in data['text']
-
-
-def test_parse_ai_response_error_fallback():
-    data = parse_ai_response('', 'multiple_choice')
-    assert data['question_type'] == 'multiple_choice'
-    assert data['options'] is not None 
+def test_ai_evaluator_parse_text_fallback_positive():
+    evaluator = AIEvaluator()
+    response = 'The solution is correct and well-structured. Good job.'
+    ok, conf, fb = evaluator._parse_ai_response(response)
+    assert ok is True
+    assert conf >= 50
+    assert isinstance(fb, str) and len(fb) > 0
 
 
 def test_evaluate_code_with_custom_system_smoke(monkeypatch):

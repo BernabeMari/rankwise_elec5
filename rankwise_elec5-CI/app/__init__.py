@@ -20,8 +20,11 @@ def create_app():
 		reset_student_passwords_to_default()
 	
 	# Initialize the auth blueprint
-	from app.auth import auth
+	from app.auth import auth, student_verification_codes
 	app.register_blueprint(auth, url_prefix='/auth')
+
+	# Clear in-memory verification codes on startup
+	student_verification_codes.clear()
 	
 	# Initialize the main routes
 	from app.routes import main

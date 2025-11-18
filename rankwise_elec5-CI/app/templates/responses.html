@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Responses: {{ form.title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="mb-1">Responses: {{ form.title }}</h1>
+        <p class="text-muted">Ranked by earned points{% if total_possible_points %} (out of {{ total_possible_points|int }} pts){% endif %}. Ties break by earliest submission.</p>
+    </div>
+    <div class="mt-4">
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Forms
+        </a>
+        <form action="{{ url_for('main.clear_form_responses', form_id=form.id) }}" method="POST" class="d-inline ms-2">
+            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to delete ALL responses for this form? This cannot be undone.')">
+                <i class="bi bi-trash"></i> Clear All Responses
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        {% if rankings %}
+            <div class="table-responsive form-card p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col">Rank</th>
+                            <th scope="col">Student</th>
+                            <th scope="col">Earned Points</th>
+                            <th scope="col">Percent</th>
+                            <th scope="col">Submitted</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in rankings %}
+                            <tr>
+                                <td><strong>#{{ entry.rank }}</strong></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-2" style="width:36px;height:36px;border-radius:50%;background:#eef;display:flex;align-items:center;justify-content:center;color:#4f37a6;font-weight:600;">
+                                            {{ (entry.student_name or entry.response.submitted_by or 'NA')[:1]|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ entry.student_name or entry.response.submitted_by or 'Anonymous' }}</div>
+                                            <div class="small text-muted">Response #{{ entry.response.id }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ entry.earned_points|round(2) }} / {{ total_possible_points|int }}</td>
+                                <td>
+                                    <span class="badge bg-{{ entry.percentage >= 80 and 'success' or entry.percentage >= 50 and 'info' or 'secondary' }}">{{ entry.percentage|round(1) }}%</span>
+                                </td>
+                                <td>{{ entry.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td>
+                                    <a href="{{ url_for('main.view_response', response_id=entry.response.id) }}" class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> No responses have been submitted for this form yet.
+            </div>
+        {% endif %}
+        
+    </div>
+</div>
+{% endblock %} 

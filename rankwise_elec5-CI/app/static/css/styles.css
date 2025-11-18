@@ -1,0 +1,329 @@
+/* General styles */
+:root {
+    --primary-color: #7b4ca0;
+    --primary-light: #9a6cb8;
+    --primary-dark: #5a3777;
+    --secondary-color: #f8f0ff;
+    --accent-color: #ff6b6b;
+    --text-color: #333;
+    --bg-color: #f9f5fd;
+    --card-shadow: 0 4px 15px rgba(123, 76, 160, 0.1);
+    --transition-speed: 0.3s;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.5s ease;
+}
+
+.navbar-dark.bg-primary {
+    background-color: var(--primary-color) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    transition: all var(--transition-speed) ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(123, 76, 160, 0.3);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    transition: all var(--transition-speed) ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(123, 76, 160, 0.2);
+}
+
+.card {
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 25px;
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+    border: none;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(123, 76, 160, 0.2);
+}
+
+.card-header {
+    border-bottom: none;
+    background-color: rgba(123, 76, 160, 0.05);
+    padding: 1.2rem 1.5rem;
+}
+
+.card-header.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* Form styles */
+.form-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    padding: 25px;
+    margin-bottom: 25px;
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.form-card:hover {
+    box-shadow: 0 8px 25px rgba(123, 76, 160, 0.15);
+}
+
+.question-card {
+    background-color: white;
+    border-radius: 12px;
+    border-left: 5px solid var(--primary-color);
+    box-shadow: var(--card-shadow);
+    padding: 25px;
+    margin-bottom: 25px;
+    transition: all var(--transition-speed) ease;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.question-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 6px 20px rgba(123, 76, 160, 0.18);
+}
+
+.question-type-badge {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    transition: all var(--transition-speed) ease;
+    color: #000;
+}
+
+.question-type-badge:hover {
+    transform: scale(1.05);
+}
+
+/* Question type badges */
+.badge-multiple-choice {
+    background-color: #9c57d3;
+}
+
+.badge-identification {
+    background-color: #7a4ecf;
+}
+
+.badge-coding {
+    background-color: #5a40b0;
+}
+
+/* Form builder styles */
+.options-container {
+    margin-top: 15px;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.option-item .remove-option {
+    color: var(--accent-color);
+    cursor: pointer;
+    margin-left: 10px;
+    transition: all 0.2s ease;
+}
+
+.option-item .remove-option:hover {
+    transform: scale(1.2) rotate(90deg);
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #e0d8e8;
+    padding: 12px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 0.25rem rgba(123, 76, 160, 0.25);
+}
+
+/* Code editor */
+.code-editor {
+    font-family: "Fira Code", "Courier New", Courier, monospace;
+    border-radius: 8px;
+    background-color: #282c34;
+    color: #abb2bf;
+    padding: 15px;
+    margin-bottom: 15px;
+    width: 100%;
+    height: 200px;
+    resize: vertical;
+    transition: all 0.3s ease;
+}
+
+.code-editor:focus {
+    box-shadow: 0 0 0 3px rgba(123, 76, 160, 0.2);
+}
+
+/* Form feedback */
+.correct-answer {
+    border-left: 4px solid #28a745;
+    background-color: rgba(40, 167, 69, 0.05);
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin: 10px 0;
+    animation: pulseGreen 2s infinite;
+}
+
+.incorrect-answer {
+    border-left: 4px solid #dc3545;
+    background-color: rgba(220, 53, 69, 0.05);
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-15px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulseGreen {
+    0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}
+
+/* Custom form elements */
+.custom-radio {
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.custom-radio:hover {
+    transform: translateX(3px);
+}
+
+.custom-radio input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.radio-checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.custom-radio:hover input ~ .radio-checkmark {
+    background-color: #ddd;
+}
+
+.custom-radio input:checked ~ .radio-checkmark {
+    background-color: var(--primary-color);
+}
+
+.radio-checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.custom-radio input:checked ~ .radio-checkmark:after {
+    display: block;
+}
+
+.custom-radio .radio-checkmark:after {
+    top: 6px;
+    left: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+}
+
+/* Chart container styles */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+.chart-container canvas {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Chart loading fallback */
+.chart-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.chart-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .form-card, .question-card {
+        padding: 15px;
+    }
+    
+    .card-title {
+        font-size: 1.2rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+} 
