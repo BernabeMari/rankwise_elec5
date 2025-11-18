@@ -288,6 +288,7 @@
         <p class="text-muted">{{ form.description or "No description" }}</p>
     </div>
     <div class="col-md-4 text-end">
+      
         <a href="{{ url_for('main.view_form', form_id=form.id) }}" class="btn btn-success">
             <i class="bi bi-eye"></i> Preview Form
         </a>
@@ -318,6 +319,16 @@
                             <option value="true_false">True or False</option>
                             <option value="enumeration">Enumeration</option>
                         </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="question_category" class="form-label">Question Category</label>
+                        <select class="form-select" id="question_category" name="category">
+                            {% for cat in question_categories %}
+                                <option value="{{ cat }}" {% if cat == 'General' %}selected{% endif %}>{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Choose how this question should appear in analytics.</div>
                     </div>
                     
                     <div class="mb-3">
@@ -485,6 +496,15 @@
                             </span>
                         </div>
                         <div>
+                            <div class="d-inline-block me-2">
+                                <form method="POST" action="{{ url_for('main.update_question_category', question_id=question.id) }}" class="question-category-form">
+                                    <select name="category" class="form-select form-select-sm question-category-select">
+                                        {% for cat in question_categories %}
+                                            <option value="{{ cat }}" {% if question.category == cat %}selected{% endif %}>{{ cat }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
                             <a href="{{ url_for('main.edit_question_form', question_id=question.id) }}" class="btn btn-sm btn-outline-primary me-1">
                                 <i class="bi bi-pencil"></i>
                             </a>
@@ -497,6 +517,9 @@
                     </div>
                     
                     <h5>{{ question.question_text }}</h5>
+                    {% if question.category %}
+                        <span class="badge bg-secondary mb-2"><i class="bi bi-tag"></i> {{ question.category }}</span>
+                    {% endif %}
                     
                     {% if question.question_type == 'multiple_choice' and question.options %}
                         <div class="mt-3">
@@ -932,6 +955,11 @@
         $('.question-card').each(function(index) {
             $(this).css('animation-delay', `${index * 0.1}s`);
         });
+
+        // Auto-submit category changes
+        $('.question-category-select').on('change', function() {
+            $(this).closest('form').submit();
+        });
         
         // AI Generator Modal
         const aiModal = document.getElementById('aiModal');
@@ -1339,6 +1367,7 @@
                     addField('question_text', questionData.text || '');
                     addField('question_type', questionData.question_type || 'multiple_choice');
                     addField('points', '1');
+                    if (questionData.category) addField('category', questionData.category);
                     if (questionData.correct_answer) addField('correct_answer', questionData.correct_answer);
                     if (questionData.question_type === 'multiple_choice' && Array.isArray(questionData.options)) {
                         questionData.options.forEach(o => fd.append('options[]', o));

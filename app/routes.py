@@ -14,6 +14,23 @@ import uuid
 
 main = Blueprint('main', __name__)
 
+QUESTION_CATEGORY_CHOICES = [
+    'Cybersecurity',
+    'Digital Electronics',
+    'Linux Administration',
+    'Networking',
+    'Robotics',
+    'Android App Development',
+    'Database',
+    'Java',
+    'C#',
+    'Python',
+    'Web Design',
+    'Esports',
+    'C',
+    'C++'
+]
+
 
 def calculate_identification_score(student_answer, correct_answer):
     """
@@ -127,7 +144,7 @@ def new_form():
 def edit_form(form_id):
     form = Form.query.get_or_404(form_id)
     questions = Question.query.filter_by(form_id=form_id).order_by(Question.order).all()
-    return render_template('edit_form.html', form=form, questions=questions)
+    return render_template('edit_form.html', form=form, questions=questions, question_categories=QUESTION_CATEGORY_CHOICES)
 
 @main.route('/form/<int:form_id>/question/new', methods=['POST'])
 @admin_required
@@ -137,6 +154,7 @@ def add_question(form_id):
     question_text = request.form.get('question_text')
     question_type = request.form.get('question_type')
     correct_answer = request.form.get('correct_answer')
+    category = request.form.get('category') or None
     points = request.form.get('points', 1)
     
     # Ensure points is a valid integer
@@ -161,7 +179,8 @@ def add_question(form_id):
         question_type=question_type,
         order=new_order,
         correct_answer=correct_answer,
-        points=points
+        points=points,
+        category=category
     )
     
     # Handle options for multiple choice and checkbox
@@ -1627,6 +1646,21 @@ def edit_question(question_id):
     flash('Question updated successfully!', 'success')
     return redirect(url_for('main.edit_form', form_id=question.form_id))
 
+
+@main.route('/question/<int:question_id>/category', methods=['POST'])
+@admin_required
+def update_question_category(question_id):
+    question = Question.query.get_or_404(question_id)
+    category = request.form.get('category') or None
+    if category and category not in QUESTION_CATEGORY_CHOICES:
+        flash('Invalid category selected.', 'danger')
+    else:
+        question.category = category
+        db.session.commit()
+        flash('Question category updated.', 'success')
+    return redirect(url_for('main.edit_form', form_id=question.form_id))
+
+
 @main.route('/question/<int:question_id>/delete', methods=['POST'])
 @admin_required
 def delete_question(question_id):
@@ -1649,6 +1683,18 @@ def delete_form(form_id):
     
     flash('Form deleted successfully!', 'success')
     return redirect(url_for('main.index'))
+
+
+@main.route('/form/<int:form_id>/upload', methods=['POST'])
+@admin_required
+def upload_form(form_id):
+    form = Form.query.get_or_404(form_id)
+    form.is_visible = True
+    form.updated_at = datetime.utcnow()
+    db.session.commit()
+    flash('Form uploaded and made visible to students.', 'success')
+    return redirect(url_for('main.edit_form', form_id=form_id))
+
 
 @main.route('/form/<int:form_id>/toggle-visibility', methods=['POST'])
 @admin_required
@@ -2386,17 +2432,23 @@ def _get_form_analytics_data(form_id):
             cats.add('C')
         return cats
 
-    # Precompute question -> categories
-    question_id_to_categories = {q.id: infer_categories(q) for q in questions}
+    # Precompute question -> categories (prefer manual selection)
+    question_id_to_categories = {}
+    for q in questions:
+        if q.category:
+            question_id_to_categories[q.id] = {q.category}
+        else:
+            inferred = infer_categories(q)
+            question_id_to_categories[q.id] = inferred if inferred else {'General'}
 
     # Precompute total possible points per category
-    categories_order = [
-        'Cybersecurity','Digital Electronics','Linux Administration','Networking','Robotics',
-        'Android App Development','Database','Java','C#','Python','Web Design','Esports','C','C++'
-    ]
+    categories_order = list(QUESTION_CATEGORY_CHOICES)
     category_total_points = {c: 0.0 for c in categories_order}
     for q in questions:
         for cat in question_id_to_categories.get(q.id, set()):
+            if cat not in category_total_points:
+                category_total_points[cat] = 0.0
+                categories_order.append(cat)
             category_total_points[cat] += float(q.points or 0)
 
     # Compute per-response earned points per category

@@ -7,6 +7,7 @@ class Form(db.Model):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_visible = db.Column(db.Boolean, default=True)  # Toggle for form visibility
     questions = db.relationship('Question', backref='form', lazy=True, cascade="all, delete-orphan")
     
@@ -24,6 +25,7 @@ class Question(db.Model):
     correct_answer = db.Column(db.Text, nullable=True)  # For correct answer in multiple choice and identification
     order = db.Column(db.Integer, default=0)
     points = db.Column(db.Integer, default=1)  # Points value for the question
+    category = db.Column(db.String(100), nullable=True)
     
     # Add cascade delete to answers when a question is deleted
     answers = db.relationship('Answer', backref='question', lazy=True, cascade="all, delete-orphan")

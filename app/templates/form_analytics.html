@@ -334,7 +334,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                                         <th>Student Name</th>
                                                         <th>Score</th>
                                                         <th>Points Earned</th>
-                                                        <th>Actions</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -355,11 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                                             </div>
                                                         </td>
                                                         <td>{{ '%.1f'|format(row.earned_points) }} points</td>
-                                                        <td>
-                                                            <a href="/response/view/{{ row.response_id }}" class="btn btn-sm btn-outline-primary">
-                                                                <i class="bi bi-eye"></i> View Response
-                                                            </a>
-                                                        </td>
+                                                  
                                                     </tr>
                                                     {% endfor %}
                                                 </tbody>
