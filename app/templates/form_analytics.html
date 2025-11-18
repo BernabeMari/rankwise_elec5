@@ -3,9 +3,27 @@
 {% block title %}Analytics - {{ form.title }}{% endblock %}
 
 {% block scripts %}
+{% set analytics_payload = {'score_ranges': score_ranges, 'question_stats': question_stats} %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<script id="analytics-data" type="application/json">
+{{ analytics_payload | tojson | safe }}
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const payloadEl = document.getElementById('analytics-data');
+    let analyticsData = null;
+    try {
+        analyticsData = payloadEl ? JSON.parse(payloadEl.textContent) : null;
+    } catch (error) {
+        console.error('Failed to parse analytics payload:', error);
+    }
+    if (!analyticsData) {
+        console.warn('Analytics payload missing; charts will not render.');
+    }
+
+    const scoreRanges = analyticsData?.score_ranges || {};
+    const questionStats = analyticsData?.question_stats || [];
+
     // Check if Chart.js is loaded
     if (typeof Chart === 'undefined') {
         console.error('Chart.js failed to load');
@@ -20,20 +38,16 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
         const scoreCtx = document.getElementById('scoreChart');
         if (scoreCtx) {
+            const scoreLabels = ['90-100%', '80-89%', '70-79%', '60-69%', '50-59%', '0-49%'];
+            const scoreKeys = ['90-100', '80-89', '70-79', '60-69', '50-59', '0-49'];
+            const scoreValues = scoreKeys.map((key) => scoreRanges[key] || 0);
             new Chart(scoreCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['90-100%', '80-89%', '70-79%', '60-69%', '50-59%', '0-49%'],
+                    labels: scoreLabels,
                     datasets: [{
                         label: 'Number of Students',
-                        data: [
-                            {{ score_ranges['90-100'] }},
-                            {{ score_ranges['80-89'] }},
-                            {{ score_ranges['70-79'] }},
-                            {{ score_ranges['60-69'] }},
-                            {{ score_ranges['50-59'] }},
-                            {{ score_ranges['0-49'] }}
-                        ],
+                        data: scoreValues,
                         backgroundColor: [
                             '#28a745',
                             '#20c997',
@@ -67,95 +81,83 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Individual Question Pie Charts
-    {% for q in question_stats %}
-    {% if q.answer_breakdown %}
-    try {
-        const questionCtx{{ q.question_id }} = document.getElementById('questionChart{{ q.question_id }}');
-        if (questionCtx{{ q.question_id }}) {
-            const questionLabels{{ q.question_id }} = [
-                {% for key, data in q.answer_breakdown.items() %}
-                "{{ key|e }}",
-                {% endfor %}
-            ];
-            const questionData{{ q.question_id }} = [
-                {% for key, data in q.answer_breakdown.items() %}
-                {{ data.count }},
-                {% endfor %}
-            ];
-            const questionColors{{ q.question_id }} = [
-                '#FF6384',
-                '#36A2EB', 
-                '#FFCE56',
-                '#4BC0C0',
-                '#9966FF',
-                '#FF9F40'
-            ];
-            
-            // Filter out zero values to avoid empty pie slices
-            const filteredLabels{{ q.question_id }} = [];
-            const filteredData{{ q.question_id }} = [];
-            const filteredColors{{ q.question_id }} = [];
-            
-            for (let i = 0; i < questionData{{ q.question_id }}.length; i++) {
-                if (questionData{{ q.question_id }}[i] > 0) {
-                    filteredLabels{{ q.question_id }}.push(questionLabels{{ q.question_id }}[i]);
-                    filteredData{{ q.question_id }}.push(questionData{{ q.question_id }}[i]);
-                    filteredColors{{ q.question_id }}.push(questionColors{{ q.question_id }}[i]);
-                }
+    const pieColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+    questionStats.forEach((question) => {
+        if (!question.answer_breakdown || Object.keys(question.answer_breakdown).length === 0) {
+            return;
+        }
+        const ctx = document.getElementById(`questionChart${question.question_id}`);
+        if (!ctx) {
+            return;
+        }
+        const labels = Object.keys(question.answer_breakdown);
+        const rawData = labels.map((label) => question.answer_breakdown[label].count || 0);
+
+        const filteredLabels = [];
+        const filteredData = [];
+        const filteredColors = [];
+
+        rawData.forEach((value, index) => {
+            if (value > 0) {
+                filteredLabels.push(labels[index]);
+                filteredData.push(value);
+                filteredColors.push(pieColors[index % pieColors.length]);
             }
-            
-            if (filteredData{{ q.question_id }}.length > 0) {
-                new Chart(questionCtx{{ q.question_id }}, {
-                    type: 'pie',
-                    data: {
-                        labels: filteredLabels{{ q.question_id }},
-                        datasets: [{
-                            data: filteredData{{ q.question_id }},
-                            backgroundColor: filteredColors{{ q.question_id }},
-                            borderWidth: 2,
-                            borderColor: '#fff'
-                        }]
+        });
+
+        if (filteredData.length === 0) {
+            ctx.parentElement.innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-pie-chart"></i><br>No data available for this question</div>';
+            return;
+        }
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: filteredLabels,
+                datasets: [{
+                    data: filteredData,
+                    backgroundColor: filteredColors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    usePointStyle: true,
-                                    padding: 20
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.parsed;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                        return label + ': ' + value + ' (' + percentage + '%)';
-                                    }
-                                }
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return `${label}: ${value} (${percentage}%)`;
                             }
                         }
                     }
-                });
-            } else {
-                // Show "No data" message if no data available
-                questionCtx{{ q.question_id }}.parentElement.innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-pie-chart"></i><br>No data available for this question</div>';
+                }
             }
-        }
-    } catch (error) {
-        console.error('Error creating pie chart for question {{ q.question_id }}:', error);
-        const questionCtx{{ q.question_id }} = document.getElementById('questionChart{{ q.question_id }}');
-        if (questionCtx{{ q.question_id }}) {
-            questionCtx{{ q.question_id }}.parentElement.innerHTML = '<div class="chart-error"><i class="bi bi-exclamation-triangle"></i><br>Error loading chart</div>';
-        }
-    }
-    {% endif %}
-    {% endfor %}
+        });
+    });
     
+    // Apply progress widths
+    document.querySelectorAll('[data-progress-width]').forEach((el) => {
+        const value = el.getAttribute('data-progress-width');
+        if (!value) return;
+        const numeric = parseFloat(value);
+        if (Number.isFinite(numeric)) {
+            el.style.width = `${numeric}%`;
+        }
+    });
+
     // Student Categories functionality
     const viewStudentCategoriesBtn = document.getElementById('viewStudentCategories');
     const studentCategoriesModal = new bootstrap.Modal(document.getElementById('studentCategoriesModal'));
@@ -170,6 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
         studentCategoriesModal.show();
     });
 });
+/* eslint-enable */
 </script>
 {% endblock %}
 
@@ -180,8 +183,11 @@ document.addEventListener('DOMContentLoaded', function() {
         <p class="text-muted">Form performance and student analytics</p>
     </div>
     <div class="col-md-4 text-end">
-        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary me-2">
             <i class="bi bi-arrow-left"></i> Back to Forms
+        </a>
+        <a href="{{ url_for('main.download_form_analytics_pdf', form_id=form.id) }}" class="btn btn-danger">
+            <i class="bi bi-file-earmark-pdf"></i> Download PDF
         </a>
     </div>
 </div>
@@ -345,7 +351,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                                                 {% elif pct >= 70 %}{% set bar = 'bg-primary' %}
                                                                 {% elif pct >= 60 %}{% set bar = 'bg-warning' %}
                                                                 {% endif %}
-                                                                <div class="progress-bar {{ bar }}" style="width: {{ '%.1f'|format(pct) }}%">{{ '%.1f'|format(pct) }}%</div>
+                                                                <div class="progress-bar {{ bar }}" data-progress-width="{{ '%.1f'|format(pct) }}">{{ '%.1f'|format(pct) }}%</div>
                                                             </div>
                                                         </td>
                                                         <td>{{ '%.1f'|format(row.earned_points) }} points</td>
@@ -458,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                                     <td>{{ data.count }}</td>
                                                     <td>
                                                         <div class="progress" style="height: 15px;">
-                                                            <div class="progress-bar" style="width: {{ data.percentage }}%">
+                                                            <div class="progress-bar" data-progress-width="{{ data.percentage }}">
                                                                 {{ "%.1f"|format(data.percentage) }}%
                                                             </div>
                                                         </div>

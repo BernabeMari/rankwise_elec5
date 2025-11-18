@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session, send_file
 from app import db
 from app.models.models import Form, Question, Response, Answer, Dataset
 from app.models.users import login_required, admin_required, get_user, get_all_students
 from datetime import datetime
+from io import BytesIO
 import requests, time
 from rapidfuzz import fuzz
 import json
@@ -2158,26 +2159,16 @@ def toggle_dataset_status(dataset_id):
 
 
 
-@main.route('/form/<int:form_id>/analytics', methods=['GET'])
-@admin_required
-def form_analytics(form_id):
-    """Display analytics for a specific form."""
+def _get_form_analytics_data(form_id):
+    """Compute analytics data for a form and return a dictionary."""
     form = Form.query.get_or_404(form_id)
-    
-    # Get all responses for this form
     responses = Response.query.filter_by(form_id=form_id).all()
-    
-    # Get all questions for this form
     questions = Question.query.filter_by(form_id=form_id).all()
     
-    # Calculate analytics
     total_responses = len(responses)
     total_questions = len(questions)
-    
-    # Calculate total possible points
     total_possible_points = sum(q.points for q in questions) if questions else 0
     
-    # Response analytics
     response_stats = []
     for response in responses:
         earned_points = 0.0
@@ -2195,28 +2186,23 @@ def form_analytics(form_id):
             'submitted_by': response.submitted_by
         })
     
-    # Sort by percentage (highest first)
     response_stats.sort(key=lambda x: x['percentage'], reverse=True)
-    
-    # Calculate average score
     avg_score = sum(r['percentage'] for r in response_stats) / len(response_stats) if response_stats else 0
     
-    # Question analytics with detailed answer breakdowns
     question_stats = []
+    response_ids = [r.id for r in responses]
     for question in questions:
-        answers = [a for a in question.answers if a.response_id in [r.id for r in responses]]
+        answers = [a for a in question.answers if a.response_id in response_ids]
         correct_count = sum(1 for a in answers if a.is_correct)
         total_answers = len(answers)
         accuracy = (correct_count / total_answers * 100) if total_answers > 0 else 0
         
-        # Analyze answer choices for different question types
         answer_breakdown = {}
         
         if question.question_type == 'multiple_choice':
-            # Count each option (A, B, C, D)
             options = question.get_options()
             for i, option in enumerate(options):
-                letter = chr(65 + i)  # A, B, C, D
+                letter = chr(65 + i)
                 count = sum(1 for a in answers if a.answer_text == option)
                 answer_breakdown[letter] = {
                     'text': option,
@@ -2225,18 +2211,16 @@ def form_analytics(form_id):
                 }
         
         elif question.question_type == 'checkbox':
-            # Count each selected option
             options = question.get_options()
             for i, option in enumerate(options):
-                letter = chr(65 + i)  # A, B, C, D
+                letter = chr(65 + i)
                 count = 0
                 for a in answers:
                     try:
-                        import json
                         selected = json.loads(a.answer_text) if a.answer_text else []
                         if option in selected:
                             count += 1
-                    except:
+                    except Exception:
                         pass
                 answer_breakdown[letter] = {
                     'text': option,
@@ -2245,7 +2229,6 @@ def form_analytics(form_id):
                 }
         
         elif question.question_type == 'true_false':
-            # Count True vs False
             true_count = sum(1 for a in answers if a.answer_text == 'True')
             false_count = sum(1 for a in answers if a.answer_text == 'False')
             answer_breakdown = {
@@ -2262,17 +2245,12 @@ def form_analytics(form_id):
             }
         
         elif question.question_type == 'identification':
-            # Group similar answers together
             answer_groups = {}
             for a in answers:
                 answer_text = a.answer_text or ""
-                # Group by first 20 characters to handle variations
                 key = answer_text[:20].lower().strip()
-                if key not in answer_groups:
-                    answer_groups[key] = []
-                answer_groups[key].append(answer_text)
+                answer_groups.setdefault(key, []).append(answer_text)
             
-            # Convert to breakdown format
             for key, group in answer_groups.items():
                 answer_breakdown[key] = {
                     'text': group[0][:30] + "..." if len(group[0]) > 30 else group[0],
@@ -2281,14 +2259,12 @@ def form_analytics(form_id):
                 }
         
         elif question.question_type == 'enumeration':
-            # Group answers by score ranges for enumeration questions
             score_categories = {
                 'Perfect (90-100%)': 0,
                 'Good (70-89%)': 0,
                 'Fair (50-69%)': 0,
                 'Poor (0-49%)': 0
             }
-            
             for a in answers:
                 score = a.score_percentage or 0
                 if score >= 90:
@@ -2299,10 +2275,8 @@ def form_analytics(form_id):
                     score_categories['Fair (50-69%)'] += 1
                 else:
                     score_categories['Poor (0-49%)'] += 1
-            
-            # Convert to breakdown format
             for category, count in score_categories.items():
-                if count > 0:  # Only include categories with responses
+                if count > 0:
                     answer_breakdown[category] = {
                         'text': category,
                         'count': count,
@@ -2310,7 +2284,6 @@ def form_analytics(form_id):
                     }
         
         elif question.question_type == 'coding':
-            # Group answers by AI evaluation score categories for coding questions
             score_categories = {
                 'Perfect (100%)': 0,
                 'Minor Flaw (90%)': 0,
@@ -2319,7 +2292,6 @@ def form_analytics(form_id):
                 'Effort (25%)': 0,
                 'Zero (0%)': 0
             }
-            
             for a in answers:
                 score = a.score_percentage or 0
                 if score == 100:
@@ -2334,10 +2306,8 @@ def form_analytics(form_id):
                     score_categories['Effort (25%)'] += 1
                 else:
                     score_categories['Zero (0%)'] += 1
-            
-            # Convert to breakdown format
             for category, count in score_categories.items():
-                if count > 0:  # Only include categories with responses
+                if count > 0:
                     answer_breakdown[category] = {
                         'text': category,
                         'count': count,
@@ -2355,10 +2325,8 @@ def form_analytics(form_id):
             'answer_breakdown': answer_breakdown
         })
     
-    # Sort questions by accuracy (lowest first - most problematic)
     question_stats.sort(key=lambda x: x['accuracy'])
     
-    # Score distribution
     score_ranges = {
         '90-100': 0,
         '80-89': 0,
@@ -2367,7 +2335,6 @@ def form_analytics(form_id):
         '50-59': 0,
         '0-49': 0
     }
-    
     for stat in response_stats:
         score = stat['percentage']
         if score >= 90:
@@ -2383,7 +2350,6 @@ def form_analytics(form_id):
         else:
             score_ranges['0-49'] += 1
     
-    # Build category leaders: infer categories per question by keywords
     def infer_categories(question: Question) -> set:
         text = f"{question.question_text or ''} {question.sample_code or ''}".lower()
         cats = set()
@@ -2471,17 +2437,101 @@ def form_analytics(form_id):
         cat: rows for cat, rows in category_student_rows.items() if rows
     }
 
-    return render_template('form_analytics.html', 
-                         form=form,
-                         total_responses=total_responses,
-                         total_questions=total_questions,
-                         total_possible_points=total_possible_points,
-                         response_stats=response_stats,
-                         question_stats=question_stats,
-                         avg_score=avg_score,
-                         score_ranges=score_ranges,
-                         category_leaders=category_leaders,
-                         categories_order=categories_order)
+    return {
+        'form': form,
+        'total_responses': total_responses,
+        'total_questions': total_questions,
+        'total_possible_points': total_possible_points,
+        'response_stats': response_stats,
+        'question_stats': question_stats,
+        'avg_score': avg_score,
+        'score_ranges': score_ranges,
+        'category_leaders': category_leaders,
+        'categories_order': categories_order
+    }
+
+
+@main.route('/form/<int:form_id>/analytics', methods=['GET'])
+@admin_required
+def form_analytics(form_id):
+    """Display analytics dashboard for a specific form."""
+    data = _get_form_analytics_data(form_id)
+    return render_template('form_analytics.html', **data)
+
+
+@main.route('/form/<int:form_id>/analytics/pdf', methods=['GET'])
+@admin_required
+def download_form_analytics_pdf(form_id):
+    """Generate and download a PDF report of the analytics."""
+    try:
+        from reportlab.lib.pagesizes import letter
+        from reportlab.lib.units import inch
+        from reportlab.pdfgen import canvas
+    except ImportError:
+        flash('PDF export requires the "reportlab" package. Please install it first.', 'danger')
+        return redirect(url_for('main.form_analytics', form_id=form_id))
+
+    data = _get_form_analytics_data(form_id)
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    margin = 0.75 * inch
+    line_height = 0.2 * inch
+    y = height - margin
+
+    def write_line(text, font='Helvetica', size=11, extra_gap=0):
+        nonlocal y
+        if y <= margin:
+            pdf.showPage()
+            pdf.setFont(font, size)
+            y = height - margin
+        pdf.setFont(font, size)
+        pdf.drawString(margin, y, text)
+        y -= (line_height + extra_gap)
+
+    pdf.setTitle(f"Analytics - {data['form'].title}")
+    write_line(f"Form Analytics Report", 'Helvetica-Bold', 16, extra_gap=0.1 * inch)
+    write_line(f"Form: {data['form'].title}", 'Helvetica-Bold', 12)
+    write_line(f"Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}", 'Helvetica', 9, extra_gap=0.05 * inch)
+
+    write_line("Summary", 'Helvetica-Bold', 13, extra_gap=0.05 * inch)
+    summary_rows = [
+        ("Total Responses", data['total_responses']),
+        ("Total Questions", data['total_questions']),
+        ("Average Score", f"{data['avg_score']:.1f}%"),
+        ("Total Possible Points", data['total_possible_points'])
+    ]
+    for label, value in summary_rows:
+        write_line(f"• {label}: {value}", 'Helvetica', 11)
+
+    write_line("", extra_gap=0.05 * inch)
+    write_line("Score Distribution", 'Helvetica-Bold', 13, extra_gap=0.05 * inch)
+    for label, count in data['score_ranges'].items():
+        write_line(f"{label}% : {count}", 'Helvetica', 11)
+
+    write_line("", extra_gap=0.05 * inch)
+    write_line("Question Accuracy (Top 15)", 'Helvetica-Bold', 13, extra_gap=0.05 * inch)
+    for idx, q in enumerate(data['question_stats'][:15], start=1):
+        text = q['question_text']
+        write_line(f"{idx}. {text} - {q['accuracy']:.1f}% accuracy ({q['correct_answers']}/{q['total_answers']} correct)", 'Helvetica', 10)
+
+    write_line("", extra_gap=0.05 * inch)
+    write_line("Category Leaders (Top 3 per category)", 'Helvetica-Bold', 13, extra_gap=0.05 * inch)
+    if data['category_leaders']:
+        for category, rows in data['category_leaders'].items():
+            write_line(f"{category}:", 'Helvetica-Bold', 11)
+            for row in rows[:3]:
+                name = row.get('submitted_by') or 'Unknown student'
+                write_line(f"   - {name}: {row['percentage']:.1f}% ({row['earned_points']:.1f} pts)", 'Helvetica', 10)
+    else:
+        write_line("No category data available.", 'Helvetica', 11)
+
+    pdf.showPage()
+    pdf.save()
+    buffer.seek(0)
+
+    filename = f"analytics_form_{form_id}.pdf"
+    return send_file(buffer, mimetype='application/pdf', as_attachment=True, download_name=filename)
 
 @main.route('/generate_ai_question_with_context', methods=['POST'])
 def generate_ai_question_with_context():
