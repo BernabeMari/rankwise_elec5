@@ -2519,6 +2519,10 @@ def download_form_analytics_pdf(form_id):
         from reportlab.lib.pagesizes import letter
         from reportlab.lib.units import inch
         from reportlab.pdfgen import canvas
+        from reportlab.graphics.shapes import Drawing
+        from reportlab.graphics.charts.piecharts import Pie
+        from reportlab.graphics import renderPDF
+        from reportlab.lib import colors
     except ImportError:
         flash('PDF export requires the "reportlab" package. Please install it first.', 'danger')
         return redirect(url_for('main.form_analytics', form_id=form_id))
@@ -2540,6 +2544,63 @@ def download_form_analytics_pdf(form_id):
         pdf.setFont(font, size)
         pdf.drawString(margin, y, text)
         y -= (line_height + extra_gap)
+
+    pie_colors = [
+        colors.HexColor('#FF6384'),
+        colors.HexColor('#36A2EB'),
+        colors.HexColor('#FFCE56'),
+        colors.HexColor('#4BC0C0'),
+        colors.HexColor('#9966FF'),
+        colors.HexColor('#FF9F40'),
+        colors.HexColor('#2E86AB'),
+        colors.HexColor('#F47C7C')
+    ]
+
+    def draw_pie_chart(title, labels, values):
+        nonlocal y
+        if not values or sum(values) == 0:
+            return
+
+        chart_height = 2.4 * inch
+        legend_height = max(len(labels), 1) * 0.18 * inch
+        required_height = chart_height + legend_height + 0.45 * inch
+
+        if y - required_height <= margin:
+            pdf.showPage()
+            pdf.setFont('Helvetica', 11)
+            y = height - margin
+
+        pdf.setFont('Helvetica-Bold', 11)
+        pdf.drawString(margin, y, title)
+        y -= 0.25 * inch
+
+        drawing = Drawing(3.2 * inch, chart_height)
+        pie = Pie()
+        pie.x = 20
+        pie.y = 5
+        pie.width = 2.4 * inch
+        pie.height = 2.4 * inch
+        pie.data = values
+        pie.labels = None
+        pie.slices.strokeWidth = 0.5
+        for idx in range(len(values)):
+            pie.slices[idx].fillColor = pie_colors[idx % len(pie_colors)]
+        drawing.add(pie)
+        renderPDF.draw(drawing, pdf, margin, y - chart_height)
+
+        legend_x = margin + 3.4 * inch
+        legend_y = y - 0.1 * inch
+        total = sum(values)
+        pdf.setFont('Helvetica', 9)
+        for idx, label in enumerate(labels):
+            pct = (values[idx] / total * 100) if total else 0
+            pdf.setFillColor(pie_colors[idx % len(pie_colors)])
+            pdf.rect(legend_x, legend_y - 0.12 * inch, 0.12 * inch, 0.12 * inch, fill=1, stroke=0)
+            pdf.setFillColor(colors.black)
+            pdf.drawString(legend_x + 0.2 * inch, legend_y - 0.1 * inch, f"{label}: {values[idx]} ({pct:.1f}%)")
+            legend_y -= 0.18 * inch
+
+        y -= (chart_height + legend_height + 0.3 * inch)
 
     pdf.setTitle(f"Analytics - {data['form'].title}")
     write_line(f"Form Analytics Report", 'Helvetica-Bold', 16, extra_gap=0.1 * inch)
@@ -2577,6 +2638,33 @@ def download_form_analytics_pdf(form_id):
                 write_line(f"   - {name}: {row['percentage']:.1f}% ({row['earned_points']:.1f} pts)", 'Helvetica', 10)
     else:
         write_line("No category data available.", 'Helvetica', 11)
+
+    pie_questions = [q for q in data['question_stats'] if q.get('answer_breakdown')]
+    if pie_questions:
+        write_line("", extra_gap=0.05 * inch)
+        write_line("Answer Distribution Charts", 'Helvetica-Bold', 13, extra_gap=0.1 * inch)
+        MAX_PIE_CHARTS = 6
+        charts_rendered = 0
+        for idx, q in enumerate(pie_questions, start=1):
+            labels = []
+            values = []
+            for label, details in q['answer_breakdown'].items():
+                count = details.get('count') or 0
+                if count > 0:
+                    labels.append(label)
+                    values.append(count)
+            if not values:
+                continue
+            title_text = f"Q{idx}: {q['question_text']}"
+            if len(title_text) > 90:
+                title_text = title_text[:87] + '...'
+            draw_pie_chart(title_text, labels, values)
+            charts_rendered += 1
+            if charts_rendered >= MAX_PIE_CHARTS:
+                break
+        remaining = len(pie_questions) - charts_rendered
+        if remaining > 0:
+            write_line(f"(+{remaining} additional charts not shown due to space)", 'Helvetica-Oblique', 9)
 
     pdf.showPage()
     pdf.save()
