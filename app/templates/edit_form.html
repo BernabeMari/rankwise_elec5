@@ -67,6 +67,15 @@
         z-index: 1000;
     }
     
+    .ai-modal.generating {
+        cursor: not-allowed;
+    }
+    
+    .ai-modal.generating .ai-close {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+    
     .ai-modal-content {
         position: relative;
         background: white;
@@ -75,6 +84,8 @@
         border-radius: 12px;
         width: 80%;
         max-width: 600px;
+        max-height: 85vh;
+        overflow-y: auto;
         box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
         animation: modalFadeIn 0.3s ease;
     }
@@ -995,6 +1006,10 @@
         
         // Close modal
         closeBtn.onclick = function() {
+            // Prevent closing if currently generating questions
+            if (aiLoading.style.display === 'flex') {
+                return;
+            }
             aiModal.style.display = 'none';
             document.body.style.overflow = 'auto';
         }
@@ -1002,6 +1017,10 @@
         // Close modal when clicking outside
         window.onclick = function(event) {
             if (event.target == aiModal) {
+                // Prevent closing if currently generating questions
+                if (aiLoading.style.display === 'flex') {
+                    return;
+                }
                 aiModal.style.display = 'none';
                 document.body.style.overflow = 'auto';
             }
@@ -1087,6 +1106,8 @@
             aiLoading.style.display = 'flex';
             aiAddSelectedBtn.style.display = 'none';
             aiAddQuestionBtn.style.display = 'inline-block';
+            // Add generating class to prevent closing
+            aiModal.classList.add('generating');
             
             try {
                 // Calculate total questions to generate
@@ -1148,6 +1169,8 @@
                 // Display the result
                 aiLoading.style.display = 'none';
                 aiResult.style.display = 'block';
+                // Remove generating class to allow closing
+                aiModal.classList.remove('generating');
                 
                 // Store the data for later use
                 aiResult.dataset.questionData = unique.length === 1 ? JSON.stringify(unique[0]) : '';
@@ -1279,6 +1302,8 @@
             } catch (error) {
                 aiLoading.style.display = 'none';
                 aiInputForm.style.display = 'block';
+                // Remove generating class to allow closing
+                aiModal.classList.remove('generating');
                 const errorContainer = document.querySelector('.ai-error-container');
                 errorContainer.innerHTML = `
                     <div class="ai-error">
