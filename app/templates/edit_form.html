@@ -288,7 +288,6 @@
         <p class="text-muted">{{ form.description or "No description" }}</p>
     </div>
     <div class="col-md-4 text-end">
-      
         <a href="{{ url_for('main.view_form', form_id=form.id) }}" class="btn btn-success">
             <i class="bi bi-eye"></i> Preview Form
         </a>
@@ -1114,6 +1113,10 @@
                             try {
                                 const categoryPrompt = `${category} (${i + 1})`;
                                 const result = await generateQuestionFromDatasets(categoryPrompt, typeValue);
+                                // Automatically set the category for the generated question
+                                if (result) {
+                                    result.category = category;
+                                }
                                 results.push({ status: 'fulfilled', value: result });
                             } catch (error) {
                                 results.push({ status: 'rejected', reason: error });
@@ -1158,6 +1161,10 @@
                         <div class="ai-question-card">
                             <h4>${data.text}</h4>
                     `;
+                    // Display category if set
+                    if (data.category) {
+                        previewHtml += `<p><strong>Category:</strong> <span class="badge bg-secondary"><i class="bi bi-tag"></i> ${data.category}</span></p>`;
+                    }
                     if (data.question_type === 'multiple_choice' && data.options) {
                         previewHtml += '<ul class="ai-options-list">';
                         data.options.forEach(function(option) {
@@ -1230,6 +1237,7 @@
                                     <input class="form-check-input" type="checkbox" value="${idx}" id="qsel_${idx}" checked>
                                     <label class="form-check-label" for="qsel_${idx}"><strong>${q.text}</strong></label>
                                 </div>
+                                ${q.category ? `<p><strong>Category:</strong> <span class="badge bg-secondary"><i class="bi bi-tag"></i> ${q.category}</span></p>` : ''}
                                 ${q.question_type === 'multiple_choice' && q.options ? `
                                     <ul class="ai-options-list">
                                         ${q.options.map(o => `<li class=\"ai-option-item ${o===q.correct_answer ? 'correct' : ''}\">${o}${o===q.correct_answer ? '<span class=\"badge bg-success float-end\">Correct</span>' : ''}</li>`).join('')}
