@@ -110,7 +110,6 @@ Digital Electronics,What device stores one bit of information?,Flip-Flop
 Digital Electronics,What logic gate outputs 1 when inputs are different?,XOR Gate
 Digital Electronics,What is a combination of logic gates called?,Logic Circuit
 Digital Electronics,What converts analog signals to digital?,ADC (Analog-to-Digital Converter)
-Digital Electronics,What converts digital signals to analog?,DAC (Digital-to-Analog Converter)
 Digital Electronics,What is a circuit whose output depends only on current inputs?,Combinational Circuit
 Digital Electronics,What is a circuit that uses memory elements?,Sequential Circuit
 Digital Electronics,What device selects one of many input signals?,Multiplexer
@@ -311,7 +310,6 @@ Digital Electronics,What device stores one bit of information?,Flip-Flop
 Digital Electronics,What logic gate outputs 1 when inputs are different?,XOR Gate
 Digital Electronics,What is a combination of logic gates called?,Logic Circuit
 Digital Electronics,What converts analog signals to digital?,ADC (Analog-to-Digital Converter)
-Digital Electronics,What converts digital signals to analog?,DAC (Digital-to-Analog Converter)
 Digital Electronics,What is a circuit whose output depends only on current inputs?,Combinational Circuit
 Digital Electronics,What is a circuit that uses memory elements?,Sequential Circuit
 Digital Electronics,What device selects one of many input signals?,Multiplexer

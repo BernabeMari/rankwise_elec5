@@ -471,6 +471,9 @@ Generate a question that follows the patterns from the dataset examples but is u
         
         # Build context section
         context_section = "DATASET CONTEXT (examples from existing questions):\n\n"
+        context_section += "WARNING: These examples are for REFERENCE ONLY. You MUST create ORIGINAL questions.\n"
+        context_section += "DO NOT copy the problem statements, scenarios, or test cases below.\n"
+        context_section += "Use these ONLY to understand the format and style.\n\n"
         
         for i, example in enumerate(context_examples, 1):
             context_section += f"Example {i}:\n"
@@ -622,12 +625,18 @@ QUESTION TYPE: {question_type.upper()}
 INSTRUCTIONS:
 1. Generate {type_info['description']} that matches the user's request
 2. IMPORTANT: If the user request is about a specific topic (like "E-sports ML"), generate a question that is DIRECTLY related to that topic, not just a generic question
-3. Use the dataset examples as a STRICT template for:
-   - Question structure and format
-   - Difficulty level  
-   - Answer patterns
+3. Use the dataset examples ONLY as REFERENCE for:
+   - Question structure and format style
+   - Difficulty level guidance
+   - Answer pattern ideas
    - Topic categorization
-4. {chr(10).join(f"   - {instruction}" for instruction in type_info['specific_instructions'])}
+4. **CRITICAL**: DO NOT copy or directly reuse the dataset examples. You MUST create completely NEW and ORIGINAL questions that are different from the examples
+5. The dataset examples are for INSPIRATION ONLY - your question must have:
+   - Different problem scenario
+   - Different context and variables
+   - Different test cases
+   - Original wording and phrasing
+6. {chr(10).join(f"   - {instruction}" for instruction in type_info['specific_instructions'])}
 
 REQUIRED OUTPUT FORMAT (JSON):
 {type_info['format']}
