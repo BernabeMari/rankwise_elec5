@@ -241,13 +241,12 @@ class CodeEvaluator:
             
             return {
                 'problem_id': row['problem_id'],
-                'topic': row['topic'],
                 'language': row['language'],
                 'problem_statement': row['problem_statement'],
                 'unit_tests': row['unit_tests'],
-                'expected_outputs': row['expected_outputs'],
-                'scoring_criteria': row['scoring_criteria'],
-                'max_score': int(row['max_score'])
+                'expected_outputs': '',  # Column removed from CSV
+                'scoring_criteria': 'Auto-graded by unit tests',  # Default value
+                'max_score': 100  # Default value
             }
             
         except Exception as e:

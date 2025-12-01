@@ -241,17 +241,11 @@ def add_question(form_id):
                     next_id = 1
                 # Prepare row
                 lang = request.form.get('coding_language') or 'Python'
-                hints = request.form.get('hints') or ''
                 new_row = {
                     'problem_id': int(next_id),
-                    'topic': 'Algorithms',
                     'language': lang,
                     'problem_statement': question_text,
                     'unit_tests': unit_tests,
-                    'expected_outputs': '',
-                    'scoring_criteria': 'Auto-graded by unit tests',
-                    'max_score': 100,
-                    'hints': hints,
                 }
                 print(f"DEBUG: New row = {new_row}")
                 # Append
@@ -804,17 +798,15 @@ def generate_question_from_datasets(prompt, question_type):
                     else:
                         selected_problem = dfcode.sample(n=1).iloc[0]
                     
-                    # Create sample code with hints
-                    hints = selected_problem.get('hints', '')
-                    sample_code = f"# Hints: {hints}\n# Write your code below:" if hints else "# Write your code below:"
+                    # Create sample code
+                    sample_code = "# Write your code below:"
                     
                     return {
                         'text': selected_problem['problem_statement'],
                         'question_type': 'coding',
                         'sample_code': sample_code,
                         'expected_output': selected_problem['unit_tests'],  # Include unit tests
-                        'language': selected_problem['language'],
-                        'topic': selected_problem['topic']
+                        'language': selected_problem['language']
                     }
             target_cols = {'problem_statement', 'language', 'sample_code'}
             candidates = []
@@ -995,7 +987,18 @@ def execute_python_code(code, user_inputs=[]):
             all_defined = defined_names | param_names
             undefined_vars = used_names - all_defined
             # Remove built-in Python functions
-            builtins = {'print', 'input', 'int', 'str', 'float', 'bool', 'len', 'range', 'list', 'dict', 'set', 'tuple', 'abs', 'max', 'min', 'sum', 'sorted', 'reversed', 'enumerate', 'zip', 'open', 'type', 'isinstance', 'hasattr', 'getattr', 'setattr', 'delattr', 'all', 'any', 'iter', 'next', 'filter', 'map', 'reduce'}
+            builtins = {
+    'print', 'input', 'int', 'str', 'float', 'bool', 'len', 'range', 'list',
+    'dict', 'set', 'tuple', 'abs', 'max', 'min', 'sum', 'sorted', 'reversed',
+    'enumerate', 'zip', 'open', 'type', 'isinstance', 'hasattr', 'getattr',
+    'setattr', 'delattr', 'all', 'any', 'iter', 'next', 'filter', 'map', 'reduce',
+
+    # Add built-in Python exceptions
+    'Exception', 'BaseException', 'ValueError', 'TypeError', 'NameError',
+    'ZeroDivisionError', 'KeyError', 'IndexError', 'AttributeError',
+    'ImportError', 'RuntimeError', 'StopIteration', 'EOFError'
+}
+
             undefined_vars = undefined_vars - builtins
             
             # Look for common typos (similar variable names)
@@ -2481,6 +2484,22 @@ def _get_form_analytics_data(form_id):
                 'response_id': response.id
             })
 
+    # Resolve student names for all category rows
+    try:
+        all_students = get_all_students()
+        student_id_to_name = {s.student_id: s.fullname for s in all_students if s.student_id and s.fullname}
+    except Exception:
+        student_id_to_name = {}
+    
+    # Add student_name to each row
+    for cat in categories_order:
+        for row in category_student_rows[cat]:
+            student_id = row.get('submitted_by')
+            if student_id and student_id in student_id_to_name:
+                row['student_name'] = student_id_to_name[student_id]
+            else:
+                row['student_name'] = student_id or 'Unknown'
+
     # Sort each category by percentage desc
     for cat in categories_order:
         category_student_rows[cat].sort(key=lambda r: r['percentage'], reverse=True)
@@ -2739,13 +2758,15 @@ def generate_ai_question_standalone():
             'scoring_criteria': question_data.get('scoring_criteria', ''),
             'max_score': question_data.get('max_score', 100),
             'hints': question_data.get('hints', ''),
-            'topic': question_data.get('topic', ''),
             'language': question_data.get('language', language),
             'question_type': question_data.get('question_type', question_type),
             'options': question_data.get('options', []),
             'correct_answer': question_data.get('correct_answer', ''),
             'explanation': question_data.get('explanation', '')
         }
+        # Only include topic for non-coding question types
+        if question_type != 'coding':
+            frontend_data['topic'] = question_data.get('topic', '')
         
         # Return the generated question data
         return jsonify(frontend_data)
