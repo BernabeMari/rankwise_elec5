@@ -503,3 +503,412 @@ False
 False
 False","Validates email correctly: 70 points
 Handles invalid formats: 30 points","100","Function name: is_valid_email. Parameter: email (str). Return: bool (True if valid email)."
+"52","Conditionals","C","Write a C function that checks if a number is even or odd. Return 1 for even, 0 for odd.","#include <assert.h>
+int main() {
+    assert(isEven(2) == 1);
+    assert(isEven(3) == 0);
+    assert(isEven(0) == 1);
+    assert(isEven(-4) == 1);
+    assert(isEven(-7) == 0);
+    return 0;
+}","1
+0
+1
+1
+0","Correctly identifies even numbers: 40 points
+Correctly identifies odd numbers: 40 points
+Handles zero and negatives: 20 points","100","Function name: isEven. Parameter: int num. Return: int (1 for even, 0 for odd)."
+"53","Conditionals","C","Write a C function that returns the maximum of two integers","#include <assert.h>
+int main() {
+    assert(maxTwo(3, 7) == 7);
+    assert(maxTwo(10, 5) == 10);
+    assert(maxTwo(-1, -3) == -1);
+    assert(maxTwo(5, 5) == 5);
+    assert(maxTwo(0, -5) == 0);
+    return 0;
+}","7
+10
+-1
+5
+0","Handles greater number correctly: 50 points
+Handles negative numbers: 30 points
+Handles equality: 20 points","100","Function name: maxTwo. Parameters: int a, int b. Return: int (larger number)."
+"54","Loops","C","Write a C function that calculates the factorial of a non-negative integer","#include <assert.h>
+int main() {
+    assert(factorial(5) == 120);
+    assert(factorial(0) == 1);
+    assert(factorial(1) == 1);
+    assert(factorial(3) == 6);
+    assert(factorial(4) == 24);
+    return 0;
+}","120
+1
+1
+6
+24","Correctly computes factorial: 60 points
+Handles 0 and 1: 40 points","100","Function name: factorial. Parameter: int n. Return: int (factorial of n)."
+"55","Loops","C","Write a C function that counts the number of even numbers in an integer array","#include <assert.h>
+int main() {
+    int arr1[] = {1, 2, 3, 4};
+    int arr2[] = {1, 3, 5};
+    int arr3[] = {};
+    assert(countEven(arr1, 4) == 2);
+    assert(countEven(arr2, 3) == 0);
+    assert(countEven(arr3, 0) == 0);
+    return 0;
+}","2
+0
+0","Correctly counts evens: 50 points
+Handles empty array: 30 points
+Handles all odd: 20 points","100","Function name: countEven. Parameters: int arr[], int size. Return: int (count of even numbers)."
+"56","Algorithms","C","Write a C function that checks if a number is prime","#include <assert.h>
+int main() {
+    assert(isPrime(2) == 1);
+    assert(isPrime(17) == 1);
+    assert(isPrime(4) == 0);
+    assert(isPrime(1) == 0);
+    assert(isPrime(0) == 0);
+    return 0;
+}","1
+1
+0
+0
+0","Correct primality test: 70 points
+Handles edge cases: 30 points","100","Function name: isPrime. Parameter: int num. Return: int (1 if prime, 0 if not)."
+"57","Conditionals","C++","Write a C++ function that checks if a number is even or odd. Return true for even, false for odd.","#include <cassert>
+int main() {
+    assert(isEven(2) == true);
+    assert(isEven(3) == false);
+    assert(isEven(0) == true);
+    assert(isEven(-4) == true);
+    assert(isEven(-7) == false);
+    return 0;
+}","true
+false
+true
+true
+false","Correctly identifies even numbers: 40 points
+Correctly identifies odd numbers: 40 points
+Handles zero and negatives: 20 points","100","Function name: isEven. Parameter: int num. Return: bool (true for even, false for odd)."
+"58","Conditionals","C++","Write a C++ function that returns the maximum of three integers","#include <cassert>
+int main() {
+    assert(maxThree(3, 7, 5) == 7);
+    assert(maxThree(10, 5, 15) == 15);
+    assert(maxThree(-1, -3, -2) == -1);
+    assert(maxThree(5, 5, 5) == 5);
+    assert(maxThree(1, 2, 3) == 3);
+    return 0;
+}","7
+15
+-1
+5
+3","Correctly identifies largest: 50 points
+Handles negative numbers: 30 points
+Handles equal values: 20 points","100","Function name: maxThree. Parameters: int a, int b, int c. Return: int (largest number)."
+"59","Loops","C++","Write a C++ function that calculates the sum of numbers from 1 to n","#include <cassert>
+int main() {
+    assert(sumToN(5) == 15);
+    assert(sumToN(1) == 1);
+    assert(sumToN(0) == 0);
+    assert(sumToN(10) == 55);
+    assert(sumToN(3) == 6);
+    return 0;
+}","15
+1
+0
+55
+6","Correct loop implementation: 50 points
+Handles 0: 30 points
+Handles small numbers: 20 points","100","Function name: sumToN. Parameter: int n. Return: int (sum from 1 to n)."
+"60","Loops","C++","Write a C++ function that finds the minimum element in a vector of integers","#include <cassert>
+#include <vector>
+int main() {
+    std::vector<int> v1 = {3, 1, 2};
+    std::vector<int> v2 = {-5, -2, -9};
+    std::vector<int> v3 = {7};
+    assert(findMin(v1) == 1);
+    assert(findMin(v2) == -9);
+    assert(findMin(v3) == 7);
+    return 0;
+}","1
+-9
+7","Correct minimum logic: 60 points
+Handles negatives and single element: 40 points","100","Function name: findMin. Parameter: std::vector<int> v. Return: int (smallest number)."
+"61","Algorithms","C++","Write a C++ function that checks if a string is a palindrome","#include <cassert>
+#include <string>
+int main() {
+    assert(isPalindrome(""racecar"") == true);
+    assert(isPalindrome(""hello"") == false);
+    assert(isPalindrome("""") == true);
+    assert(isPalindrome(""a"") == true);
+    return 0;
+}","true
+false
+true
+true","Correct palindrome logic: 60 points
+Handles edge cases: 40 points","100","Function name: isPalindrome. Parameter: std::string text. Return: bool (true if palindrome)."
+"62","Conditionals","Java","Write a Java method that checks if a number is even or odd. Return true for even, false for odd.","public static void main(String[] args) {
+    assert isEven(2) == true;
+    assert isEven(3) == false;
+    assert isEven(0) == true;
+    assert isEven(-4) == true;
+    assert isEven(-7) == false;
+}","true
+false
+true
+true
+false","Correctly identifies even numbers: 40 points
+Correctly identifies odd numbers: 40 points
+Handles zero and negatives: 20 points","100","Method name: isEven. Parameter: int num. Return: boolean (true for even, false for odd)."
+"63","Conditionals","Java","Write a Java method that returns the maximum of two integers","public static void main(String[] args) {
+    assert maxTwo(3, 7) == 7;
+    assert maxTwo(10, 5) == 10;
+    assert maxTwo(-1, -3) == -1;
+    assert maxTwo(5, 5) == 5;
+    assert maxTwo(0, -5) == 0;
+}","7
+10
+-1
+5
+0","Handles greater number correctly: 50 points
+Handles negative numbers: 30 points
+Handles equality: 20 points","100","Method name: maxTwo. Parameters: int a, int b. Return: int (larger number)."
+"64","Loops","Java","Write a Java method that calculates the factorial of a non-negative integer","public static void main(String[] args) {
+    assert factorial(5) == 120;
+    assert factorial(0) == 1;
+    assert factorial(1) == 1;
+    assert factorial(3) == 6;
+    assert factorial(4) == 24;
+}","120
+1
+1
+6
+24","Correctly computes factorial: 60 points
+Handles 0 and 1: 40 points","100","Method name: factorial. Parameter: int n. Return: int (factorial of n)."
+"65","Loops","Java","Write a Java method that counts the number of even numbers in an integer array","public static void main(String[] args) {
+    int[] arr1 = new int[]{1, 2, 3, 4};
+    int[] arr2 = new int[]{1, 3, 5};
+    int[] arr3 = new int[]{};
+    assert countEven(arr1) == 2;
+    assert countEven(arr2) == 0;
+    assert countEven(arr3) == 0;
+}","2
+0
+0","Correctly counts evens: 50 points
+Handles empty array: 30 points
+Handles all odd: 20 points","100","Method name: countEven. Parameter: int[] arr. Return: int (count of even numbers)."
+"66","Algorithms","Java","Write a Java method that checks if a number is prime","public static void main(String[] args) {
+    assert isPrime(2) == true;
+    assert isPrime(17) == true;
+    assert isPrime(4) == false;
+    assert isPrime(1) == false;
+    assert isPrime(0) == false;
+}","true
+true
+false
+false
+false","Correct primality test: 70 points
+Handles edge cases: 30 points","100","Method name: isPrime. Parameter: int num. Return: boolean (true if prime)."
+"67","Conditionals","C#","Write a C# method that checks if a number is even or odd. Return true for even, false for odd.","assert IsEven(2) == true;
+assert IsEven(3) == false;
+assert IsEven(0) == true;
+assert IsEven(-4) == true;
+assert IsEven(-7) == false;","true
+false
+true
+true
+false","Correctly identifies even numbers: 40 points
+Correctly identifies odd numbers: 40 points
+Handles zero and negatives: 20 points","100","Method name: IsEven. Parameter: int num. Return: bool (true for even, false for odd)."
+"68","Conditionals","C#","Write a C# method that returns the maximum of two integers","assert MaxTwo(3, 7) == 7;
+assert MaxTwo(10, 5) == 10;
+assert MaxTwo(-1, -3) == -1;
+assert MaxTwo(5, 5) == 5;
+assert MaxTwo(0, -5) == 0;","7
+10
+-1
+5
+0","Handles greater number correctly: 50 points
+Handles negative numbers: 30 points
+Handles equality: 20 points","100","Method name: MaxTwo. Parameters: int a, int b. Return: int (larger number)."
+"69","Loops","C#","Write a C# method that calculates the factorial of a non-negative integer","assert Factorial(5) == 120;
+assert Factorial(0) == 1;
+assert Factorial(1) == 1;
+assert Factorial(3) == 6;
+assert Factorial(4) == 24;","120
+1
+1
+6
+24","Correctly computes factorial: 60 points
+Handles 0 and 1: 40 points","100","Method name: Factorial. Parameter: int n. Return: int (factorial of n)."
+"70","Loops","C#","Write a C# method that counts the number of even numbers in an integer array","assert CountEven(new int[] {1, 2, 3, 4}) == 2;
+assert CountEven(new int[] {1, 3, 5}) == 0;
+assert CountEven(new int[] {}) == 0;","2
+0
+0","Correctly counts evens: 50 points
+Handles empty array: 30 points
+Handles all odd: 20 points","100","Method name: CountEven. Parameter: int[] arr. Return: int (count of even numbers)."
+"71","Algorithms","C#","Write a C# method that checks if a number is prime","assert IsPrime(2) == true;
+assert IsPrime(17) == true;
+assert IsPrime(4) == false;
+assert IsPrime(1) == false;
+assert IsPrime(0) == false;","true
+true
+false
+false
+false","Correct primality test: 70 points
+Handles edge cases: 30 points","100","Method name: IsPrime. Parameter: int num. Return: bool (true if prime)."
+"72","Control Structures","C","Write a C function that determines the grade based on score (A: 90+, B: 80-89, C: 70-79, D: 60-69, F: <60)","#include <assert.h>
+#include <string.h>
+int main() {
+    assert(strcmp(getGrade(95), ""A"") == 0);
+    assert(strcmp(getGrade(85), ""B"") == 0);
+    assert(strcmp(getGrade(75), ""C"") == 0);
+    assert(strcmp(getGrade(65), ""D"") == 0);
+    assert(strcmp(getGrade(55), ""F"") == 0);
+    return 0;
+}","A
+B
+C
+D
+F","Correct grade logic: 50 points
+Handles all grade ranges: 30 points
+Edge cases: 20 points","100","Function name: getGrade. Parameter: int score. Return: char* (grade letter)."
+"73","Loops","C","Write a C function that reverses a string in place","#include <assert.h>
+#include <string.h>
+int main() {
+    char str1[] = ""abc"";
+    char str2[] = ""a"";
+    char str3[] = """"";
+    reverseString(str1);
+    reverseString(str2);
+    reverseString(str3);
+    assert(strcmp(str1, ""cba"") == 0);
+    assert(strcmp(str2, ""a"") == 0);
+    assert(strcmp(str3, """"") == 0);
+    return 0;
+}","cba
+a
+","Correct reversal: 60 points
+Handles empty and single character: 40 points","100","Function name: reverseString. Parameter: char* str. Return: void (modifies string in place)."
+"74","Algorithms","C","Write a C function that returns the GCD (Greatest Common Divisor) of two numbers","#include <assert.h>
+int main() {
+    assert(gcd(12, 18) == 6);
+    assert(gcd(7, 13) == 1);
+    assert(gcd(100, 50) == 50);
+    assert(gcd(0, 5) == 5);
+    assert(gcd(15, 25) == 5);
+    return 0;
+}","6
+1
+50
+5
+5","Correct GCD logic: 70 points
+Handles edge cases: 30 points","100","Function name: gcd. Parameters: int a, int b. Return: int (greatest common divisor)."
+"75","Control Structures","C++","Write a C++ function that determines the grade based on score using if-else statements","#include <cassert>
+#include <string>
+int main() {
+    assert(getGrade(95) == ""A"");
+    assert(getGrade(85) == ""B"");
+    assert(getGrade(75) == ""C"");
+    assert(getGrade(65) == ""D"");
+    assert(getGrade(55) == ""F"");
+    return 0;
+}","A
+B
+C
+D
+F","Correct grade logic: 50 points
+Handles all grade ranges: 30 points
+Edge cases: 20 points","100","Function name: getGrade. Parameter: int score. Return: std::string (grade letter)."
+"76","Loops","C++","Write a C++ function that reverses a string and returns the result","#include <cassert>
+#include <string>
+int main() {
+    assert(reverseString(""abc"") == ""cba"");
+    assert(reverseString(""a"") == ""a"");
+    assert(reverseString(""""") == """"");
+    assert(reverseString(""hello"") == ""olleh"");
+    return 0;
+}","cba
+a
+
+olleh","Correct reversal: 60 points
+Handles empty and single character: 40 points","100","Function name: reverseString. Parameter: std::string text. Return: std::string (reversed string)."
+"77","Algorithms","C++","Write a C++ function that returns the nth Fibonacci number","#include <cassert>
+int main() {
+    assert(fibonacci(0) == 0);
+    assert(fibonacci(1) == 1);
+    assert(fibonacci(5) == 5);
+    assert(fibonacci(10) == 55);
+    assert(fibonacci(7) == 13);
+    return 0;
+}","0
+1
+5
+55
+13","Correct Fibonacci logic: 60 points
+Handles base cases: 40 points","100","Function name: fibonacci. Parameter: int n. Return: int (nth Fibonacci number)."
+"78","Control Structures","Java","Write a Java method that determines the grade based on score using if-else statements","public static void main(String[] args) {
+    assert getGrade(95).equals(""A"");
+    assert getGrade(85).equals(""B"");
+    assert getGrade(75).equals(""C"");
+    assert getGrade(65).equals(""D"");
+    assert getGrade(55).equals(""F"");
+}","A
+B
+C
+D
+F","Correct grade logic: 50 points
+Handles all grade ranges: 30 points
+Edge cases: 20 points","100","Method name: getGrade. Parameter: int score. Return: String (grade letter)."
+"79","Loops","Java","Write a Java method that reverses a string and returns the result","public static void main(String[] args) {
+    assert reverseString(""abc"").equals(""cba"");
+    assert reverseString(""a"").equals(""a"");
+    assert reverseString("""").equals(""""");
+    assert reverseString(""hello"").equals(""olleh"");
+}","cba
+a
+
+olleh","Correct reversal: 60 points
+Handles empty and single character: 40 points","100","Method name: reverseString. Parameter: String text. Return: String (reversed string)."
+"80","Algorithms","Java","Write a Java method that returns the nth Fibonacci number","public static void main(String[] args) {
+    assert fibonacci(0) == 0;
+    assert fibonacci(1) == 1;
+    assert fibonacci(5) == 5;
+    assert fibonacci(10) == 55;
+    assert fibonacci(7) == 13;
+}","0
+1
+5
+55
+13","Correct Fibonacci logic: 60 points
+Handles base cases: 40 points","100","Method name: fibonacci. Parameter: int n. Return: int (nth Fibonacci number)."
+"81","Control Structures","C#","Write a C# method that determines the grade based on score using if-else statements","assert GetGrade(95) == ""A"";
+assert GetGrade(85) == ""B"";
+assert GetGrade(75) == ""C"";
+assert GetGrade(65) == ""D"";
+assert GetGrade(55) == ""F"";","A
+B
+C
+D
+F","Correct grade logic: 50 points
+Handles all grade ranges: 30 points
+Edge cases: 20 points","100","Method name: GetGrade. Parameter: int score. Return: string (grade letter)."
+"82","Loops","C#","Write a C# method that reverses a string and returns the result","assert ReverseString(""abc"") == ""cba"";
+assert ReverseString(""a"") == ""a"";
+assert ReverseString(""""") == """"";
+assert ReverseString(""hello"") == ""olleh"";","cba
+a
+
+olleh","Correct reversal: 60 points
+Handles empty and single character: 40 points","100","Method name: ReverseString. Parameter: string text. Return: string (reversed string)."
+"83","Algorithms","C#","Write a C# method that returns the nth Fibonacci number","assert Fibonacci(0) == 0;
+assert Fibonacci(1) == 1;
+assert Fibonacci(5) == 5;
+assert Fibonacci(10) == 55;
+assert Fibonacci(7) == 13;","0
+1
+5
+55
+13","Correct Fibonacci logic: 60 points
+Handles base cases: 40 points","100","Method name: Fibonacci. Parameter: int n. Return: int (nth Fibonacci number)."

@@ -474,24 +474,32 @@ Generate a question that follows the patterns from the dataset examples but is u
         
         for i, example in enumerate(context_examples, 1):
             context_section += f"Example {i}:\n"
-            context_section += f"Topic: {example['topic']}\n"
-            context_section += f"Language: {example['language']}\n"
-            context_section += f"Problem: {example['problem_statement']}\n"
+            context_section += f"Topic: {example.get('topic', '')}\n"
+            context_section += f"Language: {example.get('language', '')}\n"
+            context_section += f"Problem: {str(example.get('problem_statement', ''))}\n"
             
             # Add options and correct answers for multiple choice and checkbox
             if 'options' in example and example['options']:
                 context_section += f"Options: {example['options']}\n"
             if 'correct_answer' in example and example['correct_answer']:
-                context_section += f"Correct Answer: {example['correct_answer']}\n"
+                context_section += f"Correct Answer: {str(example['correct_answer'])}\n"
             
-            if example['unit_tests']:
-                context_section += f"Unit Tests: {example['unit_tests'][:200]}...\n"
-            if example.get('expected_outputs'):
-                context_section += f"Expected Outputs: {example['expected_outputs'][:150]}...\n"
-            if example['hints']:
-                context_section += f"Hints: {example['hints']}\n"
-            context_section += f"Scoring: {example['scoring_criteria']}\n"
-            context_section += f"Max Score: {example['max_score']}\n\n"
+            # Safely convert to string before slicing to avoid 'bool' object is not subscriptable
+            unit_tests = example.get('unit_tests', '')
+            if unit_tests:
+                unit_tests_str = str(unit_tests)
+                context_section += f"Unit Tests: {unit_tests_str[:200]}...\n"
+            
+            expected_outputs = example.get('expected_outputs', '')
+            if expected_outputs:
+                expected_outputs_str = str(expected_outputs)
+                context_section += f"Expected Outputs: {expected_outputs_str[:150]}...\n"
+            
+            hints = example.get('hints', '')
+            if hints:
+                context_section += f"Hints: {str(hints)}\n"
+            context_section += f"Scoring: {str(example.get('scoring_criteria', ''))}\n"
+            context_section += f"Max Score: {example.get('max_score', 100)}\n\n"
         
         # Define question type specific instructions
         question_type_instructions = {
@@ -692,6 +700,11 @@ Generate a question that follows the EXACT patterns from the dataset examples an
     
     def _fix_correct_answer(self, question_data: Dict[str, Any], question_type: str) -> Dict[str, Any]:
         """Fix correct_answer if it's just a letter (e.g., 'B') and convert it to the actual option text"""
+        # Ensure question_data is a dictionary
+        if not isinstance(question_data, dict):
+            print(f"Warning: _fix_correct_answer received non-dict: {type(question_data)}")
+            return question_data if isinstance(question_data, dict) else {}
+        
         if question_type not in ['multiple_choice', 'checkbox', 'true_false']:
             return question_data
         
@@ -716,18 +729,29 @@ Generate a question that follows the EXACT patterns from the dataset examples an
                     else:
                         fixed_answers.append(str(ans))
                 question_data['correct_answer'] = fixed_answers
-        else:
-            # Handle single correct answer
-            if len(str(correct_answer).strip()) == 1 and str(correct_answer).strip().upper() in ['A', 'B', 'C', 'D', 'E', 'T', 'F']:
-                # It's a letter, convert to text
-                letter = str(correct_answer).strip().upper()
-                if question_type == 'true_false':
-                    if letter == 'T':
+        elif question_type == 'true_false':
+            # Handle boolean values (True/False) or string representations
+            if isinstance(correct_answer, bool):
+                question_data['correct_answer'] = 'True' if correct_answer else 'False'
+            elif isinstance(correct_answer, str):
+                correct_str = correct_answer.strip()
+                # Handle single letter 'T' or 'F'
+                if len(correct_str) == 1:
+                    if correct_str.upper() == 'T':
                         question_data['correct_answer'] = 'True'
-                    elif letter == 'F':
+                    elif correct_str.upper() == 'F':
                         question_data['correct_answer'] = 'False'
-                else:
-                    # For multiple choice, convert letter to option text
+                # Normalize to 'True' or 'False' if it's already close
+                elif correct_str.lower() in ['true', 't']:
+                    question_data['correct_answer'] = 'True'
+                elif correct_str.lower() in ['false', 'f']:
+                    question_data['correct_answer'] = 'False'
+        else:
+            # Handle single correct answer for multiple choice
+            if isinstance(correct_answer, str) and len(str(correct_answer).strip()) == 1:
+                letter = str(correct_answer).strip().upper()
+                if letter in ['A', 'B', 'C', 'D', 'E']:
+                    # Convert letter to option text
                     idx = ord(letter) - ord('A')
                     if 0 <= idx < len(options):
                         question_data['correct_answer'] = options[idx]
@@ -741,7 +765,24 @@ Generate a question that follows the EXACT patterns from the dataset examples an
         
         question_data['question_type'] = question_type
         
-        if question_type == 'checkbox':
+        if question_type == 'true_false':
+            # Ensure options are set correctly for true/false questions
+            if 'options' not in question_data or not question_data.get('options'):
+                question_data['options'] = ['True', 'False']
+            # Ensure correct_answer is 'True' or 'False' (string)
+            correct_answer = question_data.get('correct_answer', 'True')
+            if isinstance(correct_answer, bool):
+                question_data['correct_answer'] = 'True' if correct_answer else 'False'
+            elif isinstance(correct_answer, str):
+                correct_str = correct_answer.strip()
+                if correct_str.lower() in ['true', 't']:
+                    question_data['correct_answer'] = 'True'
+                elif correct_str.lower() in ['false', 'f']:
+                    question_data['correct_answer'] = 'False'
+                # If it's already 'True' or 'False', keep it
+                elif correct_str not in ['True', 'False']:
+                    question_data['correct_answer'] = 'True'  # Default
+        elif question_type == 'checkbox':
             options = question_data.get('options', [])
             # Convert dicts/strings into a clean list of option strings
             if isinstance(options, dict):
@@ -782,8 +823,27 @@ Generate a question that follows the EXACT patterns from the dataset examples an
 
     def _finalize_question_output(self, question_data: Dict[str, Any], question_type: str) -> Dict[str, Any]:
         """Apply all post-processing steps before returning AI output."""
-        question_data = self._fix_correct_answer(question_data, question_type)
-        return self._normalize_question_output(question_data, question_type)
+        try:
+            # Ensure question_data is a dictionary
+            if not isinstance(question_data, dict):
+                print(f"Error: _finalize_question_output received non-dict: {type(question_data)}, value: {question_data}")
+                # Try to convert to dict if possible
+                if isinstance(question_data, (str, int, float, bool)):
+                    return {'question_text': str(question_data), 'question_type': question_type}
+                return {}
+            
+            question_data = self._fix_correct_answer(question_data, question_type)
+            return self._normalize_question_output(question_data, question_type)
+        except Exception as e:
+            print(f"Error in _finalize_question_output: {e}")
+            print(f"question_data type: {type(question_data)}, value: {question_data}")
+            print(f"question_type: {question_type}")
+            import traceback
+            traceback.print_exc()
+            # Return a safe fallback
+            if isinstance(question_data, dict):
+                return question_data
+            return {'question_text': str(question_data) if question_data else 'Error generating question', 'question_type': question_type}
     
     def generate_question(self, prompt: str, language: str = None, question_type: str = 'coding') -> Dict[str, Any]:
         """Generate a question using LM Studio with dataset context, or fallback to datasets if LM Studio unavailable"""
@@ -796,7 +856,9 @@ Generate a question that follows the EXACT patterns from the dataset examples an
             if context_examples:
                 print(f"Found {len(context_examples)} relevant examples from datasets")
                 for i, example in enumerate(context_examples[:3], 1):
-                    print(f"  {i}. {example['topic']} - {example['problem_statement'][:50]}...")
+                    problem_stmt = str(example.get('problem_statement', ''))
+                    topic = str(example.get('topic', ''))
+                    print(f"  {i}. {topic} - {problem_stmt[:50]}...")
             else:
                 print("No relevant examples found in datasets")
             
@@ -844,8 +906,29 @@ Generate a question that follows the EXACT patterns from the dataset examples an
                     question_data = json.loads(ai_response)
                     print("Successfully generated question using LM Studio")
                     
+                    # Ensure question_data is a dictionary
+                    if not isinstance(question_data, dict):
+                        print(f"Warning: AI returned non-dict response: {type(question_data)}, value: {question_data}")
+                        raise ValueError(f"AI response is not a dictionary, got {type(question_data)}")
+                    
                     # Fix correct_answer if it's just a letter (convert to actual text)
-                    return self._finalize_question_output(question_data, question_type)
+                    try:
+                        return self._finalize_question_output(question_data, question_type)
+                    except Exception as e:
+                        print(f"Error in _finalize_question_output for true_false question: {e}")
+                        import traceback
+                        traceback.print_exc()
+                        # Try to fix the question_data manually before re-raising or falling back
+                        if question_type == 'true_false':
+                            # Ensure options and correct_answer are set correctly
+                            if 'options' not in question_data or not question_data.get('options'):
+                                question_data['options'] = ['True', 'False']
+                            correct_answer = question_data.get('correct_answer', 'True')
+                            if isinstance(correct_answer, bool):
+                                question_data['correct_answer'] = 'True' if correct_answer else 'False'
+                            elif not isinstance(correct_answer, str):
+                                question_data['correct_answer'] = str(correct_answer)
+                        raise
                 except json.JSONDecodeError as e:
                     print(f"Error parsing LM Studio response: {e}")
                     print("Response content:", ai_response[:200] + "..." if len(ai_response) > 200 else ai_response)
@@ -855,6 +938,11 @@ Generate a question that follows the EXACT patterns from the dataset examples an
                         try:
                             question_data = json.loads(json_match.group(0))
                             print("Successfully extracted JSON from LM Studio response")
+                            
+                            # Ensure question_data is a dictionary
+                            if not isinstance(question_data, dict):
+                                print(f"Warning: Extracted JSON is not a dict: {type(question_data)}")
+                                raise ValueError(f"Extracted JSON is not a dictionary, got {type(question_data)}")
                             
                             # Fix correct_answer if it's just a letter (convert to actual text)
                             return self._finalize_question_output(question_data, question_type)
@@ -871,7 +959,7 @@ Generate a question that follows the EXACT patterns from the dataset examples an
                     simple_prompt = f"""Generate a {question_type} question based on this request: "{prompt}"
 
 Use this example as a template:
-{context_examples[0]['problem_statement'] if context_examples else 'Write a Python function'}
+{str(context_examples[0].get('problem_statement', '')) if context_examples else 'Write a Python function'}
 
 Return JSON format based on question type: {question_type}"""
                     
@@ -880,6 +968,11 @@ Return JSON format based on question type: {question_type}"""
                         try:
                             question_data = json.loads(retry_response)
                             print("Successfully generated question using LM Studio (retry)")
+                            
+                            # Ensure question_data is a dictionary
+                            if not isinstance(question_data, dict):
+                                print(f"Warning: Retry response is not a dict: {type(question_data)}")
+                                raise ValueError(f"Retry response is not a dictionary, got {type(question_data)}")
                             
                             # Fix correct_answer if it's just a letter (convert to actual text)
                             return self._finalize_question_output(question_data, question_type)
