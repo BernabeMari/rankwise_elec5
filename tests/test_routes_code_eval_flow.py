@@ -29,3 +29,37 @@ def test_evaluate_code_with_custom_system_uses_custom_tests(monkeypatch):
     assert 'assert f(2) == 2' in captured['tests']
     # Language detection should default to python for this code
     assert captured['language'] == 'python'
+
+
+def test_detect_language_handles_c_without_includes():
+    import app.routes as routes_mod
+
+    code = """
+    int sumArray(int arr[], int size) {
+        int total = 0;
+        for (int i = 0; i < size; ++i) {
+            total += arr[i];
+        }
+        return total;
+    }
+    """
+    detected = routes_mod.detect_language_from_submission(code, "Implement in C")
+    assert detected == 'c'
+
+
+def test_detect_language_identifies_cpp_markers_without_include():
+    import app.routes as routes_mod
+
+    code = """
+    using namespace std;
+
+    int sumVector(vector<int>& values) {
+        int s = 0;
+        for (int v : values) {
+            s += v;
+        }
+        return s;
+    }
+    """
+    detected = routes_mod.detect_language_from_submission(code, "Write a C++ function")
+    assert detected == 'cpp'

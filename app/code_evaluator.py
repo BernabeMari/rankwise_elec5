@@ -273,6 +273,10 @@ class CodeEvaluator:
     def _evaluate_python(self, code: str, problem_data: Dict[str, Any]) -> Tuple[bool, int, str]:
         """Evaluate Python code using parsed unit tests with partial scoring and name aliasing"""
         try:
+            mismatch = self._detect_language_mismatch(code, 'python')
+            if mismatch:
+                return False, 0, mismatch
+            
             # Check if we have interactive inputs
             interactive_inputs = problem_data.get('interactive_inputs', '')
             
@@ -1242,6 +1246,18 @@ class CodeEvaluator:
     def _evaluate_java(self, code: str, problem_data: Dict[str, Any]) -> Tuple[bool, int, str]:
         """Evaluate Java code using unit tests"""
         try:
+            javac_cmd = self._resolve_java_tool('javac')
+            if not javac_cmd:
+                return False, 0, (
+                    "Java compiler (javac) not found. Install a JDK or set JAVA_HOME so the evaluator can compile tests."
+                )
+            
+            java_cmd = self._resolve_java_tool('java')
+            if not java_cmd:
+                return False, 0, (
+                    "Java runtime (java) not found. Install a JDK/JRE or set JAVA_HOME so the evaluator can run tests."
+                )
+            
             # Extract test logic from unit_tests (which is a complete program)
             unit_tests_text = problem_data['unit_tests'] or ''
             
@@ -1414,7 +1430,7 @@ class CodeEvaluator:
             # Compile and run
             try:
                 # Compile
-                compile_cmd = ['javac', java_file]
+                compile_cmd = [javac_cmd, java_file]
                 compile_result = subprocess.run(
                     compile_cmd,
                     capture_output=True,
@@ -1427,8 +1443,8 @@ class CodeEvaluator:
                 
                 if compile_result.returncode != 0 and ("preview feature" in preview_hint or "uses preview features" in preview_hint):
                     # Retry compilation with preview features enabled for the detected Java release
-                    java_release = self._get_java_release()
-                    compile_cmd = ['javac', '--enable-preview', '--release', java_release, java_file]
+                    java_release = self._get_java_release(java_cmd)
+                    compile_cmd = [javac_cmd, '--enable-preview', '--release', java_release, java_file]
                     compile_result = subprocess.run(
                         compile_cmd,
                         capture_output=True,
@@ -1441,7 +1457,7 @@ class CodeEvaluator:
                     return False, 0, f"Compilation error: {compile_result.stderr}"
                 
                 # Run the single class
-                run_cmd = ['java']
+                run_cmd = [java_cmd]
                 if used_preview:
                     run_cmd.append('--enable-preview')
                 run_cmd.extend(['-cp', os.path.dirname(java_file), class_name])
@@ -1490,6 +1506,10 @@ class CodeEvaluator:
     def _evaluate_javascript(self, code: str, problem_data: Dict[str, Any]) -> Tuple[bool, int, str]:
         """Evaluate JavaScript code using unit tests"""
         try:
+            mismatch = self._detect_language_mismatch(code, 'javascript')
+            if mismatch:
+                return False, 0, mismatch
+            
             # Create temporary files
             with tempfile.NamedTemporaryFile(mode='w', suffix='.js', delete=False) as f:
                 f.write(code + "\n\n")
@@ -1854,11 +1874,12 @@ class CodeEvaluator:
         candidates.sort(reverse=True)
         return candidates[0]
 
-    def _get_java_release(self) -> str:
+    def _get_java_release(self, java_cmd: Optional[str] = None) -> str:
         """Best-effort detection of the installed Java release for preview compilation"""
         try:
+            java_executable = java_cmd or self._resolve_java_tool('java') or 'java'
             result = subprocess.run(
-                ['java', '-version'],
+                [java_executable, '-version'],
                 capture_output=True,
                 text=True,
                 timeout=5
@@ -1875,6 +1896,85 @@ class CodeEvaluator:
             pass
         return '21'
 
+    def _detect_language_mismatch(self, code: str, expected_language: str) -> Optional[str]:
+        """Heuristically detect if the submission is written in another language."""
+        normalized = (expected_language or '').lower().strip()
+        snippet = (code or '').strip()
+        if not snippet or not normalized:
+            return None
+        
+        code_lower = snippet.lower()
+        c_like_markers = [
+            '#include', 'using namespace', 'public static void main',
+            'system.out.println', 'printf(', 'std::', 'cin >>', 'cout <<',
+            'template<', 'class ', 'struct ', 'enum '
+        ]
+        c_func_pattern = re.compile(r'^\s*(?:int|long|float|double|char|void)\s+[A-Za-z_]\w*\s*\(', re.MULTILINE)
+        
+        def found_markers(markers):
+            return [m for m in markers if m in code_lower]
+        
+        if normalized == 'python':
+            if found_markers(c_like_markers) or c_func_pattern.search(snippet):
+                return (
+                    "Submission looks like C/C++/Java code (e.g., uses types like 'int' or '#include') "
+                    "but the Python evaluator was selected. Please submit Python code or switch the language before running tests."
+                )
+        elif normalized == 'javascript':
+            js_blockers = c_like_markers + ['#define']
+            if found_markers(js_blockers) or c_func_pattern.search(snippet):
+                return (
+                    "Submission appears to be C/C++/Java code, not JavaScript. "
+                    "Choose the matching language or rewrite the solution in JavaScript before testing."
+                )
+        return None
+    
+    def _resolve_java_tool(self, tool_name: str) -> Optional[str]:
+        """Return the absolute path to a Java tool (javac/java) if available."""
+        if not tool_name:
+            return None
+        
+        direct = shutil.which(tool_name)
+        if direct:
+            return direct
+        
+        env_homes = [os.environ.get('JAVA_HOME'), os.environ.get('JDK_HOME')]
+        search_roots = [home for home in env_homes if home]
+        if os.name == 'nt':
+            search_roots.extend([
+                r"C:\Program Files\Java",
+                r"C:\Program Files (x86)\Java"
+            ])
+        exts = ['.exe', '.bat', '.cmd', ''] if os.name == 'nt' else ['']
+        
+        for root in search_roots:
+            if not root:
+                continue
+            candidate_dirs = []
+            if os.path.isdir(root):
+                candidate_dirs.append(root)
+                try:
+                    subdirs = sorted(
+                        (os.path.join(root, sub) for sub in os.listdir(root)),
+                        reverse=True
+                    )
+                    candidate_dirs.extend([d for d in subdirs if os.path.isdir(d)])
+                except Exception:
+                    pass
+            else:
+                candidate_dirs.append(os.path.dirname(root))
+            
+            for base in candidate_dirs:
+                bin_dir = os.path.join(base, 'bin')
+                probe_dirs = [bin_dir] if os.path.isdir(bin_dir) else []
+                probe_dirs.append(base)
+                for probe in probe_dirs:
+                    for ext in exts:
+                        candidate_path = os.path.join(probe, tool_name + ext)
+                        if os.path.exists(candidate_path):
+                            return candidate_path
+        return None
+    
 
 # Global evaluator instance
 code_evaluator = CodeEvaluator()

@@ -5,6 +5,7 @@ from app.models.users import login_required, admin_required, get_user, get_all_s
 from datetime import datetime
 from io import BytesIO
 import requests, time
+import re
 from rapidfuzz import fuzz
 import json
 import subprocess
@@ -2041,43 +2042,88 @@ def manual_mark_answer(answer_id):
 
     return redirect(url_for('main.view_response', response_id=answer.response_id))
 
+def detect_language_from_submission(code_answer: str, question_text: str = "") -> str:
+    """Best-effort language detection for coding submissions without relying on user input."""
+    snippet = (code_answer or "").strip()
+    question_hint = (question_text or "").lower()
+    if not snippet:
+        return "python"
+
+    lowered = snippet.lower()
+
+    def contains(*phrases):
+        return any(phrase in lowered for phrase in phrases if phrase)
+
+    def regex(pattern: str, flags: int = 0):
+        return re.search(pattern, snippet, flags | re.MULTILINE)
+
+    # Strong C++ signals
+    if contains('std::', 'using namespace std', 'cout <<', 'cin >>', 'vector<', '<vector>', 'template<'):
+        return "cpp"
+    if contains('#include'):
+        if contains('iostream', 'std::', 'using namespace std', 'vector<'):
+            return "cpp"
+        return "c"
+
+    # C# markers
+    if contains('using system', 'console.write', 'console.writeline', 'using xunit', '[fact]'):
+        return "c#"
+    if regex(r'\bnamespace\s+[A-Za-z0-9_.]+\s*\{', re.IGNORECASE) and 'class' in lowered:
+        return "c#"
+    if contains('public class') and 'console.' in lowered:
+        return "c#"
+
+    # Java markers
+    if contains('system.out.println', 'public static void main', 'import java.', '@test', 'package '):
+        return "java"
+    if regex(r'\bpublic\s+class\s+\w+', re.IGNORECASE) and contains('public static') and 'console.' not in lowered:
+        return "java"
+
+    # Bare C / C++ function definitions
+    c_like_match = regex(
+        r'^\s*(?:static\s+)?(?:inline\s+)?(?:int|long|float|double|char|short|void)\s+\*?\s*[A-Za-z_]\w*\s*\([^)]*\)\s*\{',
+        re.IGNORECASE
+    )
+    if c_like_match:
+        if contains('std::', 'using namespace std', 'vector<', 'cout', 'cin'):
+            return "cpp"
+        header = c_like_match.group(0).lower()
+        if 'public' in header and 'class' in lowered:
+            if 'console.' in lowered or 'using system' in lowered:
+                return "c#"
+            if 'system.out' in lowered or 'package ' in lowered:
+                return "java"
+        return "c"
+
+    # Python & JavaScript
+    if regex(r'^\s*def\s+\w+\s*\(', re.IGNORECASE):
+        return "python"
+    if regex(r'\bfunction\b', re.IGNORECASE) or contains('console.log', '=>'):
+        return "javascript"
+
+    # Fallback to question text hints
+    if "python" in question_hint:
+        return "python"
+    if "c++" in question_hint or "cpp" in question_hint:
+        return "cpp"
+    if "c#" in question_hint:
+        return "c#"
+    if " java" in question_hint or question_hint.startswith("java"):
+        return "java"
+    if " javascript" in question_hint or "js" in question_hint:
+        return "javascript"
+    if " c " in question_hint or question_hint.startswith("c "):
+        return "c"
+
+    return "python"
+
+
 def evaluate_code_with_custom_system(code_answer, question_text, question_unit_tests=None, interactive_inputs=None, expected_outputs=None):
     """Evaluate code using custom unit testing system and return (is_correct, score_percentage, explanation)."""
     try:
         from app.code_evaluator import code_evaluator
         
-        # Detect language from the actual code content
-        language = "python"  # Default language
-        code_lower = code_answer.lower().strip()
-        
-        # Language detection based on code patterns
-        if code_lower.startswith('#include') or 'int main(' in code_lower or 'printf(' in code_lower or 'scanf(' in code_lower:
-            if 'std::' in code_lower or 'using namespace std' in code_lower or 'cout' in code_lower or 'cin' in code_lower:
-                language = "cpp"
-            else:
-                language = "c"
-        elif code_lower.startswith('public class') or 'public static void main' in code_lower or 'system.out.println' in code_lower:
-            language = "java"
-        elif ('using system' in code_lower or 'namespace ' in code_lower or 'console.writeline' in code_lower or 
-              ('static void main(' in code_lower and 'console.' in code_lower)):
-            language = "c#"
-        elif code_lower.startswith('def ') or 'print(' in code_lower or 'import ' in code_lower:
-            language = "python"
-        elif 'function' in code_lower or 'console.log' in code_lower or 'var ' in code_lower:
-            language = "javascript"
-        else:
-            # Fallback: try to extract from question text
-            question_lower = question_text.lower()
-            if "python" in question_lower:
-                language = "python"
-            elif "c++" in question_lower or "cpp" in question_lower:
-                language = "cpp"
-            elif "c " in question_lower and "c++" not in question_lower:
-                language = "c"
-            elif "java" in question_lower:
-                language = "java"
-            elif "javascript" in question_lower or "js" in question_lower:
-                language = "javascript"
+        language = detect_language_from_submission(code_answer, question_text)
         
         # Check if we have custom unit tests from the question
         print(f"DEBUG: question_unit_tests = '{question_unit_tests}' (type: {type(question_unit_tests)})")
