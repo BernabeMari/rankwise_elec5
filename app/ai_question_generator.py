@@ -321,8 +321,11 @@ class AIQuestionGenerator:
             }
         elif 'multiple_choice' in filename:
             options = [row.get('A', ''), row.get('B', ''), row.get('C', ''), row.get('D', '')]
-            correct_letter = row.get('correct', 'A')
-            correct_idx = ord(correct_letter.upper()) - ord('A')
+            # Clean up the correct letter; some CSVs may contain things like " A" or "B ".
+            raw_correct = str(row.get('correct', 'A') or 'A')
+            raw_correct = raw_correct.strip()
+            letter = raw_correct[0].upper() if raw_correct else 'A'
+            correct_idx = ord(letter) - ord('A')
             correct_answer = options[correct_idx] if 0 <= correct_idx < len(options) else options[0]
             return {
                 'problem_id': '',
@@ -724,6 +727,7 @@ Generate a question that follows the EXACT patterns from the dataset examples an
     
     def generate_question(self, prompt: str, language: str = None, question_type: str = 'coding') -> Dict[str, Any]:
         """Generate a question using LM Studio with dataset context, or fallback to datasets if LM Studio unavailable"""
+        context_examples: List[Dict[str, Any]] = []
         try:
             # Search for relevant context from datasets based on question type
             print(f"Searching datasets for context related to: '{prompt}' (type: {question_type})")
@@ -746,6 +750,9 @@ Generate a question that follows the EXACT patterns from the dataset examples an
                 
         except Exception as e:
             print(f"Error in question generation: {e}")
+            # Ensure we have a safe default for context_examples even if the
+            # failure happened before they were populated.
+            context_examples = context_examples or []
             question_data = self._create_fallback_question(prompt, context_examples, language, question_type)
 
         # Post-process: for coding questions we do NOT want to send any sample
