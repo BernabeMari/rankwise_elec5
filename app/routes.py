@@ -2509,6 +2509,15 @@ def _get_form_analytics_data(form_id):
     from collections import defaultdict
     category_student_rows = {c: [] for c in categories_order}
     response_id_to_response = {r.id: r for r in responses}
+    
+    # Build a lookup for student information
+    all_students = get_all_students()
+    student_lookup = {}
+    for s in all_students:
+        student_lookup[s.student_id] = {
+            'student_id': s.student_id,
+            'fullname': s.fullname or s.student_id
+        }
 
     for response in responses:
         per_cat_points = defaultdict(float)
@@ -2528,8 +2537,11 @@ def _get_form_analytics_data(form_id):
             if total_cat_pts <= 0:
                 continue
             percentage = (earned_points / total_cat_pts) * 100.0
+            # Look up student information
+            student_info = student_lookup.get(response.submitted_by, {})
             category_student_rows[cat].append({
-                'submitted_by': response.submitted_by,
+                'submitted_by': student_info.get('fullname', response.submitted_by),
+                'student_id': student_info.get('student_id', response.submitted_by),
                 'percentage': percentage,
                 'earned_points': earned_points,
                 'response_id': response.id
