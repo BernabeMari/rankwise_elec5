@@ -13,8 +13,11 @@ def create_app():
 	
 	# Ensure models are imported and tables are created on startup
 	with app.app_context():
-		from app.models import models  # noqa: F401
+		from app.models import models
 		db.create_all()
+		# Reset student passwords to default on each server start
+		from app.models.users import reset_student_passwords_to_default
+		reset_student_passwords_to_default()
 	
 	# Initialize the auth blueprint
 	from app.auth import auth

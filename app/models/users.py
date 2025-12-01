@@ -22,6 +22,40 @@ def initialize_users_file():
             writer.writerow(['username', 'password_hash', 'role'])
             # Create default admin account
             writer.writerow(['admin', hash_password('admin'), 'admin'])
+
+def reset_student_passwords_to_default():
+    """Reset all student users' passwords to their default (student_id) value.
+    This should be invoked on server startup to invalidate any temporary verification codes.
+    """
+    if not os.path.exists(USERS_FILE):
+        initialize_users_file()
+        return
+
+    import csv
+    from tempfile import NamedTemporaryFile
+    import shutil
+
+    temp_file = NamedTemporaryFile(mode='w', delete=False, newline='')
+    try:
+        with open(USERS_FILE, 'r', newline='') as csv_file, temp_file:
+            reader = csv.DictReader(csv_file)
+            fieldnames = reader.fieldnames or ['username', 'password_hash', 'role']
+            writer = csv.DictWriter(temp_file, fieldnames=fieldnames)
+            writer.writeheader()
+
+            for row in reader:
+                # For student rows, reset password_hash to hash(username)
+                if row.get('role') == 'student' and row.get('username'):
+                    row['password_hash'] = hash_password(row['username'])
+                writer.writerow(row)
+
+        shutil.move(temp_file.name, USERS_FILE)
+    except Exception:
+        # Best-effort reset; on failure leave file unchanged
+        try:
+            os.unlink(temp_file.name)
+        except Exception:
+            pass
             
 # Ensure the students directory exists
 def initialize_students_dir():
@@ -205,6 +239,18 @@ def get_all_students():
         students.extend(section.students)
     
     return students
+
+def get_student_by_id(student_id):
+    """Return Student object for a given student ID, or None if not found."""
+    if not student_id:
+        return None
+    
+    sections = get_all_sections()
+    for section in sections:
+        for student in section.students:
+            if student.student_id == student_id:
+                return student
+    return None
 
 # Save a new section from uploaded Excel file
 def save_section_from_excel(section_name, excel_file):

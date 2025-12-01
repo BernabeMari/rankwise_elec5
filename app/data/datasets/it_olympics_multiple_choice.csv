@@ -1,0 +1,774 @@
+topic,question,A,B,C,D,correct
+Cybersecurity,Which protocol is used for secure web communication?,HTTP,FTP,HTTPS,SMTP,C
+Cybersecurity,What does a firewall primarily protect against?,Viruses,Unauthorized access,Data compression,Encryption,B
+Cybersecurity,Which type of malware demands payment to unlock files?,Spyware,Ransomware,Worm,Trojan,B
+Cybersecurity,What is the process of converting data into a code to prevent unauthorized access?,Encoding,Decoding,Encryption,Hashing,C
+Cybersecurity,What does VPN stand for?,Virtual Private Network,Verified Public Node,Virtual Personal Network,Variable Process Node,A
+Cybersecurity,Which of the following is an example of two-factor authentication?,Password only,Password and OTP,Username and password,Fingerprint only,B
+Cybersecurity,What is phishing primarily used for?,Spamming,Data theft,Encryption,Advertising,B
+Cybersecurity,Which organization is responsible for cybersecurity awareness?,WHO,CERT,UNESCO,NASA,B
+Cybersecurity,What is the strongest password?,123456,Password1,MyDog,RandomCharacters123!,D
+Cybersecurity,What does SSL stand for?,Secure Socket Layer,Simple Security Lock,Server Secure Link,Socket Secure Login,A
+Digital Electronics,What does IC stand for?,Internal Circuit,Integrated Circuit,Inverted Current,Input Control,B
+Digital Electronics,Which logic gate outputs true only when both inputs are true?,OR,AND,NOR,XOR,B
+Digital Electronics,What is the binary equivalent of decimal 5?,101,100,110,111,A
+Digital Electronics,Which component stores charge?,Resistor,Capacitor,Inductor,Transistor,B
+Digital Electronics,What is the base of the hexadecimal system?,10,12,16,8,C
+Digital Electronics,What device converts analog signals to digital?,ADC,DAC,OP-AMP,Transistor,A
+Digital Electronics,Which gate is known as the universal gate?,AND,NAND,OR,XOR,B
+Digital Electronics,Which flip-flop stores one bit of data?,D Flip-Flop,T Flip-Flop,JK Flip-Flop,RS Flip-Flop,A
+Linux Administration,Which command lists files in a directory?,ls,cat,cp,mv,A
+Linux Administration,Which command is used to change directories?,cd,ls,rm,cp,A
+Linux Administration,Which command deletes files?,del,remove,rm,erase,C
+Linux Administration,What symbol represents the home directory?,~,%,#,*,A
+Linux Administration,Which user has all system privileges?,root,sudo,admin,super,B
+Linux Administration,Which command shows current working directory?,where,locate,pwd,dir,C
+Linux Administration,Which command displays running processes?,run,show,ps,list,C
+Networking,Which device connects multiple networks together?,Switch,Router,Hub,Repeater,B
+Networking,Which topology connects all devices to a central hub?,Star,Bus,Ring,Mesh,A
+Networking,Which protocol is used to send emails?,POP3,SMTP,IMAP,HTTP,B
+Networking,Which IP version uses 128-bit addresses?,IPv4,IPv6,IPX,TCP,B
+Networking,Which layer in OSI model handles routing?,Transport,Network,Session,Physical,B
+Networking,Which device operates at the data link layer?,Hub,Switch,Router,Bridge,B
+Networking,Which protocol is used for file transfer?,FTP,HTTP,TCP,SMTP,A
+Robotics,What is used to sense the environment?,Actuator,Sensor,Battery,Motor,B
+Robotics,Which component moves parts of a robot?,Sensor,Actuator,Transistor,Relay,B
+Robotics,Which robot part processes input data?,Controller,Sensor,Actuator,Relay,A
+Robotics,What type of robot mimics human actions?,Drone,Android,Automaton,Servo,B
+Robotics,Which programming language is popular in robotics?,HTML,Python,PHP,Swift,B
+Robotics,What is the purpose of a servo motor?,Measure distance,Control movement,Process data,Store energy,B
+Robotics,Which robot uses wheels for motion?,Humanoid,Mobile,Arm,Industrial,B
+Android Apps Development (IoT),Which protocol is common in IoT?,HTTP,MQTT,SMTP,FTP,B
+Android Apps Development (IoT),Which is a microcontroller board for IoT?,Arduino,CPU,GPU,Monitor,A
+Android Apps Development (IoT),Which wireless tech is used in IoT?,Wi-Fi,NFC,Bluetooth,Zigbee,D
+Android Apps Development (IoT),What does IoT stand for?,Internet of Tasks,Internet of Things,Interface of Things,Internet of Technology,B
+Android Apps Development (IoT),Which cloud platform supports IoT?,Google Cloud,Android Studio,Photoshop,WordPress,A
+Android Apps Development (Productivity),Which language is mainly used in Android?,C#,Java,Python,C++,B
+Android Apps Development (Productivity),Which tool is used to design Android UI?,Figma,Android Studio,GitHub,Blender,B
+Android Apps Development (Productivity),What is APK?,Android Package,Application Key,Android Kit,App Kernel,A
+Android Apps Development (Game Development),Which engine is popular for Android games?,Unreal,Unity,Godot,CryEngine,B
+Android Apps Development (Game Development),Which file format stores Android resources?,.java,.xml,.apk,.dex,B
+Android Apps Development (Game Development),What library is used for 2D graphics?,OpenGL,Canvas,Render,Bitmap,B
+Database Programming,Which SQL command retrieves data?,INSERT,DELETE,SELECT,UPDATE,C
+Database Programming,Which command adds data?,INSERT,ADD,APPEND,INPUT,A
+Database Programming,Which command removes data?,DELETE,DROP,ERASE,REMOVE,A
+Database Programming,Which key uniquely identifies rows?,Primary,Foreign,Alternate,Composite,A
+Database Programming,Which SQL clause filters results?,GROUP BY,ORDER BY,WHERE,HAVING,C
+Database Programming,Which is a relational database?,MongoDB,MySQL,Neo4j,Redis,B
+Database Programming,Which symbol represents a wildcard?,%,*,#,?,A
+Java Programming,Which keyword is used for inheritance?,inherit,extends,super,base,B
+Java Programming,What is JVM?,Java Virtual Machine,Java Version Manager,Just Virtual Module,Java Value Manager,A
+Java Programming,Which method starts Java programs?,begin(),start(),main(),init(),C
+Java Programming,What does OOP stand for?,Object Oriented Programming,Online Open Program,Open Object Process,Overload Operation Program,A
+Java Programming,Which keyword creates objects?,this,new,super,alloc,B
+Java Programming,Which keyword prevents inheritance?,lock,final,private,const,B
+Java Programming,Which access specifier makes members visible to all?,public,private,protected,internal,A
+.NET Programming using C#,Which symbol denotes single-line comments?,//,#,%,--,A
+.NET Programming using C#,Which keyword defines a class?,define,class,new,object,B
+.NET Programming using C#,Which method is entry point?,run(),main(),Start(),Execute(),B
+.NET Programming using C#,What is the extension of C# files?,.c,.cpp,.java,.cs,D
+.NET Programming using C#,Which keyword is used for inheritance?,extends,base,inherit,:,A
+.NET Programming using C#,Which framework runs C# code?,JVM,CLR,SDK,API,B
+.NET Programming using C#,Which type represents whole numbers?,float,string,int,double,C
+Python Programming,Which keyword defines a function?,function,def,lambda,define,B
+Python Programming,Which data type is immutable?,List,Set,Dictionary,Tuple,D
+Python Programming,What does IDE stand for?,Integrated Development Environment,Internal Data Engine,Input Data Executor,Independent Developer Extension,A
+Python Programming,Which library is used for data analysis?,NumPy,Matplotlib,Pandas,Requests,C
+Python Programming,Which operator is used for exponentiation?,*,**,^,//,B
+Python Programming,Which keyword handles exceptions?,throw,try,except,handle,C
+Python Programming,Which keyword creates a loop?,for,repeat,loop,iterate,A
+Web Design,Which language is used for structuring web pages?,HTML,CSS,JavaScript,Python,A
+Web Design,Which tag creates a hyperlink?,<p>,<a>,<h1>,<link>,B
+Web Design,Which language styles HTML?,CSS,PHP,JavaScript,HTML,A
+Web Design,Which tag inserts an image?,<img>,<src>,<pic>,<photo>,A
+Web Design,Which property changes text color?,color,text-color,font-color,background-color,A
+Web Design,Which HTML version introduced semantic tags?,HTML4,HTML5,XHTML,HTML3,B
+Web Design,Which tag creates a table row?,<td>,<tr>,<table>,<th>,B
+IT Quiz Bee,Who is the father of computers?,Einstein,Charles Babbage,Alan Turing,Bill Gates,B
+IT Quiz Bee,Which company developed Windows?,Microsoft,Apple,IBM,Google,A
+IT Quiz Bee,Which unit measures data size?,Bit,Pixel,Second,Volt,A
+IT Quiz Bee,Which of the following is an input device?,Monitor,Printer,Keyboard,Speaker,C
+IT Quiz Bee,What does CPU stand for?,Central Process Unit,Central Processing Unit,Computer Personal Unit,Central Program Utility,B
+IT Quiz Bee,Which device stores permanent data?,RAM,ROM,Cache,Register,B
+IT Quiz Bee,What does AI stand for?,Artificial Interface,Artificial Intelligence,Automated Intelligence,Analog Interface,B
+E-Sports (Mobile Legends),Which hero role soaks up damage?,Mage,Tank,Marksman,Assassin,B
+E-Sports (Mobile Legends),Which objective grants gold to all teammates?,Turtle,Lord,Turret,Minion,A
+E-Sports (Mobile Legends),Which lane is usually for marksman?,Mid,Top,Gold,EXP,C
+E-Sports (Mobile Legends),What does MM stand for?,Main Mage,Main Marksman,Matchmaking,Mobile Mode,C
+E-Sports (Mobile Legends),Which item provides lifesteal?,Blade of Despair,Hunter Strike,Haas's Claws,Immortality,C
+E-Sports (Mobile Legends),What color is the buff from Lithowanderer?,Blue,Red,Orange,Purple,A
+E-Sports (Mobile Legends),What does MLBB stands for?,Mobile Legends Bang Bang,Machine Learning Big Boost,My Little Best Bro,Machine Language Bandwidth Battle,A
+E-Sports (CODM),What mode involves planting bombs?,Search and Destroy,Domination,Frontline,Hardpoint,A
+E-Sports (CODM),Which gun is an assault rifle?,DLQ33,AK47,KRM,MW11,B
+E-Sports (CODM),Which scorestreak calls a helicopter?,UAV,VTOL,Counter UAV,Shield,B
+E-Sports (CODM),What is the main objective of Domination?,Hold points,Plant bombs,Kill enemies,Defend flag,A
+E-Sports (CODM),Which perk hides you from UAV?,Ghost,Alert,Hardline,Cold Blooded,A
+E-Sports (CODM),What map is snowy?,Nuketown,Crash,Icebreaker,Firing Range,C
+E-Sports (CODM),Which button reloads weapon by default?,R,F,E,T,A
+Cybersecurity,What does VPN stand for?,Virtual Private Network,Very Private Network,Virtual Public Network,Verified Private Network,A
+Cybersecurity,Which port does HTTPS use by default?,80,443,8080,22,B
+Cybersecurity,What type of attack floods a network with traffic?,Phishing,DDoS,SQL Injection,XSS,B
+Cybersecurity,Which encryption standard is most secure?,DES,3DES,AES,ROT13,C
+Cybersecurity,What is the primary purpose of a firewall?,Encrypt data,Block unauthorized access,Store passwords,Scan for viruses,B
+Cybersecurity,Which authentication method is most secure?,Password only,Two-factor authentication,Security questions,PIN code,B
+Cybersecurity,What does SSL stand for?,Secure Socket Layer,System Security Layer,Safe Socket Link,Secure System Layer,A
+Cybersecurity,Which attack involves fake emails?,DDoS,Phishing,Brute Force,Man-in-the-Middle,B
+Cybersecurity,What is malware that encrypts files for ransom?,Trojan,Worm,Ransomware,Adware,C
+Cybersecurity,Which protocol provides secure remote access?,Telnet,FTP,SSH,HTTP,C
+Cybersecurity,What is the practice of testing system security?,Hacking,Penetration Testing,Phishing,Social Engineering,B
+Cybersecurity,Which hash algorithm is most secure?,MD5,SHA-1,SHA-256,CRC32,C
+Cybersecurity,What type of malware disguises itself as legitimate software?,Virus,Worm,Trojan,Spyware,C
+Cybersecurity,Which layer of OSI model does firewall operate?,Physical,Data Link,Network,Application,C
+Cybersecurity,What is the default SSH port?,21,22,23,80,B
+Cybersecurity,Which attack intercepts communication between two parties?,XSS,CSRF,Man-in-the-Middle,SQL Injection,C
+Cybersecurity,What does IDS stand for?,Internet Detection System,Intrusion Detection System,Internal Defense System,Internet Defense Service,B
+Cybersecurity,Which protocol is used for secure email?,SMTP,POP3,IMAP,S/MIME,D
+Cybersecurity,What is zero-day vulnerability?,Patched vulnerability,Unknown vulnerability,Old vulnerability,Harmless vulnerability,B
+Cybersecurity,Which tool is used for network packet analysis?,Nmap,Wireshark,Metasploit,Burp Suite,B
+Cybersecurity,What type of attack injects malicious SQL code?,XSS,CSRF,SQL Injection,Buffer Overflow,C
+Cybersecurity,Which security principle limits user access to minimum necessary?,Defense in Depth,Least Privilege,Security by Obscurity,Fail-Safe,B
+Cybersecurity,What does CIA triad stand for in security?,Central Intelligence Agency,Confidentiality Integrity Availability,Computer Internet Access,Certified Information Auditor,B
+Cybersecurity,Which attack exploits website vulnerabilities to inject scripts?,SQL Injection,XSS,CSRF,DDoS,B
+Cybersecurity,What is the purpose of a honeypot?,Store passwords,Trap attackers,Encrypt data,Block traffic,B
+Cybersecurity,Which protocol uses port 21?,SSH,FTP,HTTP,SMTP,B
+Cybersecurity,What type of backup stores only changed data?,Full,Incremental,Differential,Mirror,B
+Cybersecurity,Which cryptography uses same key for encryption and decryption?,Symmetric,Asymmetric,Hybrid,Quantum,A
+Cybersecurity,What is the main purpose of antivirus software?,Encrypt files,Detect malware,Create backups,Manage passwords,B
+Cybersecurity,Which attack tricks users into clicking hidden elements?,Clickjacking,Phishing,Spoofing,Sniffing,A
+Cybersecurity,What does SIEM stand for?,Security Information Event Management,System Internet Email Manager,Secure Internet Entry Monitor,Security Internal Event Monitoring,A
+Cybersecurity,Which is NOT a type of biometric authentication?,Fingerprint,Iris scan,Password,Voice recognition,C
+Cybersecurity,What is the purpose of digital signature?,Encrypt data,Verify authenticity,Store passwords,Block malware,B
+Cybersecurity,Which attack overwhelms server with login attempts?,DDoS,Brute Force,Phishing,Spoofing,B
+Cybersecurity,What does HTTPS use to encrypt data?,FTP,SSL/TLS,SSH,IPSec,B
+Cybersecurity,Which security model uses multiple layers of defense?,Single Layer,Defense in Depth,Perimeter Only,Zero Trust,B
+Cybersecurity,What type of malware monitors user activity?,Virus,Trojan,Spyware,Worm,C
+Cybersecurity,Which port does DNS use?,53,80,443,8080,A
+Cybersecurity,What is social engineering?,Software vulnerability,Manipulating people,Network attack,Encryption method,B
+Cybersecurity,Which protocol provides end-to-end encryption?,HTTP,FTP,IPSec,Telnet,C
+Cybersecurity,What is the purpose of access control list (ACL)?,Encrypt data,Define permissions,Store logs,Scan ports,B
+Cybersecurity,Which attack forges requests from authenticated users?,XSS,CSRF,SQLi,DDoS,B
+Cybersecurity,What does NAT stand for?,Network Address Translation,New Access Technology,National Access Terminal,Network Authentication Token,A
+Cybersecurity,Which is a secure password practice?,Using common words,Reusing passwords,Using mixed characters,Sharing passwords,C
+Cybersecurity,What is the purpose of security audit?,Delete files,Assess security posture,Install software,Create backups,B
+Cybersecurity,Which protocol operates on port 25?,HTTP,SMTP,FTP,SSH,B
+Cybersecurity,What type of attack exploits buffer memory?,Overflow,Phishing,Spoofing,Sniffing,A
+Cybersecurity,Which security certificate verifies website identity?,Cookie,SSL Certificate,API Key,Session Token,B
+Cybersecurity,What is the main goal of encryption?,Speed up data,Protect confidentiality,Compress files,Delete data,B
+Digital Electronics,Which gate outputs 1 only when all inputs are 1?,OR,AND,NAND,XOR,B
+Digital Electronics,What is the binary equivalent of decimal 15?,1111,1011,1110,1001,A
+Digital Electronics,Which flip-flop has toggle capability?,SR,D,T,JK,C
+Digital Electronics,How many bits are in a nibble?,2,4,8,16,B
+Digital Electronics,What is the output of NOT gate with input 1?,0,1,X,Z,A
+Digital Electronics,Which number system uses base 16?,Binary,Octal,Decimal,Hexadecimal,D
+Digital Electronics,What does ALU stand for?,Arithmetic Logic Unit,Automatic Load Unit,Advanced Logic Unit,Arithmetic Linear Unit,A
+Digital Electronics,Which gate is universal gate?,AND,OR,NAND,XOR,C
+Digital Electronics,What is the hexadecimal for binary 1010?,8,A,B,C,B
+Digital Electronics,Which type of logic family is fastest?,TTL,CMOS,ECL,RTL,C
+Digital Electronics,What is a multiplexer used for?,Decode signals,Select inputs,Store data,Amplify signals,B
+Digital Electronics,How many input combinations for 3-input gate?,4,6,8,16,C
+Digital Electronics,Which register shifts data serially?,Parallel,Shift,Counter,Buffer,B
+Digital Electronics,What is De Morgan's first theorem?,NOT(A+B) = A'·B',NOT(A·B) = A'+B',A+B = A·B,A·B = A+B,B
+Digital Electronics,Which device stores one bit?,Register,Flip-flop,Multiplexer,Decoder,B
+Digital Electronics,What is octal equivalent of decimal 8?,7,10,11,12,B
+Digital Electronics,Which circuit converts analog to digital?,ADC,DAC,Amplifier,Oscillator,A
+Digital Electronics,What is the Fan-out of a gate?,Input capacity,Output capacity,Speed rating,Power consumption,B
+Digital Electronics,Which memory is volatile?,ROM,RAM,PROM,EPROM,B
+Digital Electronics,What does BCD stand for?,Binary Coded Decimal,Basic Computer Data,Binary Code Design,Byte Coded Data,A
+Digital Electronics,Which gate performs addition without carry?,Half Adder,Full Adder,Subtractor,Comparator,A
+Digital Electronics,What is the Boolean expression for XOR?,A+B,A·B,A⊕B,A',C
+Digital Electronics,Which counter counts in reverse order?,Up Counter,Down Counter,Ring Counter,Johnson Counter,B
+Digital Electronics,What is propagation delay?,Setup time,Signal travel time,Hold time,Clock period,B
+Digital Electronics,Which device decodes binary to decimal?,Encoder,Decoder,Multiplexer,Demultiplexer,B
+Digital Electronics,What is the output of OR gate with inputs 0 and 1?,0,1,X,Undefined,B
+Digital Electronics,Which memory can be erased with UV light?,RAM,ROM,PROM,EPROM,D
+Digital Electronics,What is a Karnaugh map used for?,Circuit design,Logic simplification,Memory mapping,Signal processing,B
+Digital Electronics,Which logic family has lowest power consumption?,TTL,CMOS,ECL,DTL,B
+Digital Electronics,What is the full form of PAL?,Programmable Array Logic,Parallel Access Logic,Primary Array Link,Programmed Automatic Logic,A
+Digital Electronics,Which gate is equivalent to inverted AND?,OR,NOR,NAND,XOR,C
+Digital Electronics,What is race condition in flip-flops?,Timing issue,Power issue,Logic error,Connection error,A
+Digital Electronics,Which counter is self-starting?,Binary Counter,Ring Counter,Johnson Counter,Decade Counter,A
+Digital Electronics,What is the modulus of decade counter?,8,10,12,16,B
+Digital Electronics,Which device compares two binary numbers?,Adder,Comparator,Encoder,Decoder,B
+Digital Electronics,What is setup time?,Time before clock edge,Time after clock edge,Propagation time,Total cycle time,A
+Digital Electronics,Which gate gives 1 when inputs differ?,AND,OR,XOR,NAND,C
+Digital Electronics,What is the binary equivalent of octal 7?,101,110,111,1000,C
+Digital Electronics,Which device has memory capability?,Combinational circuit,Sequential circuit,Logic gate,Buffer,B
+Digital Electronics,What does MSB stand for?,Most Significant Bit,Memory Storage Bit,Main System Bit,Multiple Signal Bit,A
+Digital Electronics,Which type of ROM is one-time programmable?,PROM,EPROM,EEPROM,Flash,A
+Digital Electronics,What is the complement of 1?,0,1,X,Z,A
+Digital Electronics,Which circuit has feedback path?,Combinational,Sequential,Decoder,Encoder,B
+Digital Electronics,What is the decimal value of binary 1001?,7,8,9,10,C
+Digital Electronics,Which gate is used in half adder?,AND and XOR,OR and AND,NAND and NOR,XOR and NAND,A
+Digital Electronics,What is Johnson counter also called?,Ring counter,Twisted ring counter,Binary counter,Decade counter,B
+Digital Electronics,Which has higher integration?,SSI,MSI,LSI,VLSI,D
+Digital Electronics,What is the output of NAND gate with inputs 1 and 1?,0,1,X,Z,A
+Digital Electronics,Which memory is non-volatile?,RAM,Cache,ROM,Buffer,C
+Digital Electronics,What is the time period of 1 MHz signal?,1 ns,1 μs,1 ms,1 s,B
+Linux Administration,Which command displays current directory?,pwd,cd,ls,mkdir,A
+Linux Administration,What is the default shell in most Linux distributions?,sh,csh,bash,zsh,C
+Linux Administration,Which command changes file permissions?,chown,chmod,chgrp,umask,B
+Linux Administration,What does ls -l display?,Hidden files,Long format,Only directories,File size only,B
+Linux Administration,Which file contains user account information?,/etc/shadow,/etc/passwd,/etc/group,/etc/hosts,B
+Linux Administration,What command shows running processes?,ls,ps,top,who,B
+Linux Administration,Which directory contains configuration files?,/bin,/home,/etc,/var,C
+Linux Administration,What permission value gives read and write?,6,5,7,4,A
+Linux Administration,Which command creates a new directory?,touch,mkdir,rmdir,cp,B
+Linux Administration,What does the root user's UID?,0,1,500,1000,A
+Linux Administration,Which command searches for files?,find,locate,grep,search,A
+Linux Administration,What is the purpose of /tmp directory?,Store logs,Temporary files,User homes,System binaries,B
+Linux Administration,Which command displays disk usage?,du,df,ls,pwd,B
+Linux Administration,What does chmod 755 mean?,rwxr-xr-x,rwxrwxrwx,rw-r--r--,r-xr-xr-x,A
+Linux Administration,Which command edits cron jobs?,vi,crontab,nano,edit,B
+Linux Administration,What file contains DNS server information?,/etc/hosts,/etc/hostname,/etc/resolv.conf,/etc/network,C
+Linux Administration,Which command shows memory usage?,free,mem,ram,memory,A
+Linux Administration,What is the superuser account called?,admin,root,sudo,super,B
+Linux Administration,Which command compresses files?,zip,tar,gzip,all of above,D
+Linux Administration,What does init 6 do?,Shutdown,Reboot,Single user mode,Halt,B
+Linux Administration,Which command displays network interfaces?,ifconfig,netstat,ping,route,A
+Linux Administration,What is the default permission for new files?,644,755,777,666,A
+Linux Administration,Which command kills a process by PID?,stop,end,kill,terminate,C
+Linux Administration,What does /dev directory contain?,Configuration,Device files,Documentation,Development tools,B
+Linux Administration,Which command changes file ownership?,chmod,chown,chgrp,usermod,B
+Linux Administration,What is the purpose of swap space?,Backup,Virtual memory,File storage,Log files,B
+Linux Administration,Which command shows system uptime?,time,date,uptime,runtime,C
+Linux Administration,What does grep command do?,Copy files,Search patterns,Delete files,Move files,B
+Linux Administration,Which file contains system logs?,/var/log,/etc/log,/home/log,/tmp/log,A
+Linux Administration,What command displays last logged in users?,who,last,users,login,B
+Linux Administration,Which command mounts filesystems?,mount,attach,link,connect,A
+Linux Administration,What is the purpose of sudo?,Switch user,Elevate privileges,Shutdown system,Show disk usage,B
+Linux Administration,Which command archives files?,zip,tar,rar,pkg,B
+Linux Administration,What does pipe (|) operator do?,Redirect output,Chain commands,Comment,Background process,B
+Linux Administration,Which directory contains user home directories?,/usr,/home,/root,/var,B
+Linux Administration,What command displays kernel version?,uname,version,kernel,sysinfo,A
+Linux Administration,Which service manages system logs?,syslog,logd,logger,syslogd,D
+Linux Administration,What does ln command create?,Directory,Symbolic link,File,Partition,B
+Linux Administration,Which command shows routing table?,route,traceroute,ping,netstat,A
+Linux Administration,What is runlevel 3?,GUI mode,Multi-user text mode,Single user,Reboot,B
+Linux Administration,Which command changes user password?,passwd,password,chpasswd,usermod,A
+Linux Administration,What does apt-get do?,Edit files,Package management,Show processes,Network config,B
+Linux Administration,Which file contains group information?,/etc/passwd,/etc/shadow,/etc/group,/etc/users,C
+Linux Administration,What command shows open ports?,lsof,netstat,ps,top,B
+Linux Administration,Which command displays file contents?,cat,dog,show,display,A
+Linux Administration,What does umask control?,User permissions,Default permissions,File size,Directory structure,B
+Linux Administration,Which command modifies user account?,adduser,usermod,deluser,passwd,B
+Linux Administration,What is the purpose of inittab file?,Boot configuration,Init process config,Network settings,User accounts,B
+Linux Administration,Which command shows file type?,type,file,cat,ls,B
+Linux Administration,What does systemctl manage?,Files,Services,Users,Networks,B
+Networking,Which layer is responsible for routing in OSI model?,Physical,Data Link,Network,Transport,C
+Networking,What is the default subnet mask for Class C network?,255.0.0.0,255.255.0.0,255.255.255.0,255.255.255.255,C
+Networking,Which protocol operates at the Transport layer?,IP,ICMP,TCP,ARP,C
+Networking,What is the purpose of ARP?,Resolve MAC to IP,Resolve IP to MAC,Route packets,Encrypt data,B
+Networking,Which device operates at Layer 2?,Hub,Router,Switch,Repeater,C
+Networking,What is the maximum length of UTP cable?,50m,100m,200m,500m,B
+Networking,Which protocol is connectionless?,TCP,UDP,FTP,HTTP,B
+Networking,What does DHCP stand for?,Dynamic Host Configuration Protocol,Domain Host Control Protocol,Dynamic Hosting Control Program,Digital Host Configuration Protocol,A
+Networking,Which port does HTTP use?,21,22,80,443,C
+Networking,What is the IPv4 address size?,16 bits,32 bits,64 bits,128 bits,B
+Networking,Which topology has a central hub?,Bus,Star,Ring,Mesh,B
+Networking,What is the broadcast address for 192.168.1.0/24?,192.168.1.0,192.168.1.255,192.168.1.1,192.168.1.254,B
+Networking,Which protocol tests network connectivity?,FTP,ICMP,SMTP,DNS,B
+Networking,What does NAT stand for?,Network Address Translation,New Access Technology,Network Authentication Token,Node Address Transfer,A
+Networking,Which cable type is immune to EMI?,UTP,STP,Coaxial,Fiber optic,D
+Networking,What is the purpose of subnet mask?,Identify network portion,Encrypt data,Route packets,Assign IP addresses,A
+Networking,Which protocol provides reliable delivery?,UDP,IP,TCP,ICMP,C
+Networking,What is the loopback address?,192.168.1.1,127.0.0.1,10.0.0.1,172.16.0.1,B
+Networking,Which device amplifies signals?,Switch,Router,Repeater,Bridge,C
+Networking,What does MTU stand for?,Maximum Transmission Unit,Minimum Transfer Unit,Multiple Transport Unit,Media Transfer Utility,A
+Networking,Which protocol resolves domain names?,DHCP,DNS,ARP,RARP,B
+Networking,What is the size of MAC address?,32 bits,48 bits,64 bits,128 bits,B
+Networking,Which layer handles error detection in OSI?,Physical,Data Link,Network,Transport,B
+Networking,What is the purpose of default gateway?,Local communication,Internet access,IP assignment,Name resolution,B
+Networking,Which protocol uses port 23?,FTP,SSH,Telnet,SMTP,C
+Networking,What is CIDR notation for 255.255.255.0?,/16,/24,/32,/8,B
+Networking,Which topology is most fault-tolerant?,Bus,Star,Ring,Mesh,D
+Networking,What does VLAN stand for?,Virtual Local Area Network,Very Large Access Network,Variable Link Area Network,Visual LAN,A
+Networking,Which protocol transfers files securely?,FTP,TFTP,SFTP,HTTP,C
+Networking,What is the range of Class A addresses?,1-126,128-191,192-223,224-239,A
+Networking,Which command shows IP configuration in Windows?,ipconfig,ifconfig,netstat,nslookup,A
+Networking,What does TTL stand for in networking?,Time To Live,Transfer Time Limit,Total Transmission Load,Terminal Transfer Link,A
+Networking,Which protocol operates on port 53?,HTTP,FTP,DNS,SMTP,C
+Networking,What is the purpose of ICMP?,File transfer,Error reporting,Name resolution,IP assignment,B
+Networking,Which device filters traffic based on IP?,Hub,Switch,Router,Repeater,C
+Networking,What is half-duplex communication?,One direction only,Both directions simultaneously,Both directions alternately,No communication,C
+Networking,Which protocol assigns IP addresses automatically?,DNS,DHCP,ARP,ICMP,B
+Networking,What is the IPv6 address size?,32 bits,64 bits,128 bits,256 bits,C
+Networking,Which layer provides end-to-end communication?,Network,Transport,Session,Application,B
+Networking,What does QoS stand for?,Quality of Service,Quick Operating System,Queue of Signals,Quantity of Storage,A
+Networking,Which protocol is used for email retrieval?,SMTP,POP3,FTP,HTTP,B
+Networking,What is the purpose of spanning tree protocol?,Prevent loops,Assign IPs,Route packets,Resolve names,A
+Networking,Which cable standard supports 10 Gbps?,Cat5,Cat5e,Cat6,Cat6a,D
+Networking,What is the range of private IP 10.0.0.0?,/8,/16,/24,/32,A
+Networking,Which protocol provides encryption for web traffic?,HTTP,FTP,SSL/TLS,SMTP,C
+Networking,What does BGP stand for?,Border Gateway Protocol,Basic Gateway Program,Binary Group Protocol,Broadcast Gateway Path,A
+Networking,Which port does FTP use for data transfer?,20,21,22,23,A
+Networking,What is the purpose of proxy server?,Encrypt data,Intermediate requests,Assign IPs,Route packets,B
+Networking,Which layer handles data compression?,Physical,Presentation,Session,Application,B
+Robotics,What does DOF stand for in robotics?,Degree of Freedom,Direction of Force,Distance of Field,Digital Output Function,A
+Robotics,Which sensor detects distance?,Accelerometer,Ultrasonic,Gyroscope,Temperature,B
+Robotics,What is the brain of a robot?,Actuator,Sensor,Controller,End effector,C
+Robotics,Which motor provides precise position control?,DC motor,AC motor,Servo motor,Stepper motor,C
+Robotics,What does PWM stand for?,Power Wave Modulation,Pulse Width Modulation,Programmed Wave Motion,Pulse Wire Management,B
+Robotics,Which sensor measures rotation?,Ultrasonic,IR sensor,Gyroscope,LDR,C
+Robotics,What is an end effector?,Robot brain,Robot gripper,Power supply,Sensor module,B
+Robotics,Which law defines robot safety rules?,Newton's Law,Asimov's Laws,Ohm's Law,Moore's Law,B
+Robotics,What does LIDAR stand for?,Light Detection and Ranging,Linear Distance and Range,Light Direction and Reflection,Laser Internal Detection Array,A
+Robotics,Which programming language is commonly used in ROS?,Java,Python,C#,PHP,B
+Robotics,What is inverse kinematics?,Forward motion calculation,Position to joint angles,Speed control,Path planning,B
+Robotics,Which component converts electrical to mechanical energy?,Sensor,Actuator,Controller,Transmitter,B
+Robotics,What does IMU stand for?,Internal Memory Unit,Inertial Measurement Unit,Integrated Motor Unit,Input Management Utility,B
+Robotics,Which robot type moves on wheels?,Humanoid,Mobile,Manipulator,Flying,B
+Robotics,What is a servo motor's feedback device?,Encoder,Decoder,Multiplexer,Amplifier,A
+Robotics,Which sensor detects light intensity?,Ultrasonic,LDR,Gyroscope,Accelerometer,B
+Robotics,What does PID stand for in control systems?,Power Input Device,Proportional Integral Derivative,Program Interface Design,Pulse Integrated Driver,B
+Robotics,Which type of robot mimics human form?,Industrial,Humanoid,Mobile,Agricultural,B
+Robotics,What is the purpose of a gripper?,Sense objects,Move robot,Hold objects,Process data,C
+Robotics,Which protocol is common for robot communication?,HTTP,I2C,FTP,SMTP,B
+Robotics,What does ROS stand for?,Robot Operating System,Remote Operation Service,Rotational Output Sensor,Real-time Object Sensing,A
+Robotics,Which sensor detects obstacles?,Temperature,Proximity,Humidity,Pressure,B
+Robotics,What is forward kinematics?,End position calculation,Joint to position,Speed measurement,Path optimization,B
+Robotics,Which motor rotates in discrete steps?,Servo,DC,Stepper,AC,C
+Robotics,What is a robotic arm called?,Actuator,Manipulator,Gripper,Controller,B
+Robotics,Which sensor measures acceleration?,Ultrasonic,Accelerometer,LDR,IR,B
+Robotics,What does AI stand for in robotics?,Automated Intelligence,Artificial Intelligence,Actual Interface,Applied Integration,B
+Robotics,Which component stores robot programs?,Actuator,Memory,Sensor,Motor,B
+Robotics,What is SLAM in robotics?,Speed Limit and Motion,Simultaneous Localization and Mapping,System Load and Memory,Servo Linear Actuator Module,B
+Robotics,Which sensor detects colors?,Ultrasonic,Color sensor,Gyroscope,Pressure,B
+Robotics,What is a robot's workspace?,Storage area,Reachable area,Power area,Memory space,B
+Robotics,Which technology enables robots to see?,Sonar,Computer Vision,Radio,Bluetooth,B
+Robotics,What does CNC stand for?,Computer Numeric Control,Central Network Controller,Circular Navigation Circuit,Coordinated Node Communication,A
+Robotics,Which sensor measures angular velocity?,Accelerometer,Gyroscope,Ultrasonic,LDR,B
+Robotics,What is path planning?,Power management,Route calculation,Speed control,Memory allocation,B
+Robotics,Which robot is used in manufacturing?,Service robot,Industrial robot,Medical robot,Entertainment robot,B
+Robotics,What does HMI stand for?,Human Machine Interface,High Memory Integration,Hardware Module Input,Hydraulic Motor Interface,A
+Robotics,Which component provides robot movement?,Controller,Sensor,Actuator,Display,C
+Robotics,What is a stepper motor's advantage?,High speed,Precise positioning,Low cost,Simple control,B
+Robotics,Which sensor uses sound waves?,IR sensor,Ultrasonic,LDR,Gyroscope,B
+Robotics,What is telepresence robotics?,Remote control,Autonomous operation,Manual control,Pre-programmed,A
+Robotics,Which joint allows rotation?,Prismatic,Revolute,Fixed,Linear,B
+Robotics,What does AGV stand for?,Automated Guided Vehicle,Advanced Ground Vehicle,Autonomous GPS Vehicle,Aerial Guided Vehicle,A
+Robotics,Which sensor detects touch?,Proximity,Tactile,Ultrasonic,LDR,B
+Robotics,What is robot calibration?,Power adjustment,Position accuracy setup,Speed tuning,Memory clearing,B
+Robotics,Which programming method uses teaching?,Code writing,Lead-through,Simulation,Voice command,B
+Robotics,What does SCARA stand for?,Selective Compliance Assembly Robot Arm,System Control and Robot Automation,Standard Circular Array Robot,Serial Communication Automated Robot,A
+Robotics,Which sensor measures temperature?,Ultrasonic,Thermistor,Gyroscope,Encoder,B
+Robotics,What is a robotic exoskeleton?,Industrial robot,Wearable robot,Flying robot,Underwater robot,B
+Robotics,Which technology enables wireless robot control?,Serial cable,Bluetooth,Encoder,Potentiometer,B
+Android App Development,Which language is officially supported for Android?,Python,Java,Ruby,PHP,B
+Android App Development,What is the main component that represents UI in Android?,Service,Activity,Broadcast Receiver,Content Provider,B
+Android App Development,Which file defines app permissions?,build.gradle,AndroidManifest.xml,strings.xml,styles.xml,B
+Android App Development,What does APK stand for?,Android Package Kit,Application Program Kit,Android Program Kernel,Application Package Key,A
+Android App Development,Which layout arranges views linearly?,RelativeLayout,LinearLayout,FrameLayout,GridLayout,B
+Android App Development,What is the IDE for Android development?,Eclipse,Visual Studio,Android Studio,NetBeans,C
+Android App Development,Which method is called when activity starts?,onCreate(),onStart(),onResume(),onPause(),A
+Android App Development,What does SDK stand for?,Software Development Kit,System Design Kit,Standard Development Kernel,Software Design Key,A
+Android App Development,Which component runs in background?,Activity,Service,Intent,Fragment,B
+Android App Development,What is the extension of Android app file?,exe,.apk,.app,.jar,B
+Android App Development,Which file contains string resources?,AndroidManifest.xml,strings.xml,colors.xml,build.gradle,B
+Android App Development,What is used to pass data between activities?,Intent,Service,Fragment,Adapter,A
+Android App Development,Which database is built into Android?,MySQL,SQLite,MongoDB,Oracle,B
+Android App Development,What does UI stand for?,User Interface,Universal Input,Unified Integration,User Interaction,A
+Android App Development,Which method inflates layout in Activity?,onCreate(),setContentView(),inflate(),show(),B
+Android App Development,What is Material Design?,Programming language,Design language,Database,Testing tool,B
+Android App Development,Which component listens to system events?,Service,Activity,Broadcast Receiver,Content Provider,C
+Android App Development,What is Gradle used for?,Design UI,Build automation,Database management,Testing,B
+Android App Development,Which view displays scrollable list?,TextView,Button,RecyclerView,ImageView,C
+Android App Development,What does ADB stand for?,Android Debug Bridge,Application Database,Android Data Backup,Application Debug Build,A
+Android App Development,Which file defines app dependencies?,AndroidManifest.xml,strings.xml,build.gradle,proguard-rules.pro,C
+Android App Development,What is Fragment?,UI portion,Complete app,Database,Service,A
+Android App Development,Which method is called when activity is destroyed?,onCreate(),onDestroy(),onPause(),onStop(),B
+Android App Development,What is used for asynchronous operations?,Thread,Intent,Adapter,Manifest,A
+Android App Development,Which view displays images?,TextView,EditText,ImageView,Button,C
+Android App Development,What does MVP stand for in Android?,Most Valuable Player,Model View Presenter,Multiple View Pattern,Managed View Program,B
+Android App Development,Which component shares data between apps?,Service,Activity,Content Provider,Broadcast Receiver,C
+Android App Development,What is Logcat used for?,Design UI,View logs,Build app,Test app,B
+Android App Development,Which layout overlays views?,LinearLayout,RelativeLayout,FrameLayout,TableLayout,C
+Android App Development,What is Toast in Android?,Long message,Short message popup,Dialog box,Notification,B
+Android App Development,Which XML attribute sets view ID?,android:name,android:id,android:tag,android:key,B
+Android App Development,What does JNI stand for?,Java Native Interface,Java Network Integration,Java Node Implementation,Java New Instance,A
+Android App Development,Which method handles button clicks?,onStart(),onClick(),onCreate(),onResume(),B
+Android App Development,What is SharedPreferences used for?,Large data,Key-value storage,File storage,Network requests,B
+Android App Development,Which component manages app lifecycle?,AndroidManifest,Activity Manager,Service Manager,Content Manager,B
+Android App Development,What does AAPT stand for?,Android Asset Packaging Tool,Application Access Protocol,Android App Performance Tester,Automated Application Tool,A
+Android App Development,Which annotation defines activity in Manifest?,@Activity,<activity>,@Component,<component>,B
+Android App Development,What is ViewModel used for?,Network calls,Manage UI data,Database operations,File handling,B
+Android App Development,Which method saves activity state?,onSaveInstanceState(),onCreate(),onPause(),onDestroy(),A
+Android App Development,What is ProGuard used for?,Design UI,Code obfuscation,Testing,Debugging,B
+Android App Development,Which view accepts text input?,TextView,EditText,Button,ImageView,B
+Android App Development,What does MVVM stand for?,Model View View Model,Multiple View Virtual Machine,Managed View Value Model,Model Virtual View Manager,A
+Android App Development,Which component handles notifications?,NotificationManager,ActivityManager,ServiceManager,ContentManager,A
+Android App Development,What is Retrofit used for?,UI design,Network requests,Database,File storage,B
+Android App Development,Which layout positions views relative to each other?,LinearLayout,RelativeLayout,FrameLayout,ScrollView,B
+Android App Development,What does NDK stand for?,Native Development Kit,Network Design Kit,New Development Kernel,Node Development Key,A
+Android App Development,Which method is called when activity becomes visible?,onCreate(),onStart(),onResume(),onPause(),B
+Android App Development,What is LiveData used for?,Static data,Observable data,File data,Network data,B
+Android App Development,Which file defines app version?,strings.xml,AndroidManifest.xml,build.gradle,colors.xml,C
+Android App Development,What is Glide library used for?,Database,Image loading,Networking,Testing,B
+Database,Which SQL command retrieves data?,INSERT,SELECT,UPDATE,DELETE,B
+Database,What does DBMS stand for?,Database Management System,Data Backup Management Service,Digital Base Management System,Database Monitoring Service,A
+Database,Which key uniquely identifies records?,Foreign Key,Primary Key,Candidate Key,Super Key,B
+Database,What is normalization used for?,Increase redundancy,Reduce redundancy,Delete data,Backup data,B
+Database,Which command creates a table?,CREATE TABLE,MAKE TABLE,NEW TABLE,BUILD TABLE,A
+Database,What does SQL stand for?,Structured Query Language,Standard Query Language,System Query Language,Simple Query Language,A
+Database,Which constraint ensures unique values?,CHECK,UNIQUE,NOT NULL,DEFAULT,B
+Database,What is a foreign key?,Unique identifier,Reference to primary key,Index,Constraint,B
+Database,Which command adds data to table?,INSERT,ADD,CREATE,UPDATE,A
+Database,What is ACID in databases?,Properties,Commands,Functions,Tables,A
+Database,Which join returns matching records from both tables?,LEFT JOIN,RIGHT JOIN,INNER JOIN,OUTER JOIN,C
+Database,What does DDL stand for?,Data Definition Language,Data Description Language,Database Definition Language,Data Design Language,A
+Database,Which command modifies existing data?,INSERT,SELECT,UPDATE,CREATE,C
+Database,What is an index used for?,Store data,Speed up queries,Delete data,Backup data,B
+Database,Which normal form eliminates partial dependency?,1NF,2NF,3NF,BCNF,B
+Database,What does DML stand for?,Data Manipulation Language,Database Management Language,Data Modification Language,Database Manipulation Logic,A
+Database,Which clause filters records?,SELECT,FROM,WHERE,ORDER BY,C
+Database,What is a view in database?,Physical table,Virtual table,Index,Constraint,B
+Database,Which command removes table?,DROP TABLE,DELETE TABLE,REMOVE TABLE,CLEAR TABLE,A
+Database,What is cardinality?,Number of rows,Number of columns,Relationship type,Data type,A
+Database,Which aggregate function counts rows?,SUM,AVG,COUNT,MAX,C
+Database,What does NULL represent?,Zero,Empty string,Unknown value,Space,C
+Database,Which command removes all records?,DELETE,DROP,TRUNCATE,REMOVE,C
+Database,What is a composite key?,Single column,Multiple columns,Foreign key,Unique key,B
+Database,Which clause groups records?,GROUP BY,ORDER BY,HAVING,WHERE,A
+Database,What is denormalization?,Reduce redundancy,Increase redundancy,Delete data,Add constraints,B
+Database,Which join returns all records from left table?,INNER JOIN,RIGHT JOIN,LEFT JOIN,FULL JOIN,C
+Database,What does TCL stand for?,Transaction Control Language,Table Control Language,Transfer Control Language,Transaction Creation Language,A
+Database,Which command starts transaction?,BEGIN,START,INIT,OPEN,A
+Database,What is referential integrity?,Data validation,Foreign key constraint,Primary key constraint,Check constraint,B
+Database,Which function returns current date?,NOW(),DATE(),TODAY(),CURRENT(),A
+Database,What is a stored procedure?,Saved query,Precompiled code,View,Index,B
+Database,Which constraint prevents NULL values?,UNIQUE,NOT NULL,CHECK,DEFAULT,B
+Database,What does ER stand for?,Entity Relationship,Entry Record,External Reference,Entity Record,A
+Database,Which command saves transaction?,COMMIT,SAVE,END,STORE,A
+Database,What is data redundancy?,Duplicate data,Missing data,Corrupt data,Encrypted data,A
+Database,Which operator checks pattern?,LIKE,IN,BETWEEN,EXISTS,A
+Database,What is a trigger?,Stored procedure,Event-driven code,View,Index,B
+Database,Which command undoes transaction?,ROLLBACK,UNDO,REVERT,CANCEL,A
+Database,What is data integrity?,Data accuracy,Data speed,Data size,Data encryption,A
+Database,Which clause orders results?,WHERE,HAVING,ORDER BY,GROUP BY,C
+Database,What is a candidate key?,Primary key only,Potential primary key,Foreign key,Composite key,B
+Database,Which join returns all records from both tables?,INNER JOIN,LEFT JOIN,RIGHT JOIN,FULL OUTER JOIN,D
+Database,What does NoSQL stand for?,No Structured Query Language,Not Only SQL,New Object SQL,Network Object SQL,B
+Database,Which function returns highest value?,MIN,MAX,AVG,SUM,B
+Database,What is a superkey?,Minimal key,Any uniquely identifying key,Foreign key,Composite key,B
+Database,Which clause filters grouped data?,WHERE,HAVING,ORDER BY,GROUP BY,B
+Database,What is a schema?,Database structure,Data values,Query result,User permission,A
+Database,Which command grants permissions?,GRANT,ALLOW,PERMIT,GIVE,A
+Database,What is OLTP?,Online Transaction Processing,Offline Transaction Protocol,Online Transfer Processing,Object Level Transaction Processing,A
+Java,Which keyword is used to define a class?,class,Class,define,struct,A
+Java,What is the default value of boolean variable?,true,false,0,null,B
+Java,Which method is the entry point of Java program?,start(),main(),run(),init(),B
+Java,What does JVM stand for?,Java Virtual Machine,Java Variable Method,Java Visual Manager,Java Version Manager,A
+Java,Which is not a primitive data type?,int,String,boolean,char,B
+Java,What is the extension of Java source file?,.class,.java,.jar,.jvm,B
+Java,Which keyword is used for inheritance?,extends,implements,inherits,super,A
+Java,What does JDK stand for?,Java Development Kit,Java Design Kit,Java Deployment Kernel,Java Debug Kit,A
+Java,Which access modifier is most restrictive?,public,protected,private,default,C
+Java,What is the superclass of all classes?,System,Object,Class,Super,B
+Java,Which loop executes at least once?,for,while,do-while,foreach,C
+Java,What does API stand for?,Application Programming Interface,Advanced Program Integration,Application Protocol Interface,Automated Programming Interface,A
+Java,Which keyword prevents inheritance?,final,static,abstract,private,A
+Java,What is used to handle exceptions?,if-else,try-catch,switch,for,B
+Java,Which operator checks object type?,typeof,instanceof,is,checktype,B
+Java,What is method overloading?,Same name different parameters,Same name same parameters,Different name same parameters,Abstract method,A
+Java,Which keyword creates objects?,create,new,make,object,B
+Java,What does OOP stand for?,Object Oriented Programming,Open Operation Protocol,Object Operation Process,Oriented Object Program,A
+Java,Which collection allows duplicate elements?,Set,List,Map,Queue,B
+Java,What is garbage collection?,Manual memory cleanup,Automatic memory cleanup,File deletion,Cache clearing,B
+Java,Which keyword makes variable constant?,static,final,const,constant,B
+Java,What is encapsulation?,Hiding implementation,Multiple inheritance,Method overriding,Exception handling,A
+Java,Which interface has only one method?,Runnable,Serializable,Cloneable,Comparable,A
+Java,What does JRE stand for?,Java Runtime Environment,Java Release Environment,Java Remote Execution,Java Rendering Engine,A
+Java,Which keyword refers to current object?,this,self,current,me,A
+Java,What is polymorphism?,Many forms,Single form,No form,Two forms,A
+Java,Which is wrapper class for int?,Int,INTEGER,Integer,int_wrapper,C
+Java,What is abstract class?,Cannot be instantiated,Cannot have methods,Cannot inherit,Cannot use variables,A
+Java,Which keyword is used for interface?,interface,Interface,abstract,implement,A
+Java,What is constructor?,Special method,Normal method,Variable,Class,A
+Java,Which exception is checked?,NullPointerException,IOException,ArrayIndexOutOfBoundsException,ArithmeticException,B
+Java,What does IDE stand for?,Integrated Development Environment,Internal Design Environment,Interface Development Engine,Interactive Debug Environment,A
+Java,Which method compares strings?,compare(),equals(),check(),match(),B
+Java,What is multithreading?,Multiple processes,Multiple threads,Multiple classes,Multiple files,B
+Java,Which keyword stops loop?,break,stop,end,exit,A
+Java,What is interface?,Contract,Class,Method,Variable,A
+Java,Which operator concatenates strings?,+,&,.,concat,A
+Java,What is package?,Group of classes,Single class,Method,Variable,A
+Java,Which keyword makes method unchangeable?,final,static,const,fixed,A
+Java,What does JAR stand for?,Java Archive,Java Application Resource,Java Array,Java Automated Runtime,A
+Java,Which method starts thread?,start(),run(),begin(),execute(),A
+Java,What is serialization?,Object to byte stream,Byte to object,Object to string,String to object,A
+Java,Which collection is synchronized?,ArrayList,Vector,LinkedList,HashSet,B
+Java,What is lambda expression?,Anonymous function,Named function,Class,Interface,A
+Java,Which keyword imports packages?,import,include,using,require,A
+Java,What is method overriding?,Subclass redefines method,Same method name,Static method,Private method,A
+Java,Which is not access modifier?,public,protected,private,package,D
+Java,What does toString() do?,Convert to string,Convert to int,Convert to char,Convert to boolean,A
+C#,What does CLR stand for?,Common Language Runtime,Central Language Reference,Common Library Runtime,Central Logic Reference,A
+C#,Which is a value type?,string,class,struct,interface,C
+C#,What is boxing?,Value to reference type,Reference to value type,Type casting,Type conversion,A
+C#,Which keyword is used for inheritance?,extends,inherits,:,implements,C
+C#,What does IDE stand for?,Integrated Development Environment,Internal Design Environment,Interface Development Engine,Interactive Debug Environment,A
+C#,Which access modifier is most restrictive?,public,internal,private,protected,C
+C#,What is LINQ?,Language Integrated Query,Linear Integrated Query,Language Interface Query,Logic Integrated Query,A
+C#,Which keyword prevents overriding?,sealed,final,static,const,A
+C#,What is delegate?,Type-safe function pointer,Class,Interface,Struct,A
+C#,Which collection is generic?,ArrayList,List<T>,Hashtable,Queue,B
+C#,What does async keyword do?,Synchronous method,Asynchronous method,Static method,Abstract method,B
+C#,Which operator checks null?,==,??,is,as,B
+C#,What is property?,Field with accessors,Method,Class,Interface,A
+C#,Which keyword handles exceptions?,try-catch,if-else,switch,for,A
+C#,What is polymorphism?,Many forms,Single form,No form,Two forms,A
+C#,Which is reference type?,int,bool,string,char,C
+C#,What does .NET Framework provide?,Runtime and libraries,Only compiler,Only IDE,Only debugger,A
+C#,Which keyword creates objects?,create,new,make,object,B
+C#,What is interface?,Contract,Class,Struct,Enum,A
+C#,Which loop executes at least once?,for,while,do-while,foreach,C
+C#,What is encapsulation?,Data hiding,Method overloading,Inheritance,Polymorphism,A
+C#,Which keyword makes variable constant?,const,final,static,readonly,A
+C#,What is garbage collection?,Manual cleanup,Automatic cleanup,File deletion,Cache clearing,B
+C#,Which method converts to string?,ToString(),ConvertString(),AsString(),StringValue(),A
+C#,What does OOP stand for?,Object Oriented Programming,Open Operation Protocol,Object Operation Process,Oriented Object Program,A
+C#,Which keyword refers to base class?,base,super,parent,this,A
+C#,What is abstract class?,Cannot instantiate,Cannot inherit,Cannot override,Cannot access,A
+C#,Which is not access modifier?,public,private,friend,protected,C
+C#,What is lambda expression?,Anonymous function,Named function,Class,Struct,A
+C#,Which keyword defines interface?,interface,Interface,abstract,class,A
+C#,What is method overloading?,Same name different parameters,Same name same parameters,Different name same parameters,Virtual method,A
+C#,Which collection allows duplicates?,HashSet,Dictionary,List,SortedSet,C
+C#,What does IEnumerable represent?,Collection,Single value,Method,Property,A
+C#,Which keyword stops loop?,break,stop,end,exit,A
+C#,What is constructor?,Special method,Normal method,Property,Field,A
+C#,Which exception is predefined?,CustomException,NullReferenceException,MyException,UserException,B
+C#,What is event?,Notification mechanism,Method,Property,Field,A
+C#,Which keyword makes method virtual?,virtual,abstract,override,sealed,A
+C#,What is namespace?,Logical grouping,Physical file,Class,Method,A
+C#,Which operator is ternary?,?:,&&,||,==,A
+C#,What does var keyword do?,Type inference,Variable declaration,Constant,Static variable,A
+C#,Which is nullable type?,int,int?,string,bool,B
+C#,What is extension method?,Extends existing type,New class,Interface,Delegate,A
+C#,Which keyword imports namespace?,using,import,include,require,A
+C#,What is yield keyword for?,Return iterator,Return value,Break loop,Exit method,A
+C#,Which is not loop structure?,for,while,foreach,repeat,D
+Python,Which function displays output?,print(),show(),display(),output(),A
+Python,What is the file extension for Python?,.py,.python,.pt,.p,A
+Python,Which keyword defines function?,def,function,define,func,A
+Python,What does PEP stand for?,Python Enhancement Proposal,Python Execution Protocol,Python Environment Package,Python Extension Program,A
+Python,Which is mutable data type?,tuple,string,list,int,C
+Python,What is used for single line comment?,#,//,/*,--,A
+Python,Which keyword creates class?,class,Class,define,struct,A
+Python,What does len() return?,Length,Size,Count,Index,A
+Python,Which operator checks membership?,in,is,==,has,A
+Python,What is lambda?,Anonymous function,Named function,Class,Module,A
+Python,Which loop iterates over sequence?,for,while,do-while,repeat,A
+Python,What does import keyword do?,Import module,Export module,Define module,Delete module,A
+Python,Which is not a data type?,int,float,number,str,C
+Python,What is list comprehension?,Concise list creation,List method,List function,List class,A
+Python,Which function converts to integer?,int(),toInt(),integer(),convertInt(),A
+Python,What does self represent?,Current instance,Class,Method,Module,A
+Python,Which is immutable?,list,dict,tuple,set,C
+Python,What does pip stand for?,Pip Installs Packages,Python Install Program,Package Installer Python,Python Integrated Packager,A
+Python,Which exception is predefined?,CustomError,ValueError,MyError,UserError,B
+Python,What is dictionary?,Key-value pairs,Ordered list,Set,Tuple,A
+Python,Which keyword handles exceptions?,try-except,if-else,switch,catch,A
+Python,What does __init__ do?,Constructor,Destructor,Method,Variable,A
+Python,Which function reads input?,input(),read(),get(),scan(),A
+Python,What is module?,Python file,Class,Function,Variable,A
+Python,Which operator is logical AND?,and,&&,AND,&,A
+Python,What does range() generate?,Sequence,List,Tuple,Dictionary,A
+Python,Which is string method?,upper(),max(),sum(),len(),A
+Python,What is generator?,Iterator function,Normal function,Class,Module,A
+Python,Which keyword inherits class?,inherits,extends,class(Base),def,C
+Python,What does pass keyword do?,Does nothing,Breaks loop,Returns value,Raises exception,A
+Python,Which function returns type?,type(),typeof(),datatype(),gettype(),A
+Python,What is decorator?,Modifies function,Creates class,Defines module,Deletes variable,A
+Python,Which is not loop?,for,while,foreach,None of above,C
+Python,What does break do?,Exits loop,Continues loop,Returns value,Raises error,A
+Python,Which function opens file?,open(),file(),read(),load(),A
+Python,What is slicing?,Extract portion,Delete data,Add data,Sort data,A
+Python,Which operator is exponentiation?,**,^,exp,pow,A
+Python,What does yield keyword do?,Generate values,Return value,Break loop,Import module,A
+Python,Which is set operation?,union(),append(),push(),pop(),A
+Python,What is polymorphism?,Many forms,Single form,No form,Two forms,A
+Python,Which function deletes variable?,del,delete(),remove(),clear(),A
+Python,What does enumerate() do?,Index and value,Only index,Only value,Length,A
+Python,Which is not comparison operator?,==,!=,<>,is,C
+Python,What is multiple inheritance?,Multiple parent classes,Multiple child classes,Multiple methods,Multiple variables,A
+Python,Which function sorts list?,sort(),order(),arrange(),organize(),A
+Python,What does zip() do?,Combine iterables,Compress file,Extract file,Sort list,A
+Python,Which is string formatting?,f-string,g-string,s-string,t-string,A
+Python,What does None represent?,Null value,Zero,Empty string,False,A
+Web Design,Which language structures web pages?,CSS,JavaScript,HTML,Python,C
+Web Design,What does CSS stand for?,Cascading Style Sheets,Central Style System,Computer Style Sheets,Creative Style Standard,A
+Web Design,Which tag creates hyperlink?,<link>,<a>,<href>,<url>,B
+Web Design,What is the purpose of <div> tag?,Division/container,Display,Document,Data,A
+Web Design,Which attribute specifies alternative text for images?,alt,title,text,caption,A
+Web Design,What does HTML stand for?,HyperText Markup Language,High Text Modern Language,HyperText Modern Language,High Technical Markup Language,A
+Web Design,Which property changes text color in CSS?,color,text-color,font-color,text,A
+Web Design,What is responsive design?,Adapts to screen size,Fast loading,Interactive,Animated,A
+Web Design,Which tag defines table row?,<tr>,<td>,<th>,<table>,A
+Web Design,What does DOM stand for?,Document Object Model,Data Object Model,Document Orientation Method,Digital Object Management,A
+Web Design,Which CSS property controls spacing inside element?,margin,padding,border,spacing,B
+Web Design,What is Bootstrap?,CSS framework,Programming language,Database,Server,A
+Web Design,Which tag creates unordered list?,<ol>,<ul>,<li>,<list>,B
+Web Design,What does viewport meta tag control?,Mobile display,Desktop display,Print layout,Email format,A
+Web Design,Which property makes text bold in CSS?,font-weight,text-bold,font-style,bold,A
+Web Design,What is Flexbox?,Layout model,Grid system,Animation,Framework,A
+Web Design,Which tag embeds JavaScript?,<js>,<script>,<javascript>,<code>,B
+Web Design,What does SEO stand for?,Search Engine Optimization,Site Engine Operation,System Entry Optimization,Search Entry Operation,A
+Web Design,Which attribute specifies link destination?,href,src,link,url,A
+Web Design,What is semantic HTML?,Meaningful tags,Styled tags,Animated tags,Complex tags,A
+Web Design,Which property controls element opacity?,opacity,transparent,visibility,alpha,A
+Web Design,What does AJAX stand for?,Asynchronous JavaScript and XML,Advanced Java and XML,Automatic JavaScript XML,Asynchronous Java XML,A
+Web Design,Which tag defines table header?,<th>,<td>,<tr>,<thead>,A
+Web Design,What is CSS Grid?,Layout system,Framework,Animation,Typography,A
+Web Design,Which property adds space outside element?,padding,margin,border,spacing,B
+Web Design,What is media query used for?,Responsive design,Animation,Database,Security,A
+Web Design,Which tag creates line break?,<br>,<break>,<lb>,<newline>,A
+Web Design,What does CDN stand for?,Content Delivery Network,Central Data Network,Content Distribution Node,Central Delivery Node,A
+Web Design,Which property controls text alignment?,text-align,align,text-position,alignment,A
+Web Design,What is pseudo-class in CSS?,Special state selector,Class name,ID selector,Element selector,A
+Web Design,Which tag creates input field?,<input>,<field>,<textbox>,<entry>,A
+Web Design,What does UI stand for?,User Interface,Universal Input,Unified Interface,User Integration,A
+Web Design,Which property controls background image?,background-image,bg-image,image,background,A
+Web Design,What is wireframe?,Layout sketch,Finished design,Code structure,Database schema,A
+Web Design,Which tag defines section?,<section>,<div>,<part>,<segment>,A
+Web Design,What does UX stand for?,User Experience,Universal Extension,Unified Experience,User Execution,A
+Web Design,Which property controls font size?,font-size,text-size,size,font,A
+Web Design,What is sprite sheet?,Combined images,CSS file,JavaScript library,HTML template,A
+Web Design,Which attribute makes input required?,required,mandatory,needed,must,A
+Web Design,What does RGB stand for?,Red Green Blue,Real Graphics Base,Random Generated Base,Red Gray Black,A
+Web Design,Which property creates rounded corners?,border-radius,corner-radius,round,radius,A
+Web Design,What is minification?,Reduce file size,Compress images,Delete code,Encrypt data,A
+Web Design,Which tag embeds video?,<video>,<movie>,<media>,<film>,A
+Web Design,What does px stand for in CSS?,Pixel,Point,Percent,Position,A
+Web Design,Which property controls z-axis stacking?,z-index,stack,layer,depth,A
+Web Design,What is accessibility in web design?,Usability for all users,Fast loading,Good design,Mobile friendly,A
+Web Design,Which tag creates ordered list?,<ol>,<ul>,<li>,<list>,A
+Web Design,What does RGBA add to RGB?,Alpha channel,Red value,Gradient,Border,A
+Web Design,Which property controls letter spacing?,letter-spacing,text-spacing,char-spacing,spacing,A
+Web Design,What is progressive enhancement?,Basic first then enhance,Full features first,Mobile only,Desktop only,A
+Esports,Which hero is known as Demon Hunter in Mobile Legends?,Alucard,Zilong,Hayabusa,Saber,A
+Esports,What is the max level in Mobile Legends?,15,18,20,25,A
+Esports,Which weapon class has highest fire rate in CODM?,Sniper,SMG,LMG,Shotgun,B
+Esports,What does MPV stand for in esports?,Most Powerful Victory,Most Valuable Player,Maximum Power Victory,Most Professional Valor,B
+Esports,Which item provides shield in Mobile Legends?,Antique Cuirass,Blade of Despair,Scarlet Phantom,Lightning Truncheon,A
+Esports,What is the bomb defusal time in CODM Search and Destroy?,3 seconds,5 seconds,7 seconds,10 seconds,C
+Esports,Which role farms jungle in Mobile Legends?,Support,Tank,Jungler,Marksman,C
+Esports,What does ADS mean in CODM?,Aim Down Sights,Advanced Defense System,Automatic Damage Score,Attack Defense Strategy,A
+Esports,Which buff gives extra gold in Mobile Legends?,Red buff,Blue buff,Gold crab,Lithowanderer,C
+Esports,What is TTK in CODM?,Time To Kill,Total Team Kills,Target Track Kill,Tactical Team Knockout,A
+Esports,Which lane is top in Mobile Legends?,EXP Lane,Gold Lane,Mid Lane,Jungle,A
+Esports,What does meta mean in gaming?,Most Effective Tactics Available,Maximum Efficiency Tactical Advantage,Modern Electronic Tournament Arena,Multiple Entity Team Attack,A
+Esports,Which scorestreak requires most points in CODM?,UAV,Predator Missile,VTOL,Stealth Chopper,C
+Esports,What is ganking in Mobile Legends?,Ambushing enemy,Solo farming,Defending tower,Buying items,A
+Esports,Which perk reduces flinch in CODM?,Toughness,Lightweight,Cold Blooded,Ghost,A
+Esports,What does CC stand for in MOBA games?,Critical Chance,Crowd Control,Core Character,Combat Class,B
+Esports,Which weapon is one-shot kill in CODM?,M4,DL Q33,RUS,QQ9,B
+Esports,What is split pushing in Mobile Legends?,Pushing different lanes,Team fighting,Jungling,Defending base,A
+Esports,Which mode is 5v5 in CODM ranked?,Team Deathmatch,Search and Destroy,Domination,All of above,D
+Esports,What is kiting in Mobile Legends?,Moving while attacking,Standing still,Recalling,Buying items,A
+Esports,Which attachment reduces ADS time in CODM?,Scope,Foregrip,Laser,Stock,C
+Esports,What is last hitting in Mobile Legends?,Getting final blow on minion,Killing enemy hero,Destroying turret,Using ultimate,A
+Esports,Which class has stopping power in CODM?,Assault,SMG,Sniper,Shotgun,C
+Esports,What does APM mean in esports?,Actions Per Minute,Attack Power Maximum,Advanced Player Mode,Automatic Performance Measure,A
+Esports,Which emblem gives movement speed in Mobile Legends?,Assassin,Mage,Support,Tank,A
+Esports,What is hardscoping in CODM?,Camping with sniper,Running and shooting,Quickscoping,Noscoping,A
+Esports,What is zoning in Mobile Legends?,Controlling area,Farming,Recalling,Shopping,A
+Esports,Which equipment detects enemies in CODM?,Smoke,Flash,Heartbeat Sensor,Trophy System,C
+Esports,What is peeling in Mobile Legends?,Protecting carry,Attacking enemy,Farming jungle,Pushing lane,A
+Esports,Which gun has burst mode in CODM?,AK-47,M16,ICR-1,KN-44,B
+Esports,What does ADC stand for in MOBA?,Attack Damage Carry,Advanced Defense Character,Automatic Damage Control,All Damage Core,A
+Esports,Which item counters lifesteal in Mobile Legends?,Dominance Ice,Blade Armor,Cursed Helmet,Immortality,A
+Esports,What is dropshot in CODM?,Shooting while prone,Shooting while standing,Shooting while jumping,Shooting while running,A
+Esports,What is rotation in Mobile Legends?,Moving between lanes,Attacking,Defending,Shopping,A
+Esports,Which scorestreak shows enemy positions in CODM?,UAV,Sentry Gun,Stealth Chopper,Hunter Killer,A
+Esports,What is poking in Mobile Legends?,Harassing from distance,Close combat,Farming,Defending,A
+Esports,Which weapon type has lowest mobility in CODM?,SMG,Sniper,LMG,Pistol,C
+Esports,What is backdoor in Mobile Legends?,Attacking base directly,Team fighting,Jungling,Defending,A
+Esports,Which perk hides from UAV in CODM?,Ghost,Cold Blooded,Dead Silence,Alert,A
+Esports,What is overextending in Mobile Legends?,Pushing too far,Playing safe,Farming,Recalling,A
+Esports,Which attachment increases bullet penetration in CODM?,FMJ,Suppressor,Quickdraw,Extended Mag,A
+Esports,What is objective control in MOBA?,Securing buffs and objectives,Killing enemies,Farming minions,Defending base,A
+Esports,Which item provides resurrection in Mobile Legends?,Immortality,Oracle,Athena's Shield,Sky Guardian Helmet,A
+Esports,What is pre-firing in CODM?,Shooting before seeing enemy,Shooting after,Shooting while moving,Not shooting,A
+Esports,What is map awareness in esports?,Knowing enemy positions,Good aim,Fast reflexes,Communication,A
+Esports,Which role initiates team fights in Mobile Legends?,Tank,Marksman,Mage,Support,A
+Esports,What is recoil control in CODM?,Managing gun kickback,Reload speed,Fire rate,Damage,A
+Esports,What is farm priority in Mobile Legends?,Who gets resources first,Attack order,Defense strategy,Item build,A
+Esports,Which stat affects cooldown reduction in Mobile Legends?,CDR,ATK,DEF,HP,A
+Esports,What is crosshair placement in CODM?,Aiming at head level,Random aim,Looking down,Looking up,A
+C++,Which header is used for input/output?,iostream,stdio.h,conio.h,fstream,A
+C++,What is the scope resolution operator?,::,.,->,:,A
+C++,Which keyword is used for exception handling?,try,except,catch,finally,A
+C++,What does STL stand for?,Standard Template Library,System Type Library,Standard Type Logic,Static Template Library,A
+C++,Which is not an access specifier?,public,private,friend,protected,C
+C++,What is the size of int typically?,1 byte,2 bytes,4 bytes,8 bytes,C
+C++,Which operator is used for dynamic memory allocation?,malloc,new,alloc,create,B
+C++,What does endl do?,End line,End loop,End program,End function,A
+C++,Which is not a loop?,for,while,repeat,do-while,C
+C++,What is function overloading?,Same name different parameters,Different name same parameters,No parameters,Static function,A
+C++,Which keyword prevents modification?,const,static,final,readonly,A
+C++,What is destructor?,Cleanup function,Constructor,Member function,Friend function,A
+C++,Which operator accesses member through pointer?,->,.,::,&,A
+C++,What is virtual function?,Runtime polymorphism,Compile-time polymorphism,Static function,Inline function,A
+C++,Which is reference operator?,&,*,@,#,A
+C++,What does cin do?,Input,Output,Both,Neither,A
+C++,Which is not storage class?,auto,static,extern,volatile,D
+C++,What is namespace?,Logical grouping,Class,Function,Variable,A
+C++,Which keyword defines template?,template,generic,class,type,A
+C++,What is friend function?,Access private members,Normal function,Static function,Virtual function,A
+C++,Which container is LIFO?,queue,stack,vector,list,B
+C++,What does vector resize do?,Change size,Delete,Insert,Sort,A
+C++,Which is unary operator?,++,+,==,&&,A
+C++,What is inline function?,Function expansion,Normal function,Virtual function,Static function,A
+C++,Which is not relationship?,Inheritance,Composition,Association,Declaration,D
+C++,What does static keyword do in function?,Retains value,No effect,Makes global,Deletes variable,A
+C++,Which header is for file handling?,fstream,iostream,stdio.h,file.h,A
+C++,What is pure virtual function?,Abstract function,Normal function,Static function,Inline function,A
+C++,Which operator cannot be overloaded?,sizeof,+,-,*,A
+C++,What does delete do?,Deallocate memory,Delete file,Remove variable,Clear screen,A
+C++,Which is associative container?,vector,map,list,deque,B
+C++,What is copy constructor?,Creates copy,Deletes copy,Modifies object,Static function,A
+C++,Which keyword exits loop?,break,exit,stop,end,A
+C++,What is typecasting?,Type conversion,Type checking,Type definition,Type deletion,A
+C++,Which is not pointer operation?,Addition,Subtraction,Multiplication,Comparison,C
+C++,What does this pointer refer to?,Current object,Parent class,Child class,Static member,A
+C++,Which is sequence container?,set,vector,map,multiset,B
+C++,What is operator overloading?,Redefine operator,Create operator,Delete operator,Use operator,A
+C++,Which header is for string?,string,cstring,string.h,str.h,A
+C++,What does sizeof return?,Size in bytes,Size in bits,Array length,String length,A
+C++,Which is not OOP concept?,Inheritance,Polymorphism,Encapsulation,Compilation,D
+C++,What is dangling pointer?,Points to deleted memory,Null pointer,Valid pointer,Static pointer,A
+C++,Which algorithm sorts?,sort(),find(),copy(),count(),A
+C++,What does throw do?,Raise exception,Return value,Break loop,Exit program,A
+C++,Which is default constructor?,No parameters,With parameters,Copy constructor,Destructor,A
+C++,What is abstract class?,Has pure virtual function,No members,All static,All virtual,A
+C++,Which is not standard namespace?,std,iostream,string,system,D
+C++,What does return 0 indicate?,Success,Failure,Continue,Exit,A
+C++,Which is multiple inheritance?,Many parents,Many children,Many functions,Many variables,A
+C,Which header is for standard I/O?,stdio.h,stdlib.h,string.h,conio.h,A
+C,What is the format specifier for integer?,%d,%f,%c,%s,A
+C,Which function allocates memory?,malloc,free,alloc,new,A
+C,What does NULL represent?,Null pointer,Zero,Empty string,Undefined,A
+C,Which is not a storage class?,auto,static,extern,const,D
+C,What is the size of char?,1 byte,2 bytes,4 bytes,Depends,A
+C,Which function copies string?,strcpy,strcat,strlen,strcmp,A
+C,What does sizeof operator return?,Size in bytes,Size in bits,Length,Count,A
+C,Which is conditional operator?,?:,&&,||,!,A
+C,What does break statement do?,Exit loop,Continue loop,Return value,Go to label,A
+C,Which function compares strings?,strcmp,strcpy,strlen,strcat,A
+C,What is pointer?,Address variable,Normal variable,Constant,Array,A
+C,Which is not loop?,for,while,repeat,do-while,C
+C,What does return statement do?,Return value,Break loop,Exit program,Go back,A
+C,Which operator is address of?,&,*,@,#,A
+C,What is array?,Collection of same type,Different types,Functions,Pointers,A
+C,Which function finds string length?,strlen,strcpy,strcmp,strcat,A
+C,What does preprocessor directive start with?,#,@,$,%,A
+C,Which is not arithmetic operator?,+,-,*,&&,D
+C,What is structure?,User-defined type,Built-in type,Function,Array,A
+C,Which function concatenates strings?,strcat,strcpy,strcmp,strlen,A
+C,What does void mean?,No return value,Integer return,Pointer return,Character return,A
+C,Which is logical operator?,&&,&,==,+,A
+C,What is enum?,Named integer constants,Float constants,Character constants,String constants,A
+C,Which function deallocates memory?,free,delete,remove,clear,A
+C,What does continue do?,Skip iteration,Exit loop,Return,Break,A
+C,Which is relational operator?,<,+,-,*,A
+C,What is typedef?,Create alias,Define variable,Declare function,Include file, A

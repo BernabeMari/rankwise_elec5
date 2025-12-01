@@ -60,10 +60,16 @@
                                 <i class="bi bi-input-cursor-text"></i> Identification
                             {% elif answer.question.question_type == 'coding' %}
                                 <i class="bi bi-code-square"></i> Coding
+                            {% elif answer.question.question_type == 'checkbox' %}
+                                <i class="bi bi-check2-square"></i> Checkbox
+                            {% elif answer.question.question_type == 'true_false' %}
+                                <i class="bi bi-check-circle"></i> True/False
+                            {% elif answer.question.question_type == 'enumeration' %}
+                                <i class="bi bi-list-ol"></i> Enumeration
                             {% endif %}
                         </span>
                         
-                        {% if answer.question.question_type in ['multiple_choice', 'identification'] and answer.question.correct_answer %}
+                        {% if answer.question.question_type in ['multiple_choice', 'identification', 'true_false'] and answer.question.correct_answer %}
                             {% if answer.is_correct %}
                                 <span class="correct-badge"><i class="bi bi-check-circle"></i> Correct</span>
                             {% else %}
@@ -179,12 +185,6 @@
                                 </div>
                             {% endif %}
                             
-                            {% if answer.question.expected_output %}
-                                <div class="mb-3">
-                                    <strong>Expected Solution Approach:</strong>
-                                    <pre class="mt-2">{{ answer.question.expected_output }}</pre>
-                                </div>
-                            {% endif %}
                             
                             <div class="mb-3">
                                 <strong>User's Code:</strong>
@@ -240,6 +240,116 @@
                                 </div>
                             {% endif %}
                         </div>
+                    {% elif answer.question.question_type == 'checkbox' %}
+                        <div class="mb-3">
+                            <div class="answer-block {% if answer.score_percentage and answer.score_percentage == 100 %}answer-correct{% elif answer.question.correct_answer %}answer-incorrect{% endif %}">
+                                <strong>Your Selections:</strong>
+                                <div class="mt-2">{{ answer.answer_text or 'No selections' }}</div>
+                            </div>
+                            {% set correct_list = answer.question.get_correct_answers() %}
+                            {% if correct_list %}
+                                <div class="answer-block answer-correct mt-3">
+                                    <strong>Correct Answers:</strong>
+                                    <div class="mt-2">
+                                        {% for it in correct_list %}
+                                            <span class="badge bg-success me-1">{{ it }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% if answer.question.options %}
+                                <div class="mt-3">
+                                    <strong>All Options:</strong>
+                                    <ul class="list-group mt-2">
+                                        {% for option in answer.question.get_options() %}
+                                            <li class="list-group-item">
+                                                {{ option }}
+                                                {% if option in correct_list %}
+                                                    <span class="badge bg-success float-end">Correct</span>
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            {% if answer.score_percentage is defined %}
+                                <div class="mt-3">
+                                    {% set earned_points = (answer.question.points * (answer.score_percentage or 0) / 100)|round(2) %}
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ answer.score_percentage or 0 }}%;" aria-valuenow="{{ answer.score_percentage or 0 }}" aria-valuemin="0" aria-valuemax="100">
+                                            {{ earned_points }} / {{ answer.question.points }} points ({{ (answer.score_percentage or 0)|int }}%)
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% elif answer.question.question_type == 'true_false' %}
+                        <div class="mb-3">
+                            <div class="answer-block {% if answer.is_correct %}answer-correct{% elif answer.question.correct_answer %}answer-incorrect{% endif %}">
+                                <strong>Answer:</strong> {{ answer.answer_text }}
+                            </div>
+                            {% if answer.question.correct_answer %}
+                                <div class="answer-block answer-correct mt-3">
+                                    <strong>Correct Answer:</strong> {{ answer.question.correct_answer }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% elif answer.question.question_type == 'enumeration' %}
+                        <div class="mb-3">
+                            <div class="answer-block">
+                                <strong>Your Items:</strong>
+                                <div class="mt-2">{{ answer.answer_text or 'No items provided' }}</div>
+                            </div>
+                            {% set correct_list = answer.question.get_correct_answers() %}
+                            {% if correct_list %}
+                                <div class="answer-block answer-correct mt-3">
+                                    <strong>Expected Items:</strong>
+                                    <div class="mt-2">
+                                        {% for it in correct_list %}
+                                            <span class="badge bg-success me-1">{{ it }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% if answer.score_percentage is defined %}
+                                <div class="mt-3">
+                                    {% set earned_points = (answer.question.points * (answer.score_percentage or 0) / 100)|round(2) %}
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ answer.score_percentage or 0 }}%;" aria-valuenow="{{ answer.score_percentage or 0 }}" aria-valuemin="0" aria-valuemax="100">
+                                            {{ earned_points }} / {{ answer.question.points }} points ({{ (answer.score_percentage or 0)|int }}%)
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    {% if session.role == 'admin' %}
+                    <form method="POST" action="{{ url_for('main.manual_mark_answer', answer_id=answer.id) }}" class="mt-3 p-3 border rounded bg-light">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-5">
+                                <label class="form-label">Mark as</label>
+                                <div class="d-flex gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="action" id="mark_correct_{{ answer.id }}" value="correct">
+                                        <label class="form-check-label" for="mark_correct_{{ answer.id }}">Correct (100%)</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="action" id="mark_wrong_{{ answer.id }}" value="wrong">
+                                        <label class="form-check-label" for="mark_wrong_{{ answer.id }}">Wrong (0%)</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="score_{{ answer.id }}" class="form-label">Or set % score</label>
+                                <input type="number" step="0.1" min="0" max="100" class="form-control" id="score_{{ answer.id }}" name="score_percentage" placeholder="e.g. 75" value="">
+                                <div class="form-text">Overrides radio choice if provided</div>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-save"></i> Save Manual Mark</button>
+                            </div>
+                        </div>
+                    </form>
                     {% endif %}
                 </div>
             {% endfor %}

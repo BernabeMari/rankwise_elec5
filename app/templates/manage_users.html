@@ -124,11 +124,6 @@
         background-color: #4caf50;
     }
     
-    .verification-code-value {
-        font-family: monospace;
-        letter-spacing: 1px;
-    }
-    
     .form-group {
         margin-bottom: 1rem;
     }
@@ -249,7 +244,7 @@
                 </div>
             </div>
             <div class="col-md-4 text-end">
-                <button class="btn btn-success" id="addStudentBtn">
+                <button class="btn btn-outline-light ms-2" id="addStudentBtn">
                     <i class="bi bi-person-plus"></i> Add Student
                 </button>
             </div>
@@ -262,10 +257,7 @@
                     <span id="selectedCount">0</span> students selected
                 </span>
                 <button id="generateBulkCodes" class="btn btn-primary btn-sm">
-                    <i class="bi bi-shield-lock"></i> Generate Verification Codes
-                </button>
-                <button id="removeBulkCodes" class="btn btn-danger btn-sm ms-2">
-                    <i class="bi bi-trash"></i> Remove Codes
+                    <i class="bi bi-envelope-check"></i> Send Verification Emails
                 </button>
                 <button id="cancelSelection" class="btn btn-outline-secondary btn-sm ms-2">
                     <i class="bi bi-x"></i> Cancel
@@ -286,7 +278,7 @@
                         <th>Status</th>
                         <th>Grade Level</th>
                         <th>Email</th>
-                        <th>Verification Code</th>
+                        <th>Verification Email</th>
                         {% if active_section %}
                             <th>Section</th>
                         {% endif %}
@@ -311,14 +303,20 @@
                             </td>
                             <td>{{ student.grade_level }}</td>
                             <td>{{ student.email }}</td>
-                            <td class="verification-code-cell" data-student-id="{{ student.student_id }}">
-                                <span class="verification-code-placeholder">Not generated</span>
-                                <span class="verification-code-value d-none"></span>
-                                <button class="btn btn-sm btn-outline-primary generate-code-btn ms-2" data-student-id="{{ student.student_id }}">
-                                    <i class="bi bi-shield-lock"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger remove-code-btn ms-1 d-none" data-student-id="{{ student.student_id }}">
-                                    <i class="bi bi-x"></i>
+                            <td class="verification-email-cell" data-student-id="{{ student.student_id }}">
+                                <div>
+                                    {% if student.email %}
+                                        <span class="verification-email-status text-muted">Not sent</span>
+                                    {% else %}
+                                        <span class="verification-email-status text-danger">No email on file</span>
+                                    {% endif %}
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary send-code-btn mt-2" 
+                                        data-student-id="{{ student.student_id }}"
+                                        data-student-name="{{ student.fullname }}"
+                                        data-student-email="{{ student.email or '' }}"
+                                        {% if not student.email %}disabled{% endif %}>
+                                    <i class="bi bi-envelope-check"></i> Send Code
                                 </button>
                             </td>
                             {% if active_section %}
@@ -359,7 +357,7 @@
 
 <div class="text-muted mt-3">
     <small>
-        <i class="bi bi-info-circle"></i> Students can log in using their student ID as username and verification code as password
+        <i class="bi bi-info-circle"></i> Students can log in using their student ID as username and the verification code sent to their email as the password.
     </small>
 </div>
 
@@ -385,17 +383,13 @@
                         <div class="col-md-4 fw-bold">Email:</div>
                         <div class="col-md-8" id="modalStudentEmail"></div>
                     </div>
-                    <div class="row" id="verificationCodeRow" style="display: none;">
-                        <div class="col-md-4 fw-bold">Verification Code:</div>
-                        <div class="col-md-8">
-                            <span id="verificationCode" class="badge bg-success fs-6 p-2"></span>
-                            <small class="d-block mt-1 text-muted">The student will use this code to log in</small>
-                        </div>
+                    <div class="alert alert-info" role="alert">
+                        Clicking the button below will generate a new verification code and email it directly to the student.
                     </div>
                 </div>
                 <div class="d-grid">
                     <button type="button" id="generateVerificationBtn" class="btn btn-primary">
-                        <i class="bi bi-shield-lock"></i> Generate Verification Code
+                        <i class="bi bi-envelope-check"></i> Email Verification Code
                     </button>
                 </div>
             </div>
@@ -454,7 +448,7 @@
 <div class="modal fade" id="addStudentModal" tabindex="-1" aria-labelledby="addStudentModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-success text-white">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="addStudentModalLabel">Add New Student</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -511,7 +505,9 @@
             </div>
         </div>
     </div>
-</div>
+
+    </div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -598,12 +594,63 @@
             // Update form validation
             fileInput.setCustomValidity('');
         }
-        
-        // Student Checklist and Verification Code Functions
-        // ===========================================
-        
-        // Initial load - check for existing verification codes
-        fetchExistingVerificationCodes();
+
+        function updateVerificationStatus(studentId, message, statusClass = 'text-muted') {
+            const cell = document.querySelector(`.verification-email-cell[data-student-id="${studentId}"]`);
+            if (!cell) return;
+            const statusSpan = cell.querySelector('.verification-email-status');
+            if (!statusSpan) return;
+            statusSpan.textContent = message;
+            statusSpan.classList.remove('text-muted', 'text-success', 'text-danger');
+            statusSpan.classList.add(statusClass);
+        }
+
+        function setSendButtonLoading(studentId, isLoading) {
+            const cell = document.querySelector(`.verification-email-cell[data-student-id="${studentId}"]`);
+            if (!cell) return;
+            const button = cell.querySelector('.send-code-btn');
+            if (!button) return;
+            if (isLoading) {
+                button.dataset.originalText = button.innerHTML;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Sending...';
+                button.disabled = true;
+            } else {
+                button.innerHTML = button.dataset.originalText || '<i class="bi bi-envelope-check"></i> Send Code';
+                const email = button.getAttribute('data-student-email');
+                button.disabled = !email;
+            }
+        }
+
+        function sendVerificationEmail(studentId) {
+            updateVerificationStatus(studentId, 'Sending email...', 'text-muted');
+            setSendButtonLoading(studentId, true);
+            return fetch('/auth/generate-verification-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ student_id: studentId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.email_sent) {
+                        updateVerificationStatus(studentId, 'Email sent successfully.', 'text-success');
+                    } else {
+                        updateVerificationStatus(studentId, data.email_error || 'Email not sent.', 'text-danger');
+                    }
+                } else {
+                    updateVerificationStatus(studentId, data.error || 'Failed to send email.', 'text-danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                updateVerificationStatus(studentId, 'Error sending email. Please try again.', 'text-danger');
+            })
+            .finally(() => {
+                setSendButtonLoading(studentId, false);
+            });
+        }
         
         // Click on student row
         studentRows.forEach(row => {
@@ -620,21 +667,14 @@
                 // Set modal content
                 document.getElementById('modalStudentId').textContent = studentId;
                 document.getElementById('modalStudentName').textContent = studentName;
-                document.getElementById('modalStudentEmail').textContent = studentEmail;
+                document.getElementById('modalStudentEmail').textContent = studentEmail || 'No email on file';
                 
-                // Check if this student has a verification code
-                const codeCell = document.querySelector(`.verification-code-cell[data-student-id="${studentId}"]`);
-                const codeValue = codeCell.querySelector('.verification-code-value').textContent;
-                
-                if (codeValue && !codeCell.querySelector('.verification-code-value').classList.contains('d-none')) {
-                    document.getElementById('verificationCode').textContent = codeValue;
-                    document.getElementById('verificationCodeRow').style.display = 'flex';
+                if (!studentEmail) {
                     generateVerificationBtn.disabled = true;
-                    generateVerificationBtn.innerHTML = '<i class="bi bi-check-circle"></i> Verification Code Generated';
+                    generateVerificationBtn.innerHTML = '<i class="bi bi-exclamation-circle"></i> No Email Available';
                 } else {
-                    document.getElementById('verificationCodeRow').style.display = 'none';
                     generateVerificationBtn.disabled = false;
-                    generateVerificationBtn.innerHTML = '<i class="bi bi-shield-lock"></i> Generate Verification Code';
+                    generateVerificationBtn.innerHTML = '<i class="bi bi-envelope-check"></i> Email Verification Code';
                 }
                 
                 // Show modal
@@ -667,16 +707,20 @@
         const bulkActionsToolbar = document.getElementById('bulkActionsToolbar');
         const selectedCountElement = document.getElementById('selectedCount');
         const generateBulkCodesBtn = document.getElementById('generateBulkCodes');
-        const removeBulkCodesBtn = document.getElementById('removeBulkCodes');
         const cancelSelectionBtn = document.getElementById('cancelSelection');
         
-        // Modal verification code generation
+        // Modal verification email
         generateVerificationBtn.addEventListener('click', function() {
             const studentId = document.getElementById('modalStudentId').textContent;
-            generateVerificationCodeForStudent(studentId);
-            
-            // Update modal display
-            document.getElementById('verificationCode').textContent = '...generating...';
+            if (!studentId) return;
+            const originalText = generateVerificationBtn.innerHTML;
+            generateVerificationBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Sending...';
+            generateVerificationBtn.disabled = true;
+            sendVerificationEmail(studentId).finally(() => {
+                const hasEmail = document.getElementById('modalStudentEmail').textContent !== 'No email on file';
+                generateVerificationBtn.innerHTML = '<i class="bi bi-envelope-check"></i> Email Verification Code';
+                generateVerificationBtn.disabled = !hasEmail;
+            });
         });
         
         // Select all checkbox
@@ -727,7 +771,7 @@
             bulkActionsToolbar.classList.add('d-none');
         });
         
-        // Generate bulk verification codes
+        // Send bulk verification emails
         generateBulkCodesBtn.addEventListener('click', function() {
             const selectedStudentIds = Array.from(document.querySelectorAll('.student-checkbox:checked'))
                 .map(checkbox => checkbox.value);
@@ -737,12 +781,10 @@
                 return;
             }
             
-            // Show confirmation
-            if (!confirm(`Generate verification codes for ${selectedStudentIds.length} selected students?`)) {
+            if (!confirm(`Send verification emails to ${selectedStudentIds.length} selected students?`)) {
                 return;
             }
             
-            // Make AJAX request to generate verification codes
             fetch('/auth/generate-bulk-verification-codes', {
                 method: 'POST',
                 headers: {
@@ -753,193 +795,41 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update UI with generated codes
-                    data.codes.forEach(codeData => {
-                        updateVerificationCodeUI(codeData.student_id, codeData.verification_code);
+                    const failures = [];
+                    (data.results || []).forEach(result => {
+                        if (result.email_sent) {
+                            updateVerificationStatus(result.student_id, 'Email sent successfully.', 'text-success');
+                        } else {
+                            updateVerificationStatus(result.student_id, result.email_error || 'Email not sent.', 'text-danger');
+                            failures.push(result.student_name || result.student_id);
+                        }
                     });
-                    
-                    // Reset selection
                     cancelSelectionBtn.click();
-                    
-                    alert(`Successfully generated verification codes for ${data.codes.length} students.`);
-                } else {
-                    alert('Error generating verification codes: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error generating verification codes. Please try again.');
-            });
-        });
-        
-        // Remove bulk verification codes
-        removeBulkCodesBtn.addEventListener('click', function() {
-            const selectedStudentIds = Array.from(document.querySelectorAll('.student-checkbox:checked'))
-                .map(checkbox => checkbox.value);
-            
-            if (selectedStudentIds.length === 0) {
-                alert('Please select at least one student');
-                return;
-            }
-            
-            // Show confirmation
-            if (!confirm(`Remove verification codes for ${selectedStudentIds.length} selected students?`)) {
-                return;
-            }
-            
-            // Make AJAX request to remove verification codes
-            fetch('/auth/remove-verification-codes', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ student_ids: selectedStudentIds }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update UI
-                    selectedStudentIds.forEach(studentId => {
-                        resetVerificationCodeUI(studentId);
-                    });
-                    
-                    // Reset selection
-                    cancelSelectionBtn.click();
-                    
-                    alert(`Successfully removed verification codes for ${selectedStudentIds.length} students.`);
-                } else {
-                    alert('Error removing verification codes: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error removing verification codes. Please try again.');
-            });
-        });
-        
-        // Individual generate code buttons
-        document.querySelectorAll('.generate-code-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.stopPropagation(); // Prevent row click
-                
-                const studentId = this.dataset.studentId;
-                generateVerificationCodeForStudent(studentId);
-            });
-        });
-        
-        // Individual remove code buttons
-        document.querySelectorAll('.remove-code-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.stopPropagation(); // Prevent row click
-                
-                const studentId = this.dataset.studentId;
-                removeVerificationCodeForStudent(studentId);
-            });
-        });
-        
-        // Generate verification code for a single student
-        function generateVerificationCodeForStudent(studentId) {
-            // Make AJAX request to generate verification code
-            fetch('/auth/generate-verification-code', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ student_id: studentId }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update UI
-                    updateVerificationCodeUI(studentId, data.verification_code);
-                } else {
-                    alert('Error generating verification code: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error generating verification code. Please try again.');
-            });
-        }
-        
-        // Remove verification code for a single student
-        function removeVerificationCodeForStudent(studentId) {
-            // Make AJAX request to remove verification code
-            fetch('/auth/remove-verification-codes', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ student_ids: [studentId] }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update UI
-                    resetVerificationCodeUI(studentId);
-                } else {
-                    alert('Error removing verification code: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error removing verification code. Please try again.');
-            });
-        }
-        
-        // Update verification code UI
-        function updateVerificationCodeUI(studentId, code) {
-            const cell = document.querySelector(`.verification-code-cell[data-student-id="${studentId}"]`);
-            if (cell) {
-                const placeholder = cell.querySelector('.verification-code-placeholder');
-                const value = cell.querySelector('.verification-code-value');
-                const generateBtn = cell.querySelector('.generate-code-btn');
-                const removeBtn = cell.querySelector('.remove-code-btn');
-                
-                placeholder.classList.add('d-none');
-                value.classList.remove('d-none');
-                value.textContent = code;
-                value.classList.add('badge', 'bg-success', 'fs-6', 'p-2');
-                
-                generateBtn.classList.add('d-none');
-                removeBtn.classList.remove('d-none');
-            }
-        }
-        
-        // Reset verification code UI
-        function resetVerificationCodeUI(studentId) {
-            const cell = document.querySelector(`.verification-code-cell[data-student-id="${studentId}"]`);
-            if (cell) {
-                const placeholder = cell.querySelector('.verification-code-placeholder');
-                const value = cell.querySelector('.verification-code-value');
-                const generateBtn = cell.querySelector('.generate-code-btn');
-                const removeBtn = cell.querySelector('.remove-code-btn');
-                
-                placeholder.classList.remove('d-none');
-                value.classList.add('d-none');
-                value.textContent = '';
-                
-                generateBtn.classList.remove('d-none');
-                removeBtn.classList.add('d-none');
-            }
-        }
-        
-        // Fetch existing verification codes
-        function fetchExistingVerificationCodes() {
-            fetch('/auth/get-verification-codes')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        data.codes.forEach(codeData => {
-                            updateVerificationCodeUI(codeData.student_id, codeData.verification_code);
-                        });
+                    if (failures.length) {
+                        alert(`Emails sent, but failed for: ${failures.join(', ')}`);
+                    } else {
+                        alert(`Verification emails sent to ${selectedStudentIds.length} students.`);
                     }
-                })
-                .catch(error => {
-                    console.error('Error fetching verification codes:', error);
-                });
-        }
+                } else {
+                    alert('Error sending verification emails: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error sending verification emails. Please try again.');
+            });
+        });
         
+        // Individual send code buttons
+        document.querySelectorAll('.send-code-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent row click
+                
+                const studentId = this.dataset.studentId;
+                sendVerificationEmail(studentId);
+            });
+        });
+
         // Add Student Functionality
         // =======================
         

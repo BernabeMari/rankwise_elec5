@@ -6,13 +6,32 @@ from app.models.users import (
     initialize_students_dir, initialize_sections_file, get_all_sections, 
     get_all_students, save_section_from_excel, hash_password, delete_section,
     delete_student_from_section, student_id_exists, move_student_to_section,
-    get_all_section_names, add_single_student
+    get_all_section_names, add_single_student, get_student_by_id
 )
+from app.utils.email_utils import send_email
 
 auth = Blueprint('auth', __name__)
 
-# Dictionary to store student verification codes
-student_verification_codes = {}
+
+def send_verification_email(student, verification_code):
+    """
+    Send the verification code to the student's email address.
+    Returns (email_sent: bool, error_message: Optional[str])
+    """
+    if not student or not getattr(student, "email", None):
+        return False, "Student email is missing. Please update the student's email address."
+
+    subject = "Rankwise Verification Code"
+    body = (
+        f"Hello {student.fullname or student.student_id},\n\n"
+        f"Your temporary verification code is: {verification_code}\n\n"
+        "Use this code together with your student ID to log in to Rankwise. "
+        "For security, please do not share this code with others.\n\n"
+        "If you did not request this code, please contact your teacher.\n\n"
+        "This is an automated message."
+    )
+
+    return send_email(student.email, subject, body)
 
 @auth.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -104,18 +123,15 @@ def generate_verification_code():
     if 'user_id' not in session or session.get('role') != 'admin':
         return jsonify({'success': False, 'error': 'Unauthorized access'}), 403
     
-    # Get student ID from request
     data = request.get_json()
     if not data or 'student_id' not in data:
         return jsonify({'success': False, 'error': 'Student ID is required'}), 400
     
     student_id = data['student_id']
+    student = get_student_by_id(student_id)
     
     # Generate a random 6-digit verification code
     verification_code = ''.join(random.choices(string.digits, k=6))
-    
-    # Store the verification code in our dictionary
-    student_verification_codes[student_id] = verification_code
     
     # Update the user's password to the verification code
     import csv
@@ -127,7 +143,6 @@ def generate_verification_code():
     if not os.path.exists(USERS_FILE):
         initialize_users_file()
     
-    # Check if user exists
     user_exists = False
     temp_file = NamedTemporaryFile(mode='w', delete=False, newline='')
     
@@ -145,19 +160,26 @@ def generate_verification_code():
                     user_exists = True
                 writer.writerow(row)
         
-        # Replace the original file with the temporary file
         shutil.move(temp_file.name, USERS_FILE)
         
-        # If user doesn't exist, create it
         if not user_exists:
             with open(USERS_FILE, 'a', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow([student_id, hash_password(verification_code), 'student'])
         
+        email_sent, email_error = send_verification_email(student, verification_code)
+        
+        message = "Verification code generated."
+        if email_sent:
+            message += " Email sent to student."
+        else:
+            message += " Email could not be sent."
+        
         return jsonify({
             'success': True,
-            'verification_code': verification_code,
-            'message': 'Verification code generated successfully'
+            'email_sent': email_sent,
+            'email_error': email_error,
+            'message': message
         })
     
     except Exception as e:
@@ -175,8 +197,6 @@ def generate_bulk_verification_codes():
     if not student_ids:
         return jsonify({'success': False, 'error': 'Student IDs are required'}), 400
     
-    generated_codes = []
-    
     import csv
     import os
     from tempfile import NamedTemporaryFile
@@ -186,38 +206,26 @@ def generate_bulk_verification_codes():
     if not os.path.exists(USERS_FILE):
         initialize_users_file()
     
-    # Read all existing users
-    existing_users = {}
     try:
+        # Load existing users
+        existing_users = {}
         with open(USERS_FILE, 'r', newline='') as csv_file:
             reader = csv.DictReader(csv_file)
             fieldnames = reader.fieldnames
-            
             for row in reader:
                 existing_users[row['username']] = row
-    
-        # Create temporary file for writing updated users
+        
         temp_file = NamedTemporaryFile(mode='w', delete=False, newline='')
+        bulk_results = []
         
         with temp_file:
             writer = csv.DictWriter(temp_file, fieldnames=fieldnames)
             writer.writeheader()
             
-            # Process each student ID
             for student_id in student_ids:
-                # Generate a 6-digit verification code
                 verification_code = ''.join(random.choices(string.digits, k=6))
+                student = get_student_by_id(student_id)
                 
-                # Store the verification code in our dictionary
-                student_verification_codes[student_id] = verification_code
-                
-                # Add to the generated codes list
-                generated_codes.append({
-                    'student_id': student_id,
-                    'verification_code': verification_code
-                })
-                
-                # Update or add user in the CSV
                 if student_id in existing_users:
                     existing_users[student_id]['password_hash'] = hash_password(verification_code)
                 else:
@@ -226,63 +234,29 @@ def generate_bulk_verification_codes():
                         'password_hash': hash_password(verification_code),
                         'role': 'student'
                     }
+                
+                email_sent, email_error = send_verification_email(student, verification_code)
+                bulk_results.append({
+                    'student_id': student_id,
+                    'student_name': getattr(student, 'fullname', student_id),
+                    'email_sent': email_sent,
+                    'email_error': email_error
+                })
             
-            # Write all users back to the file
-            for username, user_data in existing_users.items():
+            for user_data in existing_users.values():
                 writer.writerow(user_data)
         
-        # Replace the original file with the temporary file
         shutil.move(temp_file.name, USERS_FILE)
         
         return jsonify({
             'success': True,
-            'codes': generated_codes,
-            'message': f'Generated {len(generated_codes)} verification codes successfully'
+            'results': bulk_results,
+            'message': f'Processed {len(bulk_results)} students.'
         })
     
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@auth.route('/remove-verification-codes', methods=['POST'])
-def remove_verification_codes():
-    # Admin check
-    if 'user_id' not in session or session.get('role') != 'admin':
-        return jsonify({'success': False, 'error': 'Unauthorized access'}), 403
-    
-    data = request.get_json()
-    student_ids = data.get('student_ids', [])
-    
-    if not student_ids:
-        return jsonify({'success': False, 'error': 'Student IDs are required'}), 400
-    
-    for student_id in student_ids:
-        # Remove the verification code if it exists
-        if student_id in student_verification_codes:
-            del student_verification_codes[student_id]
-    
-    return jsonify({
-        'success': True,
-        'message': f'Removed verification codes for {len(student_ids)} students'
-    })
-
-@auth.route('/get-verification-codes', methods=['GET'])
-def get_verification_codes():
-    # Admin check
-    if 'user_id' not in session or session.get('role') != 'admin':
-        return jsonify({'success': False, 'error': 'Unauthorized access'}), 403
-    
-    codes = []
-    
-    for student_id, verification_code in student_verification_codes.items():
-        codes.append({
-            'student_id': student_id,
-            'verification_code': verification_code
-        })
-    
-    return jsonify({
-        'success': True,
-        'codes': codes
-    })
 
 @auth.route('/delete-section', methods=['POST'])
 def delete_section_route():

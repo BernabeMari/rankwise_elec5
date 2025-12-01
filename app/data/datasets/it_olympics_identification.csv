@@ -1,0 +1,1477 @@
+topic,question,answer
+Programming,What is the process of finding and fixing errors in code?,Debugging
+Programming,What keyword is used to define a function in Python?,Def
+Programming,Which term describes combining data and methods in one unit?,Encapsulation
+Programming,What is the name of the first index in most programming languages?,Zero
+Programming,Which paradigm uses objects and classes?,Object-oriented
+Programming,What symbol is used for comments in Python?,Hash
+Programming,Which keyword in Java is used to inherit a class?,Extends
+Programming,What keyword creates an instance of a class in Java?,New
+Programming,What do we call a variable declared inside a function?,Local
+Programming,What is the process of repeating a set of instructions?,Iteration
+Programming,Which operator is used for equality comparison in C?,DoubleEquals
+Networking,What device connects multiple computers in a LAN?,Switch
+Networking,What is the most common protocol for web traffic?,HTTP
+Networking,What network topology connects all nodes to a central hub?,Star
+Networking,What is the unique address assigned to a device on a network?,IP
+Networking,Which device routes packets between networks?,Router
+Networking,What term describes the rate of data transfer?,Bandwidth
+Networking,What is the wireless standard known as 802.11?,WiFi
+Networking,What protocol is used to send emails?,SMTP
+Networking,What is the main protocol used to retrieve web pages?,HTTP
+Networking,What is the default port number for HTTPS?,443
+Cybersecurity,What is the practice of converting data into unreadable form?,Encryption
+Cybersecurity,What is malicious software called?,Malware
+Cybersecurity,What is a program that replicates itself called?,Virus
+Cybersecurity,What is the process of verifying identity?,Authentication
+Cybersecurity,What attack floods a server with excessive traffic?,DDoS
+Cybersecurity,What is the science of securing information?,Cryptography
+Cybersecurity,What is the unauthorized access to systems called?,Hacking
+Cybersecurity,What is the strongest type of password protection method?,Biometric
+Cybersecurity,What is the process of restoring data from backup called?,Recovery
+Cybersecurity,What is used to detect and prevent network intrusions?,Firewall
+Databases,What language is used to query databases?,SQL
+Databases,What is a single row in a table called?,Record
+Databases,What is a single column in a table called?,Field
+Databases,What is the unique identifier for a record called?,PrimaryKey
+Databases,What type of database stores data in tables?,Relational
+Databases,What is the command to add new data in SQL?,Insert
+Databases,What is the command to remove data in SQL?,Delete
+Databases,What is the command to update data in SQL?,Update
+Databases,What is the command to retrieve data in SQL?,Select
+Databases,What is the software used to manage databases?,DBMS
+AI,What is the branch of computer science that simulates human intelligence?,AI
+AI,What is the learning approach where the model learns from labeled data?,Supervised
+AI,What type of learning uses rewards and punishments?,Reinforcement
+AI,What is the process of training a neural network called?,Learning
+AI,What is the structure inspired by the human brain?,Neuron
+AI,What type of AI can perform specific tasks only?,Narrow
+AI,What is the output layer of a neural network called?,Output
+AI,What algorithm mimics biological evolution?,Genetic
+AI,What is the measure of prediction accuracy in AI?,Precision
+AI,What is the process of breaking a problem into smaller parts?,Decomposition
+Cybersecurity,What is the practice of protecting systems and networks from digital attacks?,Cybersecurity
+Cybersecurity,What type of malicious software encrypts files and demands payment?,Ransomware
+Cybersecurity,What is the process of converting data into a coded format?,Encryption
+Cybersecurity,What attack floods a network with traffic to make it unavailable?,DDoS Attack
+Cybersecurity,What is a secret word or phrase used to authenticate a user?,Password
+Cybersecurity,What is software designed to detect and remove malicious programs?,Antivirus
+Cybersecurity,What attack tricks users into revealing sensitive information via fake emails?,Phishing
+Cybersecurity,What is a network security system that monitors and controls traffic?,Firewall
+Cybersecurity,What is unauthorized access to a computer system called?,Hacking
+Cybersecurity,What is a weakness in a system that can be exploited?,Vulnerability
+Cybersecurity,What authentication method requires two different forms of verification?,Two-Factor Authentication
+Cybersecurity,What is malicious software that disguises itself as legitimate?,Trojan Horse
+Cybersecurity,What attack involves testing all possible password combinations?,Brute Force Attack
+Cybersecurity,What is the practice of creating fake scenarios to manipulate people?,Social Engineering
+Cybersecurity,What protocol provides secure communication over networks?,SSL/TLS
+Cybersecurity,What is software that secretly monitors user activity?,Spyware
+Cybersecurity,What is a simulated cyber attack to test security?,Penetration Testing
+Cybersecurity,What is the process of verifying user identity?,Authentication
+Cybersecurity,What type of attack injects malicious code into databases?,SQL Injection
+Cybersecurity,What is a copy of data stored separately for recovery?,Backup
+Cybersecurity,What is an isolated environment for testing suspicious files?,Sandbox
+Cybersecurity,What security measure restricts user permissions?,Access Control
+Cybersecurity,What is a record of system events and activities?,Audit Log
+Cybersecurity,What attack intercepts communication between two parties?,Man-in-the-Middle Attack
+Cybersecurity,What is a security flaw unknown to the software vendor?,Zero-Day Vulnerability
+Cybersecurity,What network allows secure remote access?,VPN
+Cybersecurity,What is unwanted email sent in bulk?,Spam
+Cybersecurity,What is the process of scrambling data to prevent unauthorized access?,Hashing
+Cybersecurity,What is a string of characters used to encrypt data?,Encryption Key
+Cybersecurity,What attack exploits vulnerabilities in web applications?,Cross-Site Scripting
+Cybersecurity,What is a security policy that denies all traffic by default?,Whitelist
+Cybersecurity,What is the practice of hiding data within other files?,Steganography
+Cybersecurity,What is a malicious program that replicates itself?,Virus
+Cybersecurity,What framework helps organizations manage security risks?,ISO 27001
+Cybersecurity,What is the process of removing sensitive data permanently?,Data Sanitization
+Cybersecurity,What attack targets specific individuals or organizations?,Spear Phishing
+Cybersecurity,What is a deceptive system designed to lure attackers?,Honeypot
+Cybersecurity,What is the principle of granting minimal access rights?,Least Privilege
+Cybersecurity,What is a security incident that compromises data?,Data Breach
+Cybersecurity,What tool scans networks for security vulnerabilities?,Vulnerability Scanner
+Cybersecurity,What is the practice of verifying software authenticity?,Digital Signature
+Cybersecurity,What attack overwhelms a single target with traffic?,DoS Attack
+Cybersecurity,What is a set of compromised computers controlled remotely?,Botnet
+Cybersecurity,What is the process of analyzing security incidents?,Forensics
+Cybersecurity,What protocol secures remote command-line access?,SSH
+Cybersecurity,What is a policy document outlining security practices?,Security Policy
+Cybersecurity,What is malicious code that spreads without user action?,Worm
+Cybersecurity,What is the practice of testing security through authorized hacking?,Ethical Hacking
+Cybersecurity,What is a unique identifier for verifying digital identity?,Digital Certificate
+Cybersecurity,What is the time between vulnerability discovery and patch?,Patch Window
+Digital Electronics,What is the number system using only 0 and 1?,Binary
+Digital Electronics,What logic gate outputs 1 only when all inputs are 1?,AND Gate
+Digital Electronics,What logic gate outputs 1 when at least one input is 1?,OR Gate
+Digital Electronics,What logic gate inverts the input signal?,NOT Gate
+Digital Electronics,What is the smallest unit of digital information?,Bit
+Digital Electronics,What is a group of 8 bits called?,Byte
+Digital Electronics,What device stores one bit of information?,Flip-Flop
+Digital Electronics,What logic gate outputs 1 when inputs are different?,XOR Gate
+Digital Electronics,What is a combination of logic gates called?,Logic Circuit
+Digital Electronics,What converts analog signals to digital?,ADC (Analog-to-Digital Converter)
+Digital Electronics,What converts digital signals to analog?,DAC (Digital-to-Analog Converter)
+Digital Electronics,What is a circuit whose output depends only on current inputs?,Combinational Circuit
+Digital Electronics,What is a circuit that uses memory elements?,Sequential Circuit
+Digital Electronics,What device selects one of many input signals?,Multiplexer
+Digital Electronics,What device distributes one input to multiple outputs?,Demultiplexer
+Digital Electronics,What is the complement of an AND gate?,NAND Gate
+Digital Electronics,What is the complement of an OR gate?,NOR Gate
+Digital Electronics,What circuit performs arithmetic operations?,Adder
+Digital Electronics,What device compares two binary numbers?,Comparator
+Digital Electronics,What is a truth table used for?,Showing logic gate outputs for all input combinations
+Digital Electronics,What theorem simplifies Boolean expressions?,Boolean Algebra
+Digital Electronics,What is the base of the hexadecimal number system?,16
+Digital Electronics,What device counts pulses or events?,Counter
+Digital Electronics,What stores multiple bits of data temporarily?,Register
+Digital Electronics,What is a circuit that generates clock signals?,Oscillator
+Digital Electronics,What component switches or amplifies electronic signals?,Transistor
+Digital Electronics,What is the time delay in signal propagation?,Propagation Delay
+Digital Electronics,What device encodes inputs into binary?,Encoder
+Digital Electronics,What device decodes binary into outputs?,Decoder
+Digital Electronics,What is the rise and fall time of a signal?,Edge Transition
+Digital Electronics,What circuit configuration has two stable states?,Bistable
+Digital Electronics,What is unwanted variation in signal levels?,Noise
+Digital Electronics,What is the frequency of state changes?,Clock Speed
+Digital Electronics,What law states that any Boolean function can be implemented with NAND gates?,NAND Gate Universality
+Digital Electronics,What is the process of converting decimal to binary?,Binary Conversion
+Digital Electronics,What device temporarily holds data?,Latch
+Digital Electronics,What is a half adder upgraded with carry input?,Full Adder
+Digital Electronics,What map simplifies Boolean expressions visually?,Karnaugh Map
+Digital Electronics,What is the voltage representing logic 1?,High Level
+Digital Electronics,What is the voltage representing logic 0?,Low Level
+Digital Electronics,What circuit subtracts binary numbers?,Subtractor
+Digital Electronics,What is the fan-out of a logic gate?,Maximum number of inputs it can drive
+Digital Electronics,What stores large amounts of digital data?,Memory
+Digital Electronics,What type of memory loses data when power is off?,Volatile Memory
+Digital Electronics,What type of memory retains data without power?,Non-Volatile Memory
+Digital Electronics,What is the basic building block of digital circuits?,Logic Gate
+Digital Electronics,What is a bistable device triggered by clock pulses?,Flip-Flop
+Digital Electronics,What circuit generates a sequence of states?,State Machine
+Digital Electronics,What is synchronous operation in digital circuits?,Operations controlled by clock signals
+Digital Electronics,What is the metastable state in flip-flops?,Unstable intermediate state
+Linux Administration,What command displays the current directory?,pwd
+Linux Administration,What command lists files in a directory?,ls
+Linux Administration,What command changes directories?,cd
+Linux Administration,What command creates a new directory?,mkdir
+Linux Administration,What command removes files?,rm
+Linux Administration,What command copies files?,cp
+Linux Administration,What command moves or renames files?,mv
+Linux Administration,What command displays file contents?,cat
+Linux Administration,What command shows running processes?,ps
+Linux Administration,What command terminates a process?,kill
+Linux Administration,What is the root user's home directory?,/root
+Linux Administration,What command changes file permissions?,chmod
+Linux Administration,What command changes file ownership?,chown
+Linux Administration,What command searches for files?,find
+Linux Administration,What command searches text within files?,grep
+Linux Administration,What command displays system information?,uname
+Linux Administration,What command shows disk usage?,df
+Linux Administration,What command shows directory size?,du
+Linux Administration,What command displays network configuration?,ifconfig
+Linux Administration,What command tests network connectivity?,ping
+Linux Administration,What command shows system uptime?,uptime
+Linux Administration,What command creates a new user?,useradd
+Linux Administration,What command deletes a user?,userdel
+Linux Administration,What command modifies user properties?,usermod
+Linux Administration,What command changes user password?,passwd
+Linux Administration,What command displays logged-in users?,who
+Linux Administration,What command shows command history?,history
+Linux Administration,What command compresses files?,tar
+Linux Administration,What command downloads files from the internet?,wget
+Linux Administration,What command securely copies files between systems?,scp
+Linux Administration,What command connects to remote systems securely?,ssh
+Linux Administration,What command displays the end of a file?,tail
+Linux Administration,What command displays the beginning of a file?,head
+Linux Administration,What command edits text files in terminal?,vi or nano
+Linux Administration,What command shows available memory?,free
+Linux Administration,What command monitors system resources in real-time?,top
+Linux Administration,What command schedules recurring tasks?,cron
+Linux Administration,What command manually mounts filesystems?,mount
+Linux Administration,What command unmounts filesystems?,umount
+Linux Administration,What command checks filesystem integrity?,fsck
+Linux Administration,What command displays kernel messages?,dmesg
+Linux Administration,What command shows network statistics?,netstat
+Linux Administration,What command manages system services?,systemctl
+Linux Administration,What command displays user groups?,groups
+Linux Administration,What command changes to root user?,su
+Linux Administration,What command executes commands as another user?,sudo
+Linux Administration,What file contains user account information?,/etc/passwd
+Linux Administration,What file contains encrypted passwords?,/etc/shadow
+Linux Administration,What file contains group information?,/etc/group
+Linux Administration,What command creates symbolic links?,ln
+Networking,What is the global system of interconnected networks?,Internet
+Networking,What protocol is used for web browsing?,HTTP
+Networking,What is a unique identifier for network devices?,IP Address
+Networking,What device connects multiple networks together?,Router
+Networking,What device connects devices within a local network?,Switch
+Networking,What is the physical address of a network card?,MAC Address
+Networking,What protocol resolves domain names to IP addresses?,DNS
+Networking,What is the standard for wireless networking?,WiFi
+Networking,What protocol ensures reliable data delivery?,TCP
+Networking,What protocol provides faster but unreliable delivery?,UDP
+Networking,What is a private network accessible only to authorized users?,Intranet
+Networking,What is the range of IP addresses in a network?,Subnet
+Networking,What device extends wireless network coverage?,Access Point
+Networking,What is the maximum data transfer rate?,Bandwidth
+Networking,What is the delay in data transmission?,Latency
+Networking,What protocol automatically assigns IP addresses?,DHCP
+Networking,What is a network security barrier?,Firewall
+Networking,What topology connects all devices to a central hub?,Star Topology
+Networking,What topology connects devices in a loop?,Ring Topology
+Networking,What topology connects all devices to a single cable?,Bus Topology
+Networking,What is a network covering a small geographic area?,LAN
+Networking,What is a network covering a large geographic area?,WAN
+Networking,What layer of OSI model handles routing?,Network Layer
+Networking,What layer of OSI model handles data formatting?,Presentation Layer
+Networking,What layer of OSI model handles physical transmission?,Physical Layer
+Networking,What is the standard Ethernet cable category?,Cat5e or Cat6
+Networking,What protocol transfers files over networks?,FTP
+Networking,What protocol sends email?,SMTP
+Networking,What protocol retrieves email?,POP3 or IMAP
+Networking,What is the secure version of HTTP?,HTTPS
+Networking,What port does HTTP use?,80
+Networking,What port does HTTPS use?,443
+Networking,What port does SSH use?,22
+Networking,What port does FTP use?,21
+Networking,What device amplifies network signals?,Repeater
+Networking,What device filters traffic between networks?,Gateway
+Networking,What is simultaneous two-way communication?,Full Duplex
+Networking,What is alternating two-way communication?,Half Duplex
+Networking,What is the practice of dividing networks into segments?,Subnetting
+Networking,What is a network that uses public infrastructure securely?,VPN
+Networking,What protocol manages network devices?,SNMP
+Networking,What is the addressing scheme using 32 bits?,IPv4
+Networking,What is the addressing scheme using 128 bits?,IPv6
+Networking,What command tests DNS resolution?,nslookup
+Networking,What command traces network route?,traceroute
+Networking,What is the maximum transmission unit size?,MTU
+Networking,What is collision detection in Ethernet?,CSMA/CD
+Networking,What is a broadcast domain boundary?,VLAN
+Networking,What protocol synchronizes computer clocks?,NTP
+Networking,What is network address translation?,NAT
+topic,question,answer
+Cybersecurity,What is the practice of protecting systems and networks from digital attacks?,Cybersecurity
+Cybersecurity,What type of malicious software encrypts files and demands payment?,Ransomware
+Cybersecurity,What is the process of converting data into a coded format?,Encryption
+Cybersecurity,What attack floods a network with traffic to make it unavailable?,DDoS Attack
+Cybersecurity,What is a secret word or phrase used to authenticate a user?,Password
+Cybersecurity,What is software designed to detect and remove malicious programs?,Antivirus
+Cybersecurity,What attack tricks users into revealing sensitive information via fake emails?,Phishing
+Cybersecurity,What is a network security system that monitors and controls traffic?,Firewall
+Cybersecurity,What is unauthorized access to a computer system called?,Hacking
+Cybersecurity,What is a weakness in a system that can be exploited?,Vulnerability
+Cybersecurity,What authentication method requires two different forms of verification?,Two-Factor Authentication
+Cybersecurity,What is malicious software that disguises itself as legitimate?,Trojan Horse
+Cybersecurity,What attack involves testing all possible password combinations?,Brute Force Attack
+Cybersecurity,What is the practice of creating fake scenarios to manipulate people?,Social Engineering
+Cybersecurity,What protocol provides secure communication over networks?,SSL/TLS
+Cybersecurity,What is software that secretly monitors user activity?,Spyware
+Cybersecurity,What is a simulated cyber attack to test security?,Penetration Testing
+Cybersecurity,What is the process of verifying user identity?,Authentication
+Cybersecurity,What type of attack injects malicious code into databases?,SQL Injection
+Cybersecurity,What is a copy of data stored separately for recovery?,Backup
+Cybersecurity,What is an isolated environment for testing suspicious files?,Sandbox
+Cybersecurity,What security measure restricts user permissions?,Access Control
+Cybersecurity,What is a record of system events and activities?,Audit Log
+Cybersecurity,What attack intercepts communication between two parties?,Man-in-the-Middle Attack
+Cybersecurity,What is a security flaw unknown to the software vendor?,Zero-Day Vulnerability
+Cybersecurity,What network allows secure remote access?,VPN
+Cybersecurity,What is unwanted email sent in bulk?,Spam
+Cybersecurity,What is the process of scrambling data to prevent unauthorized access?,Hashing
+Cybersecurity,What is a string of characters used to encrypt data?,Encryption Key
+Cybersecurity,What attack exploits vulnerabilities in web applications?,Cross-Site Scripting
+Cybersecurity,What is a security policy that denies all traffic by default?,Whitelist
+Cybersecurity,What is the practice of hiding data within other files?,Steganography
+Cybersecurity,What is a malicious program that replicates itself?,Virus
+Cybersecurity,What framework helps organizations manage security risks?,ISO 27001
+Cybersecurity,What is the process of removing sensitive data permanently?,Data Sanitization
+Cybersecurity,What attack targets specific individuals or organizations?,Spear Phishing
+Cybersecurity,What is a deceptive system designed to lure attackers?,Honeypot
+Cybersecurity,What is the principle of granting minimal access rights?,Least Privilege
+Cybersecurity,What is a security incident that compromises data?,Data Breach
+Cybersecurity,What tool scans networks for security vulnerabilities?,Vulnerability Scanner
+Cybersecurity,What is the practice of verifying software authenticity?,Digital Signature
+Cybersecurity,What attack overwhelms a single target with traffic?,DoS Attack
+Cybersecurity,What is a set of compromised computers controlled remotely?,Botnet
+Cybersecurity,What is the process of analyzing security incidents?,Forensics
+Cybersecurity,What protocol secures remote command-line access?,SSH
+Cybersecurity,What is a policy document outlining security practices?,Security Policy
+Cybersecurity,What is malicious code that spreads without user action?,Worm
+Cybersecurity,What is the practice of testing security through authorized hacking?,Ethical Hacking
+Cybersecurity,What is a unique identifier for verifying digital identity?,Digital Certificate
+Cybersecurity,What is the time between vulnerability discovery and patch?,Patch Window
+Digital Electronics,What is the number system using only 0 and 1?,Binary
+Digital Electronics,What logic gate outputs 1 only when all inputs are 1?,AND Gate
+Digital Electronics,What logic gate outputs 1 when at least one input is 1?,OR Gate
+Digital Electronics,What logic gate inverts the input signal?,NOT Gate
+Digital Electronics,What is the smallest unit of digital information?,Bit
+Digital Electronics,What is a group of 8 bits called?,Byte
+Digital Electronics,What device stores one bit of information?,Flip-Flop
+Digital Electronics,What logic gate outputs 1 when inputs are different?,XOR Gate
+Digital Electronics,What is a combination of logic gates called?,Logic Circuit
+Digital Electronics,What converts analog signals to digital?,ADC (Analog-to-Digital Converter)
+Digital Electronics,What converts digital signals to analog?,DAC (Digital-to-Analog Converter)
+Digital Electronics,What is a circuit whose output depends only on current inputs?,Combinational Circuit
+Digital Electronics,What is a circuit that uses memory elements?,Sequential Circuit
+Digital Electronics,What device selects one of many input signals?,Multiplexer
+Digital Electronics,What device distributes one input to multiple outputs?,Demultiplexer
+Digital Electronics,What is the complement of an AND gate?,NAND Gate
+Digital Electronics,What is the complement of an OR gate?,NOR Gate
+Digital Electronics,What circuit performs arithmetic operations?,Adder
+Digital Electronics,What device compares two binary numbers?,Comparator
+Digital Electronics,What is a truth table used for?,Showing logic gate outputs for all input combinations
+Digital Electronics,What theorem simplifies Boolean expressions?,Boolean Algebra
+Digital Electronics,What is the base of the hexadecimal number system?,16
+Digital Electronics,What device counts pulses or events?,Counter
+Digital Electronics,What stores multiple bits of data temporarily?,Register
+Digital Electronics,What is a circuit that generates clock signals?,Oscillator
+Digital Electronics,What component switches or amplifies electronic signals?,Transistor
+Digital Electronics,What is the time delay in signal propagation?,Propagation Delay
+Digital Electronics,What device encodes inputs into binary?,Encoder
+Digital Electronics,What device decodes binary into outputs?,Decoder
+Digital Electronics,What is the rise and fall time of a signal?,Edge Transition
+Digital Electronics,What circuit configuration has two stable states?,Bistable
+Digital Electronics,What is unwanted variation in signal levels?,Noise
+Digital Electronics,What is the frequency of state changes?,Clock Speed
+Digital Electronics,What law states that any Boolean function can be implemented with NAND gates?,NAND Gate Universality
+Digital Electronics,What is the process of converting decimal to binary?,Binary Conversion
+Digital Electronics,What device temporarily holds data?,Latch
+Digital Electronics,What is a half adder upgraded with carry input?,Full Adder
+Digital Electronics,What map simplifies Boolean expressions visually?,Karnaugh Map
+Digital Electronics,What is the voltage representing logic 1?,High Level
+Digital Electronics,What is the voltage representing logic 0?,Low Level
+Digital Electronics,What circuit subtracts binary numbers?,Subtractor
+Digital Electronics,What is the fan-out of a logic gate?,Maximum number of inputs it can drive
+Digital Electronics,What stores large amounts of digital data?,Memory
+Digital Electronics,What type of memory loses data when power is off?,Volatile Memory
+Digital Electronics,What type of memory retains data without power?,Non-Volatile Memory
+Digital Electronics,What is the basic building block of digital circuits?,Logic Gate
+Digital Electronics,What is a bistable device triggered by clock pulses?,Flip-Flop
+Digital Electronics,What circuit generates a sequence of states?,State Machine
+Digital Electronics,What is synchronous operation in digital circuits?,Operations controlled by clock signals
+Digital Electronics,What is the metastable state in flip-flops?,Unstable intermediate state
+Linux Administration,What command displays the current directory?,pwd
+Linux Administration,What command lists files in a directory?,ls
+Linux Administration,What command changes directories?,cd
+Linux Administration,What command creates a new directory?,mkdir
+Linux Administration,What command removes files?,rm
+Linux Administration,What command copies files?,cp
+Linux Administration,What command moves or renames files?,mv
+Linux Administration,What command displays file contents?,cat
+Linux Administration,What command shows running processes?,ps
+Linux Administration,What command terminates a process?,kill
+Linux Administration,What is the root user's home directory?,/root
+Linux Administration,What command changes file permissions?,chmod
+Linux Administration,What command changes file ownership?,chown
+Linux Administration,What command searches for files?,find
+Linux Administration,What command searches text within files?,grep
+Linux Administration,What command displays system information?,uname
+Linux Administration,What command shows disk usage?,df
+Linux Administration,What command shows directory size?,du
+Linux Administration,What command displays network configuration?,ifconfig
+Linux Administration,What command tests network connectivity?,ping
+Linux Administration,What command shows system uptime?,uptime
+Linux Administration,What command creates a new user?,useradd
+Linux Administration,What command deletes a user?,userdel
+Linux Administration,What command modifies user properties?,usermod
+Linux Administration,What command changes user password?,passwd
+Linux Administration,What command displays logged-in users?,who
+Linux Administration,What command shows command history?,history
+Linux Administration,What command compresses files?,tar
+Linux Administration,What command downloads files from the internet?,wget
+Linux Administration,What command securely copies files between systems?,scp
+Linux Administration,What command connects to remote systems securely?,ssh
+Linux Administration,What command displays the end of a file?,tail
+Linux Administration,What command displays the beginning of a file?,head
+Linux Administration,What command edits text files in terminal?,vi or nano
+Linux Administration,What command shows available memory?,free
+Linux Administration,What command monitors system resources in real-time?,top
+Linux Administration,What command schedules recurring tasks?,cron
+Linux Administration,What command manually mounts filesystems?,mount
+Linux Administration,What command unmounts filesystems?,umount
+Linux Administration,What command checks filesystem integrity?,fsck
+Linux Administration,What command displays kernel messages?,dmesg
+Linux Administration,What command shows network statistics?,netstat
+Linux Administration,What command manages system services?,systemctl
+Linux Administration,What command displays user groups?,groups
+Linux Administration,What command changes to root user?,su
+Linux Administration,What command executes commands as another user?,sudo
+Linux Administration,What file contains user account information?,/etc/passwd
+Linux Administration,What file contains encrypted passwords?,/etc/shadow
+Linux Administration,What file contains group information?,/etc/group
+Linux Administration,What command creates symbolic links?,ln
+Networking,What is the global system of interconnected networks?,Internet
+Networking,What protocol is used for web browsing?,HTTP
+Networking,What is a unique identifier for network devices?,IP Address
+Networking,What device connects multiple networks together?,Router
+Networking,What device connects devices within a local network?,Switch
+Networking,What is the physical address of a network card?,MAC Address
+Networking,What protocol resolves domain names to IP addresses?,DNS
+Networking,What is the standard for wireless networking?,WiFi
+Networking,What protocol ensures reliable data delivery?,TCP
+Networking,What protocol provides faster but unreliable delivery?,UDP
+Networking,What is a private network accessible only to authorized users?,Intranet
+Networking,What is the range of IP addresses in a network?,Subnet
+Networking,What device extends wireless network coverage?,Access Point
+Networking,What is the maximum data transfer rate?,Bandwidth
+Networking,What is the delay in data transmission?,Latency
+Networking,What protocol automatically assigns IP addresses?,DHCP
+Networking,What is a network security barrier?,Firewall
+Networking,What topology connects all devices to a central hub?,Star Topology
+Networking,What topology connects devices in a loop?,Ring Topology
+Networking,What topology connects all devices to a single cable?,Bus Topology
+Networking,What is a network covering a small geographic area?,LAN
+Networking,What is a network covering a large geographic area?,WAN
+Networking,What layer of OSI model handles routing?,Network Layer
+Networking,What layer of OSI model handles data formatting?,Presentation Layer
+Networking,What layer of OSI model handles physical transmission?,Physical Layer
+Networking,What is the standard Ethernet cable category?,Cat5e or Cat6
+Networking,What protocol transfers files over networks?,FTP
+Networking,What protocol sends email?,SMTP
+Networking,What protocol retrieves email?,POP3 or IMAP
+Networking,What is the secure version of HTTP?,HTTPS
+Networking,What port does HTTP use?,80
+Networking,What port does HTTPS use?,443
+Networking,What port does SSH use?,22
+Networking,What port does FTP use?,21
+Networking,What device amplifies network signals?,Repeater
+Networking,What device filters traffic between networks?,Gateway
+Networking,What is simultaneous two-way communication?,Full Duplex
+Networking,What is alternating two-way communication?,Half Duplex
+Networking,What is the practice of dividing networks into segments?,Subnetting
+Networking,What is a network that uses public infrastructure securely?,VPN
+Networking,What protocol manages network devices?,SNMP
+Networking,What is the addressing scheme using 32 bits?,IPv4
+Networking,What is the addressing scheme using 128 bits?,IPv6
+Networking,What command tests DNS resolution?,nslookup
+Networking,What command traces network route?,traceroute
+Networking,What is the maximum transmission unit size?,MTU
+Networking,What is collision detection in Ethernet?,CSMA/CD
+Networking,What is a broadcast domain boundary?,VLAN
+Networking,What protocol synchronizes computer clocks?,NTP
+Networking,What is network address translation?,NAT
+Robotics,What is a programmable machine that performs tasks?,Robot
+Robotics,What component provides movement in robots?,Actuator
+Robotics,What device detects environmental conditions?,Sensor
+Robotics,What is the robot's computer system called?,Controller
+Robotics,What is the study of robot motion and forces?,Kinematics
+Robotics,What is a robot with wheels or tracks?,Mobile Robot
+Robotics,What is a stationary robot with a moving arm?,Robotic Arm
+Robotics,What programming language is common in robotics?,Python
+Robotics,What is the rotating joint in a robot?,Servo Motor
+Robotics,What sensor measures distance using sound?,Ultrasonic Sensor
+Robotics,What sensor detects motion?,PIR Sensor
+Robotics,What component powers the robot?,Battery
+Robotics,What is the end tool of a robotic arm?,End Effector
+Robotics,What platform is popular for hobby robotics?,Arduino
+Robotics,What platform is used for advanced robotics?,Raspberry Pi
+Robotics,What is the framework for robot software?,ROS (Robot Operating System)
+Robotics,What sensor measures rotation?,Encoder
+Robotics,What sensor detects magnetic fields?,Magnetometer
+Robotics,What sensor measures acceleration?,Accelerometer
+Robotics,What sensor measures angular velocity?,Gyroscope
+Robotics,What is autonomous robot navigation?,Path Planning
+Robotics,What helps robots understand their position?,Localization
+Robotics,What is the coordinate system of a robot?,Reference Frame
+Robotics,What type of robot mimics human form?,Humanoid Robot
+Robotics,What algorithm helps robots avoid obstacles?,Obstacle Avoidance
+Robotics,What is the robot's ability to learn?,Machine Learning
+Robotics,What sensor captures visual information?,Camera
+Robotics,What is the process of teaching robots?,Programming
+Robotics,What type of motor provides precise control?,Stepper Motor
+Robotics,What is continuous motor rotation?,DC Motor
+Robotics,What controls motor speed?,PWM (Pulse Width Modulation)
+Robotics,What is the workspace of a robotic arm?,Reach
+Robotics,What is robot hand-like tool?,Gripper
+Robotics,What connects sensors and actuators?,Microcontroller
+Robotics,What is wireless robot control?,Remote Control
+Robotics,What helps robots interact with humans?,Human-Robot Interface
+Robotics,What field combines AI and robotics?,Intelligent Robotics
+Robotics,What is the ability to sense and respond?,Feedback Loop
+Robotics,What is multi-robot coordination?,Swarm Robotics
+Robotics,What sensor detects light intensity?,Photoresistor
+Robotics,What sensor measures temperature?,Thermistor
+Robotics,What is the study of robot structure?,Morphology
+Robotics,What protocol communicates with motors?,I2C or SPI
+Robotics,What is simulated robot environment?,Simulation
+Robotics,What is robot vision processing?,Computer Vision
+Robotics,What helps robots grasp objects?,Force Sensor
+Robotics,What is the robot's movement speed?,Velocity
+Robotics,What is rapid robot movement?,Acceleration
+Robotics,What maintains robot balance?,Stabilization
+Robotics,What is automated robot operation?,Autonomous Mode
+Robotics,What is human-controlled operation?,Manual Mode
+Android App Development,What is the official IDE for Android development?,Android Studio
+Android App Development,What programming language is native to Android?,Kotlin
+Android App Development,What is the user interface layout file format?,XML
+Android App Development,What component represents a screen in Android?,Activity
+Android App Development,What component runs in the background?,Service
+Android App Development,What stores app configuration and permissions?,Manifest File
+Android App Development,What is the build automation tool for Android?,Gradle
+Android App Development,What component displays notifications?,Notification
+Android App Development,What component responds to system events?,Broadcast Receiver
+Android App Development,What manages app data access?,Content Provider
+Android App Development,What is a reusable UI component?,Fragment
+Android App Development,What layout arranges views linearly?,LinearLayout
+Android App Development,What layout positions views relatively?,RelativeLayout
+Android App Development,What layout uses constraints?,ConstraintLayout
+Android App Development,What displays a list of scrollable items?,RecyclerView
+Android App Development,What handles user interactions?,Event Listener
+Android App Development,What displays clickable text and images?,Button
+Android App Development,What accepts user text input?,EditText
+Android App Development,What displays text to users?,TextView
+Android App Development,What is the Android package file extension?,APK
+Android App Development,What library handles network requests?,Retrofit
+Android App Development,What library loads images efficiently?,Glide or Picasso
+Android App Development,What pattern separates UI from logic?,MVVM
+Android App Development,What manages UI-related data?,ViewModel
+Android App Development,What observes data changes?,LiveData
+Android App Development,What database is built into Android?,SQLite
+Android App Development,What library simplifies database operations?,Room
+Android App Development,What handles asynchronous operations?,Coroutines
+Android App Development,What defines app navigation?,Intent
+Android App Development,What stores small key-value data?,SharedPreferences
+Android App Development,What displays short messages?,Toast
+Android App Development,What shows a dialog box?,AlertDialog
+Android App Development,What is Android's app lifecycle method?,onCreate
+Android App Development,What method initializes UI?,onStart
+Android App Development,What method runs when app is visible?,onResume
+Android App Development,What handles menu selections?,onOptionsItemSelected
+Android App Development,What requests user permissions?,Runtime Permissions
+Android App Development,What provides material design components?,Material Design Library
+Android App Development,What tests app functionality?,JUnit
+Android App Development,What tests UI components?,Espresso
+Android App Development,What displays progress?,ProgressBar
+Android App Development,What shows web content?,WebView
+Android App Development,What handles JSON parsing?,Gson
+Android App Development,What manages dependency injection?,Dagger or Hilt
+Android App Development,What signs the app for release?,Keystore
+Android App Development,What platform distributes Android apps?,Google Play Store
+Android App Development,What enables offline functionality?,Caching
+Android App Development,What provides location services?,GPS
+Android App Development,What handles push notifications?,Firebase Cloud Messaging
+Android App Development,What is the minimum API level?,minSdkVersion
+Database,What is an organized collection of data?,Database
+Database,What is a row in a database table?,Record
+Database,What is a column in a database table?,Field
+Database,What uniquely identifies each record?,Primary Key
+Database,What links tables together?,Foreign Key
+Database,What retrieves data from a database?,SELECT
+Database,What adds data to a database?,INSERT
+Database,What modifies existing data?,UPDATE
+Database,What removes data from a database?,DELETE
+Database,What creates a new table?,CREATE TABLE
+Database,What removes a table?,DROP TABLE
+Database,What is a database management system?,DBMS
+Database,What type of database uses tables?,Relational Database
+Database,What type of database uses documents?,NoSQL Database
+Database,What ensures data accuracy?,Integrity
+Database,What is a saved SQL query?,View
+Database,What automatically executes on data changes?,Trigger
+Database,What groups rows with aggregate functions?,GROUP BY
+Database,What filters grouped data?,HAVING
+Database,What sorts query results?,ORDER BY
+Database,What removes duplicate results?,DISTINCT
+Database,What combines rows from multiple tables?,JOIN
+Database,What includes all rows from the left table?,LEFT JOIN
+Database,What includes all rows from both tables?,FULL JOIN
+Database,What includes only matching rows?,INNER JOIN
+Database,What is a set of database operations?,Transaction
+Database,What ensures transaction reliability?,ACID
+Database,What undoes a transaction?,ROLLBACK
+Database,What saves a transaction permanently?,COMMIT
+Database,What improves query performance?,Index
+Database,What is a virtual table?,View
+Database,What defines table structure?,Schema
+Database,What prevents null values?,NOT NULL
+Database,What provides default values?,DEFAULT
+Database,What ensures unique values?,UNIQUE
+Database,What enforces value ranges?,CHECK
+Database,What returns multiple rows?,Subquery
+Database,What is a stored set of SQL statements?,Stored Procedure
+Database,What returns a single value?,Function
+Database,What is MongoDB's data format?,BSON
+Database,What is a popular relational database?,MySQL
+Database,What is Microsoft's database system?,SQL Server
+Database,What is an open-source enterprise database?,PostgreSQL
+Database,What is Oracle's database product?,Oracle Database
+Database,What database is built into mobile apps?,SQLite
+Database,What scales horizontally across servers?,Distributed Database
+Database,What protects against data loss?,Backup
+Database,What restores data after failure?,Recovery
+Database,What controls user access?,Permissions
+Database,What optimizes database performance?,Query Optimization
+Java,What is Java's development kit?,JDK
+Java,What is Java's runtime environment?,JRE
+Java,What executes Java bytecode?,JVM
+Java,What is the main method signature?,public static void main
+Java,What defines object blueprints?,Class
+Java,What is an instance of a class?,Object
+Java,What hides implementation details?,Encapsulation
+Java,What allows class extension?,Inheritance
+Java,What enables multiple forms?,Polymorphism
+Java,What keyword creates objects?,new
+Java,What keyword refers to current object?,this
+Java,What keyword refers to parent class?,super
+Java,What defines contracts for classes?,Interface
+Java,What keyword prevents inheritance?,final
+Java,What keyword shares class members?,static
+Java,What handles runtime errors?,Exception Handling
+Java,What block catches exceptions?,try-catch
+Java,What block always executes?,finally
+Java,What keyword throws exceptions?,throw
+Java,What declares possible exceptions?,throws
+Java,What is Java's parent class?,Object
+Java,What stores ordered elements?,ArrayList
+Java,What stores key-value pairs?,HashMap
+Java,What stores unique elements?,HashSet
+Java,What defines variable types?,Data Types
+Java,What are whole numbers?,int
+Java,What are decimal numbers?,double
+Java,What are true/false values?,boolean
+Java,What are single characters?,char
+Java,What are text values?,String
+Java,What reads user input?,Scanner
+Java,What outputs to console?,System.out.println
+Java,What concatenates strings?,+ operator
+Java,What compares string content?,equals
+Java,What gets string length?,length
+Java,What represents no value?,null
+Java,What are reusable code blocks?,Methods
+Java,What controls method access?,Access Modifiers
+Java,What allows public access?,public
+Java,What restricts to class only?,private
+Java,What allows package access?,protected
+Java,What creates multiple threads?,Multithreading
+Java,What reads files?,FileReader
+Java,What writes files?,FileWriter
+Java,What serializes objects?,Serialization
+Java,What is Java's web framework?,Spring
+Java,What builds Java projects?,Maven
+Java,What is another build tool?,Gradle
+Java,What tests Java code?,JUnit
+Java,What are Java's lambda expressions?,Functional Programming
+Java,What processes collections?,Stream API
+Java,What packages Java applications?,JAR
+C#,What is C#'s development platform?.NET
+C#,What is the entry point of a C# program?,Main method
+C#,What namespace contains basic types?,System
+C#,What outputs to console?,Console.WriteLine
+C#,What reads console input?,Console.ReadLine
+C#,What defines object templates?,Class
+C#,What is an instance of a class?,Object
+C#,What keyword creates objects?,new
+C#,What handles memory management?,Garbage Collector
+C#,What are reference types?,Classes
+C#,What are value types?,Structs
+C#,What defines contracts?,Interface
+C#,What prevents inheritance?,sealed
+C#,What requires implementation?,abstract
+C#,What hides base members?,new
+C#,What overrides base members?,override
+C#,What declares virtual methods?,virtual
+C#,What encapsulates data?,Properties
+C#,What gets property values?,get accessor
+C#,What sets property values?,set accessor
+C#,What are automatic properties?,Auto-implemented Properties
+C#,What stores collections?,List
+C#,What stores key-value pairs?,Dictionary
+C#,What queries collections?,LINQ
+C#,What handles errors?,Exception Handling
+C#,What catches exceptions?,catch block
+C#,What always executes?,finally block
+C#,What throws exceptions?,throw
+C#,What represents no value?,null
+C#,What checks for null?,null-conditional operator
+C#,What provides default for null?,null-coalescing operator
+C#,What are anonymous functions?,Lambda Expressions
+C#,What notifies subscribers?,Events
+C#,What points to methods?,Delegates
+C#,What runs asynchronously?,async/await
+C#,What returns incomplete tasks?,Task
+C#,What is text interpolation?,String Interpolation
+C#,What formats strings?,String.Format
+C#,What joins strings?,String.Join
+C#,What splits strings?,String.Split
+C#,What are unchangeable strings?,Immutable
+C#,What builds strings efficiently?,StringBuilder
+C#,What defines constants?,const
+C#,What defines readonly fields?,readonly
+C#,What groups related classes?,Namespace
+C#,What imports namespaces?,using
+C#,What builds desktop apps?,Windows Forms
+C#,What is C#'s modern UI framework?,WPF
+C#,What builds web apps?,ASP.NET
+C#,What is C#'s package manager?,NuGet
+C#,What tests C# code?,NUnit
+Python,What is Python's package installer?,pip
+Python,What outputs to console?,print
+Python,What accepts user input?,input
+Python,What defines functions?,def
+Python,What defines classes?,class
+Python,What creates objects?,Constructor
+Python,What is the constructor method?,__init__
+Python,What refers to the instance?,self
+Python,What are ordered collections?,Lists
+Python,What are immutable sequences?,Tuples
+Python,What are key-value stores?,Dictionaries
+Python,What are unordered unique collections?,Sets
+Python,What iterates over sequences?,for loop
+Python,What loops while condition is true?,while loop
+Python,What exits a loop?,break
+Python,What skips iteration?,continue
+Python,What tests conditions?,if statement
+Python,What handles multiple conditions?,elif
+Python,What handles exceptions?,try-except
+Python,What always executes?,finally
+Python,What raises exceptions?,raise
+Python,What represents nothing?,None
+Python,What checks identity?,is
+Python,What checks membership?,in
+Python,What are anonymous functions?,Lambda
+Python,What applies functions to iterables?,map
+Python,What filters iterables?,filter
+Python,What reduces iterables to single value?,reduce
+Python,What are list expressions?,List Comprehension
+Python,What imports modules?,import
+Python,What imports specific items?,from import
+Python,What reads files?,open
+Python,What closes files?,close
+Python,What ensures file closing?,with statement
+Python,What formats strings?,f-strings
+Python,What joins strings?,join
+Python,What splits strings?,split
+Python,What gets string length?,len
+Python,What slices sequences?,Slicing
+Python,What unpacks sequences?,Unpacking
+Python,What are multiple values?,Tuples
+Python,What defines multiple inheritance?,Multiple Inheritance
+Python,What decorates functions?,Decorator
+Python,What generates values lazily?,Generator
+Python,What yields values?,yield
+Python,What handles web requests?,requests library
+Python,What analyzes data?,pandas
+Python,What performs numerical computing?,NumPy
+Python,What creates visualizations?,Matplotlib
+Python,What builds web apps?,Django or Flask
+Python,What tests Python code?,pytest
+Python,What manages virtual environments?,venv
+Web Design,What language structures web pages?,HTML
+Web Design,What language styles web pages?,CSS
+Web Design,What language adds interactivity?,JavaScript
+Web Design,What is a clickable element?,Link
+Web Design,What displays images?,img tag
+Web Design,What creates paragraphs?,p tag
+Web Design,What creates headings?,h1 to h6 tags
+Web Design,What creates lists?,ul or ol tags
+Web Design,What creates tables?,table tag
+Web Design,What groups content?,div tag
+Web Design,What styles inline content?,span tag
+Web Design,What creates forms?,form tag
+Web Design,What creates input fields?,input tag
+Web Design,What creates buttons?,button tag
+Web Design,What selects by ID?,# selector
+Web Design,What selects by class?,. selector
+Web Design,What changes text color?,color property
+Web Design,What changes background?,background property
+Web Design,What changes font size?,font-size property
+Web Design,What adds spacing inside?,padding
+Web Design,What adds spacing outside?,margin
+Web Design,What creates borders?,border property
+Web Design,What arranges elements?,display property
+Web Design,What creates flexible layouts?,Flexbox
+Web Design,What creates grid layouts?,CSS Grid
+Web Design,What positions elements?,position property
+Web Design,What makes sites mobile-friendly?,Responsive Design
+Web Design,What adapts to screen size?,Media Queries
+Web Design,What is relative sizing unit?,rem or em
+Web Design,What is viewport width unit?,vw
+Web Design,What is viewport height unit?,vh
+Web Design,What creates animations?,CSS Animation
+Web Design,What creates smooth changes?,Transition
+Web Design,What applies 3D transforms?,transform property
+Web Design,What changes on hover?,:hover pseudo-class
+Web Design,What styles first element?,:first-child
+Web Design,What includes external CSS?,link tag
+Web Design,What includes external JS?,script tag
+Web Design,What is a CSS framework?,Bootstrap
+Web Design,What is a modern CSS framework?,Tailwind CSS
+Web Design,What is a JavaScript library?,jQuery
+Web Design,What is a JavaScript framework?,React
+Web Design,What builds user interfaces?,Vue
+Web Design,What is an Angular alternative?,Angular
+Web Design,What optimizes page speed?,Performance Optimization
+Web Design,What improves search ranking?,SEO
+Web Design,What ensures usability?,Accessibility
+Web Design,What designs before coding?,Wireframe
+Web Design,What is visual mockup?,Prototype
+Web Design,What are clickable areas?,Navigation
+topic,question,answer
+Cybersecurity,What is the practice of protecting systems and networks from digital attacks?,Cybersecurity
+Cybersecurity,What type of malicious software encrypts files and demands payment?,Ransomware
+Cybersecurity,What is the process of converting data into a coded format?,Encryption
+Cybersecurity,What attack floods a network with traffic to make it unavailable?,DDoS Attack
+Cybersecurity,What is a secret word or phrase used to authenticate a user?,Password
+Cybersecurity,What is software designed to detect and remove malicious programs?,Antivirus
+Cybersecurity,What attack tricks users into revealing sensitive information via fake emails?,Phishing
+Cybersecurity,What is a network security system that monitors and controls traffic?,Firewall
+Cybersecurity,What is unauthorized access to a computer system called?,Hacking
+Cybersecurity,What is a weakness in a system that can be exploited?,Vulnerability
+Cybersecurity,What authentication method requires two different forms of verification?,Two-Factor Authentication
+Cybersecurity,What is malicious software that disguises itself as legitimate?,Trojan Horse
+Cybersecurity,What attack involves testing all possible password combinations?,Brute Force Attack
+Cybersecurity,What is the practice of creating fake scenarios to manipulate people?,Social Engineering
+Cybersecurity,What protocol provides secure communication over networks?,SSL/TLS
+Cybersecurity,What is software that secretly monitors user activity?,Spyware
+Cybersecurity,What is a simulated cyber attack to test security?,Penetration Testing
+Cybersecurity,What is the process of verifying user identity?,Authentication
+Cybersecurity,What type of attack injects malicious code into databases?,SQL Injection
+Cybersecurity,What is a copy of data stored separately for recovery?,Backup
+Cybersecurity,What is an isolated environment for testing suspicious files?,Sandbox
+Cybersecurity,What security measure restricts user permissions?,Access Control
+Cybersecurity,What is a record of system events and activities?,Audit Log
+Cybersecurity,What attack intercepts communication between two parties?,Man-in-the-Middle Attack
+Cybersecurity,What is a security flaw unknown to the software vendor?,Zero-Day Vulnerability
+Cybersecurity,What network allows secure remote access?,VPN
+Cybersecurity,What is unwanted email sent in bulk?,Spam
+Cybersecurity,What is the process of scrambling data to prevent unauthorized access?,Hashing
+Cybersecurity,What is a string of characters used to encrypt data?,Encryption Key
+Cybersecurity,What attack exploits vulnerabilities in web applications?,Cross-Site Scripting
+Cybersecurity,What is a security policy that denies all traffic by default?,Whitelist
+Cybersecurity,What is the practice of hiding data within other files?,Steganography
+Cybersecurity,What is a malicious program that replicates itself?,Virus
+Cybersecurity,What framework helps organizations manage security risks?,ISO 27001
+Cybersecurity,What is the process of removing sensitive data permanently?,Data Sanitization
+Cybersecurity,What attack targets specific individuals or organizations?,Spear Phishing
+Cybersecurity,What is a deceptive system designed to lure attackers?,Honeypot
+Cybersecurity,What is the principle of granting minimal access rights?,Least Privilege
+Cybersecurity,What is a security incident that compromises data?,Data Breach
+Cybersecurity,What tool scans networks for security vulnerabilities?,Vulnerability Scanner
+Cybersecurity,What is the practice of verifying software authenticity?,Digital Signature
+Cybersecurity,What attack overwhelms a single target with traffic?,DoS Attack
+Cybersecurity,What is a set of compromised computers controlled remotely?,Botnet
+Cybersecurity,What is the process of analyzing security incidents?,Forensics
+Cybersecurity,What protocol secures remote command-line access?,SSH
+Cybersecurity,What is a policy document outlining security practices?,Security Policy
+Cybersecurity,What is malicious code that spreads without user action?,Worm
+Cybersecurity,What is the practice of testing security through authorized hacking?,Ethical Hacking
+Cybersecurity,What is a unique identifier for verifying digital identity?,Digital Certificate
+Cybersecurity,What is the time between vulnerability discovery and patch?,Patch Window
+Digital Electronics,What is the number system using only 0 and 1?,Binary
+Digital Electronics,What logic gate outputs 1 only when all inputs are 1?,AND Gate
+Digital Electronics,What logic gate outputs 1 when at least one input is 1?,OR Gate
+Digital Electronics,What logic gate inverts the input signal?,NOT Gate
+Digital Electronics,What is the smallest unit of digital information?,Bit
+Digital Electronics,What is a group of 8 bits called?,Byte
+Digital Electronics,What device stores one bit of information?,Flip-Flop
+Digital Electronics,What logic gate outputs 1 when inputs are different?,XOR Gate
+Digital Electronics,What is a combination of logic gates called?,Logic Circuit
+Digital Electronics,What converts analog signals to digital?,ADC (Analog-to-Digital Converter)
+Digital Electronics,What converts digital signals to analog?,DAC (Digital-to-Analog Converter)
+Digital Electronics,What is a circuit whose output depends only on current inputs?,Combinational Circuit
+Digital Electronics,What is a circuit that uses memory elements?,Sequential Circuit
+Digital Electronics,What device selects one of many input signals?,Multiplexer
+Digital Electronics,What device distributes one input to multiple outputs?,Demultiplexer
+Digital Electronics,What is the complement of an AND gate?,NAND Gate
+Digital Electronics,What is the complement of an OR gate?,NOR Gate
+Digital Electronics,What circuit performs arithmetic operations?,Adder
+Digital Electronics,What device compares two binary numbers?,Comparator
+Digital Electronics,What is a truth table used for?,Showing logic gate outputs for all input combinations
+Digital Electronics,What theorem simplifies Boolean expressions?,Boolean Algebra
+Digital Electronics,What is the base of the hexadecimal number system?,16
+Digital Electronics,What device counts pulses or events?,Counter
+Digital Electronics,What stores multiple bits of data temporarily?,Register
+Digital Electronics,What is a circuit that generates clock signals?,Oscillator
+Digital Electronics,What component switches or amplifies electronic signals?,Transistor
+Digital Electronics,What is the time delay in signal propagation?,Propagation Delay
+Digital Electronics,What device encodes inputs into binary?,Encoder
+Digital Electronics,What device decodes binary into outputs?,Decoder
+Digital Electronics,What is the rise and fall time of a signal?,Edge Transition
+Digital Electronics,What circuit configuration has two stable states?,Bistable
+Digital Electronics,What is unwanted variation in signal levels?,Noise
+Digital Electronics,What is the frequency of state changes?,Clock Speed
+Digital Electronics,What law states that any Boolean function can be implemented with NAND gates?,NAND Gate Universality
+Digital Electronics,What is the process of converting decimal to binary?,Binary Conversion
+Digital Electronics,What device temporarily holds data?,Latch
+Digital Electronics,What is a half adder upgraded with carry input?,Full Adder
+Digital Electronics,What map simplifies Boolean expressions visually?,Karnaugh Map
+Digital Electronics,What is the voltage representing logic 1?,High Level
+Digital Electronics,What is the voltage representing logic 0?,Low Level
+Digital Electronics,What circuit subtracts binary numbers?,Subtractor
+Digital Electronics,What is the fan-out of a logic gate?,Maximum number of inputs it can drive
+Digital Electronics,What stores large amounts of digital data?,Memory
+Digital Electronics,What type of memory loses data when power is off?,Volatile Memory
+Digital Electronics,What type of memory retains data without power?,Non-Volatile Memory
+Digital Electronics,What is the basic building block of digital circuits?,Logic Gate
+Digital Electronics,What is a bistable device triggered by clock pulses?,Flip-Flop
+Digital Electronics,What circuit generates a sequence of states?,State Machine
+Digital Electronics,What is synchronous operation in digital circuits?,Operations controlled by clock signals
+Digital Electronics,What is the metastable state in flip-flops?,Unstable intermediate state
+Linux Administration,What command displays the current directory?,pwd
+Linux Administration,What command lists files in a directory?,ls
+Linux Administration,What command changes directories?,cd
+Linux Administration,What command creates a new directory?,mkdir
+Linux Administration,What command removes files?,rm
+Linux Administration,What command copies files?,cp
+Linux Administration,What command moves or renames files?,mv
+Linux Administration,What command displays file contents?,cat
+Linux Administration,What command shows running processes?,ps
+Linux Administration,What command terminates a process?,kill
+Linux Administration,What is the root user's home directory?,/root
+Linux Administration,What command changes file permissions?,chmod
+Linux Administration,What command changes file ownership?,chown
+Linux Administration,What command searches for files?,find
+Linux Administration,What command searches text within files?,grep
+Linux Administration,What command displays system information?,uname
+Linux Administration,What command shows disk usage?,df
+Linux Administration,What command shows directory size?,du
+Linux Administration,What command displays network configuration?,ifconfig
+Linux Administration,What command tests network connectivity?,ping
+Linux Administration,What command shows system uptime?,uptime
+Linux Administration,What command creates a new user?,useradd
+Linux Administration,What command deletes a user?,userdel
+Linux Administration,What command modifies user properties?,usermod
+Linux Administration,What command changes user password?,passwd
+Linux Administration,What command displays logged-in users?,who
+Linux Administration,What command shows command history?,history
+Linux Administration,What command compresses files?,tar
+Linux Administration,What command downloads files from the internet?,wget
+Linux Administration,What command securely copies files between systems?,scp
+Linux Administration,What command connects to remote systems securely?,ssh
+Linux Administration,What command displays the end of a file?,tail
+Linux Administration,What command displays the beginning of a file?,head
+Linux Administration,What command edits text files in terminal?,vi or nano
+Linux Administration,What command shows available memory?,free
+Linux Administration,What command monitors system resources in real-time?,top
+Linux Administration,What command schedules recurring tasks?,cron
+Linux Administration,What command manually mounts filesystems?,mount
+Linux Administration,What command unmounts filesystems?,umount
+Linux Administration,What command checks filesystem integrity?,fsck
+Linux Administration,What command displays kernel messages?,dmesg
+Linux Administration,What command shows network statistics?,netstat
+Linux Administration,What command manages system services?,systemctl
+Linux Administration,What command displays user groups?,groups
+Linux Administration,What command changes to root user?,su
+Linux Administration,What command executes commands as another user?,sudo
+Linux Administration,What file contains user account information?,/etc/passwd
+Linux Administration,What file contains encrypted passwords?,/etc/shadow
+Linux Administration,What file contains group information?,/etc/group
+Linux Administration,What command creates symbolic links?,ln
+Networking,What is the global system of interconnected networks?,Internet
+Networking,What protocol is used for web browsing?,HTTP
+Networking,What is a unique identifier for network devices?,IP Address
+Networking,What device connects multiple networks together?,Router
+Networking,What device connects devices within a local network?,Switch
+Networking,What is the physical address of a network card?,MAC Address
+Networking,What protocol resolves domain names to IP addresses?,DNS
+Networking,What is the standard for wireless networking?,WiFi
+Networking,What protocol ensures reliable data delivery?,TCP
+Networking,What protocol provides faster but unreliable delivery?,UDP
+Networking,What is a private network accessible only to authorized users?,Intranet
+Networking,What is the range of IP addresses in a network?,Subnet
+Networking,What device extends wireless network coverage?,Access Point
+Networking,What is the maximum data transfer rate?,Bandwidth
+Networking,What is the delay in data transmission?,Latency
+Networking,What protocol automatically assigns IP addresses?,DHCP
+Networking,What is a network security barrier?,Firewall
+Networking,What topology connects all devices to a central hub?,Star Topology
+Networking,What topology connects devices in a loop?,Ring Topology
+Networking,What topology connects all devices to a single cable?,Bus Topology
+Networking,What is a network covering a small geographic area?,LAN
+Networking,What is a network covering a large geographic area?,WAN
+Networking,What layer of OSI model handles routing?,Network Layer
+Networking,What layer of OSI model handles data formatting?,Presentation Layer
+Networking,What layer of OSI model handles physical transmission?,Physical Layer
+Networking,What is the standard Ethernet cable category?,Cat5e or Cat6
+Networking,What protocol transfers files over networks?,FTP
+Networking,What protocol sends email?,SMTP
+Networking,What protocol retrieves email?,POP3 or IMAP
+Networking,What is the secure version of HTTP?,HTTPS
+Networking,What port does HTTP use?,80
+Networking,What port does HTTPS use?,443
+Networking,What port does SSH use?,22
+Networking,What port does FTP use?,21
+Networking,What device amplifies network signals?,Repeater
+Networking,What device filters traffic between networks?,Gateway
+Networking,What is simultaneous two-way communication?,Full Duplex
+Networking,What is alternating two-way communication?,Half Duplex
+Networking,What is the practice of dividing networks into segments?,Subnetting
+Networking,What is a network that uses public infrastructure securely?,VPN
+Networking,What protocol manages network devices?,SNMP
+Networking,What is the addressing scheme using 32 bits?,IPv4
+Networking,What is the addressing scheme using 128 bits?,IPv6
+Networking,What command tests DNS resolution?,nslookup
+Networking,What command traces network route?,traceroute
+Networking,What is the maximum transmission unit size?,MTU
+Networking,What is collision detection in Ethernet?,CSMA/CD
+Networking,What is a broadcast domain boundary?,VLAN
+Networking,What protocol synchronizes computer clocks?,NTP
+Networking,What is network address translation?,NAT
+Robotics,What is a programmable machine that performs tasks?,Robot
+Robotics,What component provides movement in robots?,Actuator
+Robotics,What device detects environmental conditions?,Sensor
+Robotics,What is the robot's computer system called?,Controller
+Robotics,What is the study of robot motion and forces?,Kinematics
+Robotics,What is a robot with wheels or tracks?,Mobile Robot
+Robotics,What is a stationary robot with a moving arm?,Robotic Arm
+Robotics,What programming language is common in robotics?,Python
+Robotics,What is the rotating joint in a robot?,Servo Motor
+Robotics,What sensor measures distance using sound?,Ultrasonic Sensor
+Robotics,What sensor detects motion?,PIR Sensor
+Robotics,What component powers the robot?,Battery
+Robotics,What is the end tool of a robotic arm?,End Effector
+Robotics,What platform is popular for hobby robotics?,Arduino
+Robotics,What platform is used for advanced robotics?,Raspberry Pi
+Robotics,What is the framework for robot software?,ROS (Robot Operating System)
+Robotics,What sensor measures rotation?,Encoder
+Robotics,What sensor detects magnetic fields?,Magnetometer
+Robotics,What sensor measures acceleration?,Accelerometer
+Robotics,What sensor measures angular velocity?,Gyroscope
+Robotics,What is autonomous robot navigation?,Path Planning
+Robotics,What helps robots understand their position?,Localization
+Robotics,What is the coordinate system of a robot?,Reference Frame
+Robotics,What type of robot mimics human form?,Humanoid Robot
+Robotics,What algorithm helps robots avoid obstacles?,Obstacle Avoidance
+Robotics,What is the robot's ability to learn?,Machine Learning
+Robotics,What sensor captures visual information?,Camera
+Robotics,What is the process of teaching robots?,Programming
+Robotics,What type of motor provides precise control?,Stepper Motor
+Robotics,What is continuous motor rotation?,DC Motor
+Robotics,What controls motor speed?,PWM (Pulse Width Modulation)
+Robotics,What is the workspace of a robotic arm?,Reach
+Robotics,What is robot hand-like tool?,Gripper
+Robotics,What connects sensors and actuators?,Microcontroller
+Robotics,What is wireless robot control?,Remote Control
+Robotics,What helps robots interact with humans?,Human-Robot Interface
+Robotics,What field combines AI and robotics?,Intelligent Robotics
+Robotics,What is the ability to sense and respond?,Feedback Loop
+Robotics,What is multi-robot coordination?,Swarm Robotics
+Robotics,What sensor detects light intensity?,Photoresistor
+Robotics,What sensor measures temperature?,Thermistor
+Robotics,What is the study of robot structure?,Morphology
+Robotics,What protocol communicates with motors?,I2C or SPI
+Robotics,What is simulated robot environment?,Simulation
+Robotics,What is robot vision processing?,Computer Vision
+Robotics,What helps robots grasp objects?,Force Sensor
+Robotics,What is the robot's movement speed?,Velocity
+Robotics,What is rapid robot movement?,Acceleration
+Robotics,What maintains robot balance?,Stabilization
+Robotics,What is automated robot operation?,Autonomous Mode
+Robotics,What is human-controlled operation?,Manual Mode
+Android App Development,What is the official IDE for Android development?,Android Studio
+Android App Development,What programming language is native to Android?,Kotlin
+Android App Development,What is the user interface layout file format?,XML
+Android App Development,What component represents a screen in Android?,Activity
+Android App Development,What component runs in the background?,Service
+Android App Development,What stores app configuration and permissions?,Manifest File
+Android App Development,What is the build automation tool for Android?,Gradle
+Android App Development,What component displays notifications?,Notification
+Android App Development,What component responds to system events?,Broadcast Receiver
+Android App Development,What manages app data access?,Content Provider
+Android App Development,What is a reusable UI component?,Fragment
+Android App Development,What layout arranges views linearly?,LinearLayout
+Android App Development,What layout positions views relatively?,RelativeLayout
+Android App Development,What layout uses constraints?,ConstraintLayout
+Android App Development,What displays a list of scrollable items?,RecyclerView
+Android App Development,What handles user interactions?,Event Listener
+Android App Development,What displays clickable text and images?,Button
+Android App Development,What accepts user text input?,EditText
+Android App Development,What displays text to users?,TextView
+Android App Development,What is the Android package file extension?,APK
+Android App Development,What library handles network requests?,Retrofit
+Android App Development,What library loads images efficiently?,Glide or Picasso
+Android App Development,What pattern separates UI from logic?,MVVM
+Android App Development,What manages UI-related data?,ViewModel
+Android App Development,What observes data changes?,LiveData
+Android App Development,What database is built into Android?,SQLite
+Android App Development,What library simplifies database operations?,Room
+Android App Development,What handles asynchronous operations?,Coroutines
+Android App Development,What defines app navigation?,Intent
+Android App Development,What stores small key-value data?,SharedPreferences
+Android App Development,What displays short messages?,Toast
+Android App Development,What shows a dialog box?,AlertDialog
+Android App Development,What is Android's app lifecycle method?,onCreate
+Android App Development,What method initializes UI?,onStart
+Android App Development,What method runs when app is visible?,onResume
+Android App Development,What handles menu selections?,onOptionsItemSelected
+Android App Development,What requests user permissions?,Runtime Permissions
+Android App Development,What provides material design components?,Material Design Library
+Android App Development,What tests app functionality?,JUnit
+Android App Development,What tests UI components?,Espresso
+Android App Development,What displays progress?,ProgressBar
+Android App Development,What shows web content?,WebView
+Android App Development,What handles JSON parsing?,Gson
+Android App Development,What manages dependency injection?,Dagger or Hilt
+Android App Development,What signs the app for release?,Keystore
+Android App Development,What platform distributes Android apps?,Google Play Store
+Android App Development,What enables offline functionality?,Caching
+Android App Development,What provides location services?,GPS
+Android App Development,What handles push notifications?,Firebase Cloud Messaging
+Android App Development,What is the minimum API level?,minSdkVersion
+Database,What is an organized collection of data?,Database
+Database,What language queries databases?,SQL
+Database,What is a row in a database table?,Record
+Database,What is a column in a database table?,Field
+Database,What uniquely identifies each record?,Primary Key
+Database,What links tables together?,Foreign Key
+Database,What retrieves data from a database?,SELECT
+Database,What adds data to a database?,INSERT
+Database,What modifies existing data?,UPDATE
+Database,What removes data from a database?,DELETE
+Database,What creates a new table?,CREATE TABLE
+Database,What removes a table?,DROP TABLE
+Database,What is a database management system?,DBMS
+Database,What type of database uses tables?,Relational Database
+Database,What type of database uses documents?,NoSQL Database
+Database,What ensures data accuracy?,Integrity
+Database,What is a saved SQL query?,View
+Database,What automatically executes on data changes?,Trigger
+Database,What groups rows with aggregate functions?,GROUP BY
+Database,What filters grouped data?,HAVING
+Database,What sorts query results?,ORDER BY
+Database,What removes duplicate results?,DISTINCT
+Database,What combines rows from multiple tables?,JOIN
+Database,What includes all rows from the left table?,LEFT JOIN
+Database,What includes all rows from both tables?,FULL JOIN
+Database,What includes only matching rows?,INNER JOIN
+Database,What is a set of database operations?,Transaction
+Database,What ensures transaction reliability?,ACID
+Database,What undoes a transaction?,ROLLBACK
+Database,What saves a transaction permanently?,COMMIT
+Database,What improves query performance?,Index
+Database,What is a virtual table?,View
+Database,What defines table structure?,Schema
+Database,What prevents null values?,NOT NULL
+Database,What provides default values?,DEFAULT
+Database,What ensures unique values?,UNIQUE
+Database,What enforces value ranges?,CHECK
+Database,What returns multiple rows?,Subquery
+Database,What is a stored set of SQL statements?,Stored Procedure
+Database,What returns a single value?,Function
+Database,What is MongoDB's data format?,BSON
+Database,What is a popular relational database?,MySQL
+Database,What is Microsoft's database system?,SQL Server
+Database,What is an open-source enterprise database?,PostgreSQL
+Database,What is Oracle's database product?,Oracle Database
+Database,What database is built into mobile apps?,SQLite
+Database,What scales horizontally across servers?,Distributed Database
+Database,What protects against data loss?,Backup
+Database,What restores data after failure?,Recovery
+Database,What controls user access?,Permissions
+Database,What optimizes database performance?,Query Optimization
+Java,What is Java's development kit?,JDK
+Java,What is Java's runtime environment?,JRE
+Java,What executes Java bytecode?,JVM
+Java,What is the main method signature?,public static void main
+Java,What defines object blueprints?,Class
+Java,What is an instance of a class?,Object
+Java,What hides implementation details?,Encapsulation
+Java,What allows class extension?,Inheritance
+Java,What enables multiple forms?,Polymorphism
+Java,What keyword creates objects?,new
+Java,What keyword refers to current object?,this
+Java,What keyword refers to parent class?,super
+Java,What defines contracts for classes?,Interface
+Java,What keyword prevents inheritance?,final
+Java,What keyword shares class members?,static
+Java,What handles runtime errors?,Exception Handling
+Java,What block catches exceptions?,try-catch
+Java,What block always executes?,finally
+Java,What keyword throws exceptions?,throw
+Java,What declares possible exceptions?,throws
+Java,What is Java's parent class?,Object
+Java,What stores ordered elements?,ArrayList
+Java,What stores key-value pairs?,HashMap
+Java,What stores unique elements?,HashSet
+Java,What defines variable types?,Data Types
+Java,What are whole numbers?,int
+Java,What are decimal numbers?,double
+Java,What are true/false values?,boolean
+Java,What are single characters?,char
+Java,What are text values?,String
+Java,What reads user input?,Scanner
+Java,What outputs to console?,System.out.println
+Java,What concatenates strings?,+ operator
+Java,What compares string content?,equals
+Java,What gets string length?,length
+Java,What represents no value?,null
+Java,What are reusable code blocks?,Methods
+Java,What controls method access?,Access Modifiers
+Java,What allows public access?,public
+Java,What restricts to class only?,private
+Java,What allows package access?,protected
+Java,What creates multiple threads?,Multithreading
+Java,What reads files?,FileReader
+Java,What writes files?,FileWriter
+Java,What serializes objects?,Serialization
+Java,What is Java's web framework?,Spring
+Java,What builds Java projects?,Maven
+Java,What is another build tool?,Gradle
+Java,What tests Java code?,JUnit
+Java,What are Java's lambda expressions?,Functional Programming
+Java,What processes collections?,Stream API
+Java,What packages Java applications?,JAR
+C#,What is C#'s development platform?.NET
+C#,What is the entry point of a C# program?,Main method
+C#,What namespace contains basic types?,System
+C#,What outputs to console?,Console.WriteLine
+C#,What reads console input?,Console.ReadLine
+C#,What defines object templates?,Class
+C#,What is an instance of a class?,Object
+C#,What keyword creates objects?,new
+C#,What handles memory management?,Garbage Collector
+C#,What are reference types?,Classes
+C#,What are value types?,Structs
+C#,What defines contracts?,Interface
+C#,What prevents inheritance?,sealed
+C#,What requires implementation?,abstract
+C#,What hides base members?,new
+C#,What overrides base members?,override
+C#,What declares virtual methods?,virtual
+C#,What encapsulates data?,Properties
+C#,What gets property values?,get accessor
+C#,What sets property values?,set accessor
+C#,What are automatic properties?,Auto-implemented Properties
+C#,What stores collections?,List
+C#,What stores key-value pairs?,Dictionary
+C#,What queries collections?,LINQ
+C#,What handles errors?,Exception Handling
+C#,What catches exceptions?,catch block
+C#,What always executes?,finally block
+C#,What throws exceptions?,throw
+C#,What represents no value?,null
+C#,What checks for null?,null-conditional operator
+C#,What provides default for null?,null-coalescing operator
+C#,What are anonymous functions?,Lambda Expressions
+C#,What notifies subscribers?,Events
+C#,What points to methods?,Delegates
+C#,What runs asynchronously?,async/await
+C#,What returns incomplete tasks?,Task
+C#,What is text interpolation?,String Interpolation
+C#,What formats strings?,String.Format
+C#,What joins strings?,String.Join
+C#,What splits strings?,String.Split
+C#,What are unchangeable strings?,Immutable
+C#,What builds strings efficiently?,StringBuilder
+C#,What defines constants?,const
+C#,What defines readonly fields?,readonly
+C#,What groups related classes?,Namespace
+C#,What imports namespaces?,using
+C#,What builds desktop apps?,Windows Forms
+C#,What is C#'s modern UI framework?,WPF
+C#,What builds web apps?,ASP.NET
+C#,What is C#'s package manager?,NuGet
+C#,What tests C# code?,NUnit
+Python,What is Python's package installer?,pip
+Python,What outputs to console?,print
+Python,What accepts user input?,input
+Python,What defines functions?,def
+Python,What defines classes?,class
+Python,What creates objects?,Constructor
+Python,What is the constructor method?,__init__
+Python,What refers to the instance?,self
+Python,What are ordered collections?,Lists
+Python,What are immutable sequences?,Tuples
+Python,What are key-value stores?,Dictionaries
+Python,What are unordered unique collections?,Sets
+Python,What iterates over sequences?,for loop
+Python,What loops while condition is true?,while loop
+Python,What exits a loop?,break
+Python,What skips iteration?,continue
+Python,What tests conditions?,if statement
+Python,What handles multiple conditions?,elif
+Python,What handles exceptions?,try-except
+Python,What always executes?,finally
+Python,What raises exceptions?,raise
+Python,What represents nothing?,None
+Python,What checks identity?,is
+Python,What checks membership?,in
+Python,What are anonymous functions?,Lambda
+Python,What applies functions to iterables?,map
+Python,What filters iterables?,filter
+Python,What reduces iterables to single value?,reduce
+Python,What are list expressions?,List Comprehension
+Python,What imports modules?,import
+Python,What imports specific items?,from import
+Python,What reads files?,open
+Python,What closes files?,close
+Python,What ensures file closing?,with statement
+Python,What formats strings?,f-strings
+Python,What joins strings?,join
+Python,What splits strings?,split
+Python,What gets string length?,len
+Python,What slices sequences?,Slicing
+Python,What unpacks sequences?,Unpacking
+Python,What are multiple values?,Tuples
+Python,What defines multiple inheritance?,Multiple Inheritance
+Python,What decorates functions?,Decorator
+Python,What generates values lazily?,Generator
+Python,What yields values?,yield
+Python,What handles web requests?,requests library
+Python,What analyzes data?,pandas
+Python,What performs numerical computing?,NumPy
+Python,What creates visualizations?,Matplotlib
+Python,What builds web apps?,Django or Flask
+Python,What tests Python code?,pytest
+Python,What manages virtual environments?,venv
+Web Design,What language structures web pages?,HTML
+Web Design,What language styles web pages?,CSS
+Web Design,What language adds interactivity?,JavaScript
+Web Design,What is a clickable element?,Link
+Web Design,What displays images?,img tag
+Web Design,What creates paragraphs?,p tag
+Web Design,What creates headings?,h1 to h6 tags
+Web Design,What creates lists?,ul or ol tags
+Web Design,What creates tables?,table tag
+Web Design,What groups content?,div tag
+Web Design,What styles inline content?,span tag
+Web Design,What creates forms?,form tag
+Web Design,What creates input fields?,input tag
+Web Design,What creates buttons?,button tag
+Web Design,What selects by ID?,# selector
+Web Design,What selects by class?,. selector
+Web Design,What changes text color?,color property
+Web Design,What changes background?,background property
+Web Design,What changes font size?,font-size property
+Web Design,What adds spacing inside?,padding
+Web Design,What adds spacing outside?,margin
+Web Design,What creates borders?,border property
+Web Design,What arranges elements?,display property
+Web Design,What creates flexible layouts?,Flexbox
+Web Design,What creates grid layouts?,CSS Grid
+Web Design,What positions elements?,position property
+Web Design,What makes sites mobile-friendly?,Responsive Design
+Web Design,What adapts to screen size?,Media Queries
+Web Design,What is relative sizing unit?,rem or em
+Web Design,What is viewport width unit?,vw
+Web Design,What is viewport height unit?,vh
+Web Design,What creates animations?,CSS Animation
+Web Design,What creates smooth changes?,Transition
+Web Design,What applies 3D transforms?,transform property
+Web Design,What changes on hover?,:hover pseudo-class
+Web Design,What styles first element?,:first-child
+Web Design,What includes external CSS?,link tag
+Web Design,What includes external JS?,script tag
+Web Design,What is a CSS framework?,Bootstrap
+Web Design,What is a modern CSS framework?,Tailwind CSS
+Web Design,What is a JavaScript library?,jQuery
+Web Design,What is a JavaScript framework?,React
+Web Design,What builds user interfaces?,Vue
+Web Design,What is an Angular alternative?,Angular
+Web Design,What optimizes page speed?,Performance Optimization
+Web Design,What improves search ranking?,SEO
+Web Design,What ensures usability?,Accessibility
+Web Design,What designs before coding?,Wireframe
+Web Design,What is visual mockup?,Prototype
+Web Design,What are clickable areas?,Navigation
+Esports,What is the popular mobile MOBA game?,Mobile Legends Bang Bang
+Esports,What developer created Mobile Legends?,Moonton
+Esports,What are the playable characters in Mobile Legends?,Heroes
+Esports,What role deals high damage from distance in Mobile Legends?,Marksman
+Esports,What role initiates team fights in Mobile Legends?,Tank
+Esports,What role deals magical damage in Mobile Legends?,Mage
+Esports,What role eliminates enemy carries in Mobile Legends?,Assassin
+Esports,What role assists teammates in Mobile Legends?,Support
+Esports,What role dominates lanes in Mobile Legends?,Fighter
+Esports,What is the main objective in Mobile Legends?,Destroy the enemy base
+Esports,What are the defensive structures in Mobile Legends?,Turrets
+Esports,What is the final structure to destroy?,Base or Nexus
+Esports,What are jungle monsters in Mobile Legends?,Creeps
+Esports,What powerful monster gives team buff in Mobile Legends?,Lord
+Esports,What monster gives gold in Mobile Legends?,Turtle
+Esports,What is the starting phase called in Mobile Legends?,Early Game
+Esports,What is the middle phase called in Mobile Legends?,Mid Game
+Esports,What is the final phase called in Mobile Legends?,Late Game
+Esports,What ability is unique to each hero?,Ultimate
+Esports,What items increase hero power in Mobile Legends?,Equipment
+Esports,What are the three paths in Mobile Legends?,Lanes
+Esports,What is the competitive ranking system?,Ranked Mode
+Esports,What is the highest rank in Mobile Legends?,Mythical Glory
+Esports,What is Mobile Legends' world championship?,M-Series or MPL
+Esports,What is Call of Duty Mobile abbreviated as?,CODM
+Esports,What developer created CODM?,Activision
+Esports,What is the battle royale mode in CODM?,Battle Royale
+Esports,What is the team deathmatch mode in CODM?,Multiplayer
+Esports,What are playable characters in CODM?,Operators
+Esports,What are weapon attachments in CODM?,Gunsmith
+Esports,What is the ranked competitive mode in CODM?,Ranked Match
+Esports,What is the highest rank in CODM?,Legendary
+Esports,What ability can players use in CODM?,Operator Skills
+Esports,What are AI-controlled rewards in CODM?,Scorestreaks
+Esports,What is the popular sniper rifle in CODM?,DLQ33
+Esports,What is the popular assault rifle in CODM?,AK-47
+Esports,What game mode plants bombs in CODM?,Search and Destroy
+Esports,What game mode captures points in CODM?,Domination
+Esports,What game mode defends hardpoint in CODM?,Hardpoint
+Esports,What customizes weapon appearance in CODM?,Skins
+Esports,What is the in-game currency in CODM?,CP (COD Points)
+Esports,What is CODM's world championship?,CODM World Championship
+Esports,What improves aim accuracy in both games?,Sensitivity Settings
+Esports,What is team strategy planning?,Draft Phase
+Esports,What eliminates all enemies in Mobile Legends?,Wipeout
+Esports,What is a killing streak in CODM?,Kill Streak
+Esports,What is the MVP award?,Most Valuable Player
+Esports,What measures player performance?,KDA (Kills Deaths Assists)
+Esports,What is professional team training?,Scrim
+Esports,What analyzes opponent strategies?,VOD Review
+C++,What is C++'s output stream?,cout
+C++,What is C++'s input stream?,cin
+C++,What includes libraries?,#include
+C++,What defines constants?,#define
+C++,What is the entry point?,main function
+C++,What allocates memory?,new
+C++,What deallocates memory?,delete
+C++,What are memory addresses?,Po
+C,What is C's standard output function?,printf
+C,What is C's standard input function?,scanf
+C,What includes header files?,#include
+C,What is the entry point of C programs?,main function
+C,What stores memory addresses?,Pointer
+C,What allocates memory dynamically?,malloc
+C,What frees allocated memory?,free
+C,What reallocates memory?,realloc
+C,What allocates zeroed memory?,calloc
+C,What dereferences pointers?,* operator
+C,What gets variable address?,& operator
+C,What are fixed-size collections?,Arrays
+C,What are text sequences?,Strings
+C,What terminates strings?,Null character
+C,What copies strings?,strcpy
+C,What compares strings?,strcmp
+C,What concatenates strings?,strcat
+C,What gets string length?,strlen
+C,What groups variables?,Struct
+C,What shares memory among members?,Union
+C,What names integer constants?,Enum
+C,What creates aliases for types?,typedef
+C,What prevents modification?,const
+C,What defines constants?,#define
+C,What makes functions inline?,Static inline
+C,What are conditional directives?,Preprocessor directives
+C,What compiles conditionally?,#ifdef
+C,What includes once?,#ifndef guards
+C,What are decision statements?,if-else
+C,What handles multiple cases?,switch-case
+C,What loops with condition?,while loop
+C,What loops at least once?,do-while loop
+C,What loops with counter?,for loop
+C,What exits loops?,break
+C,What skips iteration?,continue
+C,What jumps to label?,goto
+C,What returns from functions?,return
+C,What are function parameters?,Arguments
+C,What passes copies?,Pass by value
+C,What passes addresses?,Pass by reference
+C,What opens files?,fopen
+C,What closes files?,fclose
+C,What reads from files?,fread or fscanf
+C,What writes to files?,fwrite or fprintf
+C,What repositions file pointer?,fseek
+C,What are bit operations?,Bitwise operators
+C,What performs AND operation?,& operator
+C,What performs OR operation?,| operator
+C,What performs XOR operation?,^ operator
+C,What shifts bits left?,<< operator
+C,What shifts bits right?,>> operator
+C,What inverts bits?,~ operator

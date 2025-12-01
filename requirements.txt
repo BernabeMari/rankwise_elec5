@@ -11,3 +11,7 @@ openpyxl==3.1.2
 rapidfuzz==3.14.0
 gunicorn==21.2.0
 pytest==8.2.0
+# Code execution dependencies (system-level compilers required)
+# Python: Built-in
+# Java: Requires JDK (javac, java)
+# C/C++: Requires GCC (gcc, g++)

@@ -67,6 +67,15 @@
         z-index: 1000;
     }
     
+    .ai-modal.generating {
+        cursor: not-allowed;
+    }
+    
+    .ai-modal.generating .ai-close {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+    
     .ai-modal-content {
         position: relative;
         background: white;
@@ -75,6 +84,8 @@
         border-radius: 12px;
         width: 80%;
         max-width: 600px;
+        max-height: 85vh;
+        overflow-y: auto;
         box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
         animation: modalFadeIn 0.3s ease;
     }
@@ -187,19 +198,37 @@
         padding: 20px;
     }
     
-    .ai-loading .spinner {
-        border: 4px solid rgba(255, 255, 255, 0.3);
-        border-radius: 50%;
-        border-top: 4px solid #9c57d3;
-        width: 40px;
-        height: 40px;
-        margin: 0 auto 15px auto;
-        animation: spin 1s linear infinite;
+    .ai-progress-container {
+        width: 100%;
+        margin-bottom: 15px;
     }
     
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+    .ai-progress-bar-bg {
+        width: 100%;
+        height: 30px;
+        background-color: #e9ecef;
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .ai-progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #9c57d3, #5a40b0);
+        border-radius: 15px;
+        transition: width 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .ai-progress-text {
+        margin-top: 10px;
+        font-size: 16px;
+        color: #6c757d;
     }
     
     .ai-result {
@@ -209,6 +238,51 @@
         padding: 15px;
         border-radius: 8px;
         margin-top: 20px;
+    }
+    
+    .ai-categories-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .ai-category-checkbox {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .ai-category-checkbox:hover {
+        background: #e9ecef;
+        border-color: #9c57d3;
+    }
+    
+    .ai-category-checkbox input[type="checkbox"] {
+        margin-right: 10px;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    
+    .ai-category-checkbox input[type="checkbox"]:checked + label {
+        font-weight: 600;
+        color: #9c57d3;
+    }
+    
+    .ai-category-checkbox label {
+        cursor: pointer;
+        margin: 0;
+        flex: 1;
+    }
+    
+    .ai-category-checkbox input[type="checkbox"]:checked {
+        accent-color: #9c57d3;
     }
 </style>
 {% endblock %}
@@ -251,7 +325,20 @@
                             <option value="multiple_choice">Multiple Choice</option>
                             <option value="identification">Identification</option>
                             <option value="coding">Coding</option>
+                            <option value="checkbox">Checkbox (multiple answers)</option>
+                            <option value="true_false">True or False</option>
+                            <option value="enumeration">Enumeration</option>
                         </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="question_category" class="form-label">Question Category</label>
+                        <select class="form-select" id="question_category" name="category">
+                            {% for cat in question_categories %}
+                                <option value="{{ cat }}" {% if cat == 'General' %}selected{% endif %}>{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Choose how this question should appear in analytics.</div>
                     </div>
                     
                     <div class="mb-3">
@@ -304,13 +391,73 @@
                     <!-- Coding Question Fields (initially hidden) -->
                     <div id="codingFields" class="mb-3" style="display: none;">
                         <div class="mb-3">
-                            <label for="sample_code" class="form-label">Sample Code</label>
-                            <textarea class="form-control code-editor" id="sample_code" name="sample_code" rows="5"></textarea>
+                            <label class="form-label" for="coding_language">Language</label>
+                            <select class="form-select" id="coding_language" name="coding_language">
+                                <option value="Python" selected>Python</option>
+                                <option value="C">C</option>
+                                <option value="C++">C++</option>
+                                <option value="Java">Java</option>
+                            </select>
                         </div>
                         <div class="mb-3">
-                            <label for="expected_output" class="form-label">Expected Solution Approach</label>
-                            <textarea class="form-control" id="expected_output" name="expected_output" rows="2"></textarea>
+                            <label for="sample_code" class="form-label">Sample Code</label>
+                            <div id="sample_code_editor" style="height:220px;border:1px solid #ddd;border-radius:6px;"></div>
+                            <textarea class="form-control code-editor" id="sample_code" name="sample_code" rows="5" style="display:none;"></textarea>
                         </div>
+                        <div class="mb-3">
+                            <label for="expected_output" class="form-label">Unit Tests (Admin Only)</label>
+                            <div id="unit_tests_editor" style="height:220px;border:1px solid #ddd;border-radius:6px;"></div>
+                            <textarea class="form-control" id="expected_output" name="expected_output" rows="6" style="display:none;" placeholder="def test_sum_function():
+    assert sum_numbers([1,2,3,4]) == 10
+    assert sum_numbers([]) == 0"></textarea>
+                            <div class="form-text">These tests will be used to automatically grade student code. Students cannot see this.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="hints" class="form-label">Hints (Variable Names)</label>
+                            <input type="text" class="form-control" id="hints" name="hints" placeholder="Use 'sum_numbers' as the function name, 'arr' for array parameter">
+                            <div class="form-text">Provide hints about required variable/function names. These will be shown to students in the sample code.</div>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="append_to_dataset" name="append_to_dataset" value="1">
+                            <label class="form-check-label" for="append_to_dataset">Add this coding problem to dataset (it_olympics_coding.csv)</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Checkbox Options (initially hidden) -->
+                    <div id="checkboxOptions" class="mb-3" style="display: none;">
+                        <label class="form-label">Options</label>
+                        <div class="options-container-checkbox">
+                            <div class="option-item">
+                                <input type="text" class="form-control" name="options[]" placeholder="Option 1">
+                                <span class="remove-option"><i class="bi bi-x-circle"></i></span>
+                            </div>
+                        </div>
+                        <button type="button" id="addOptionCheckbox" class="btn btn-sm btn-outline-secondary mt-2">
+                            <i class="bi bi-plus"></i> Add Option
+                        </button>
+                        
+                        <div class="mt-3">
+                            <label class="form-label">Correct Answers</label>
+                            <div id="correct_answers_container" class="form-check-list"></div>
+                            <div class="form-text">Select all correct options.</div>
+                        </div>
+                    </div>
+                    
+                    <!-- True/False Fields (initially hidden) -->
+                    <div id="trueFalseFields" class="mb-3" style="display: none;">
+                        <label class="form-label">Correct Answer</label>
+                        <select class="form-select" name="correct_answer" id="correct_answer_tf">
+                            <option value="True">True</option>
+                            <option value="False">False</option>
+                        </select>
+                        <div class="form-text">True/False questions have fixed options.</div>
+                    </div>
+
+                    <!-- Enumeration Fields (initially hidden) -->
+                    <div id="enumerationFields" class="mb-3" style="display: none;">
+                        <label class="form-label">Correct Answers</label>
+                        <textarea class="form-control" name="correct_answer" id="correct_answer_enum" rows="3" placeholder="Enter items separated by commas or new lines"></textarea>
+                        <div class="form-text">Provide all acceptable items. Students earn partial credit for correct items.</div>
                     </div>
                     
                     <div class="d-grid">
@@ -346,6 +493,12 @@
                                     <i class="bi bi-input-cursor-text"></i> Identification
                                 {% elif question.question_type == 'coding' %}
                                     <i class="bi bi-code-square"></i> Coding
+                                {% elif question.question_type == 'checkbox' %}
+                                    <i class="bi bi-check2-square"></i> Checkbox
+                                {% elif question.question_type == 'true_false' %}
+                                    <i class="bi bi-check-circle"></i> True/False
+                                {% elif question.question_type == 'enumeration' %}
+                                    <i class="bi bi-list-ol"></i> Enumeration
                                 {% endif %}
                             </span>
                             <span class="badge bg-info">
@@ -353,6 +506,15 @@
                             </span>
                         </div>
                         <div>
+                            <div class="d-inline-block me-2">
+                                <form method="POST" action="{{ url_for('main.update_question_category', question_id=question.id) }}" class="question-category-form">
+                                    <select name="category" class="form-select form-select-sm question-category-select">
+                                        {% for cat in question_categories %}
+                                            <option value="{{ cat }}" {% if question.category == cat %}selected{% endif %}>{{ cat }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
                             <a href="{{ url_for('main.edit_question_form', question_id=question.id) }}" class="btn btn-sm btn-outline-primary me-1">
                                 <i class="bi bi-pencil"></i>
                             </a>
@@ -365,6 +527,9 @@
                     </div>
                     
                     <h5>{{ question.question_text }}</h5>
+                    {% if question.category %}
+                        <span class="badge bg-secondary mb-2"><i class="bi bi-tag"></i> {{ question.category }}</span>
+                    {% endif %}
                     
                     {% if question.question_type == 'multiple_choice' and question.options %}
                         <div class="mt-3">
@@ -409,10 +574,38 @@
                             </div>
                         {% endif %}
                         
-                        {% if question.expected_output %}
+                    {% elif question.question_type == 'checkbox' and question.options %}
+                        <div class="mt-3">
+                            <strong>Options:</strong>
+                            <ul class="list-group mt-2">
+                                {% set correct_list = question.get_correct_answers() %}
+                                {% for option in question.get_options() %}
+                                    <li class="list-group-item {{ option in correct_list and 'list-group-item-success' or '' }}">
+                                        {{ option }}
+                                        {% if option in correct_list %}
+                                            <span class="badge bg-success float-end">Correct Answer</span>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% elif question.question_type == 'true_false' %}
+                        {% if question.correct_answer %}
                             <div class="mt-3">
-                                <strong>Expected Solution Approach:</strong>
-                                <pre class="mt-2">{{ question.expected_output }}</pre>
+                                <strong>Correct Answer:</strong>
+                                <span class="badge bg-success">{{ question.correct_answer }}</span>
+                            </div>
+                        {% endif %}
+                    {% elif question.question_type == 'enumeration' %}
+                        {% set correct_list = question.get_correct_answers() %}
+                        {% if correct_list %}
+                            <div class="mt-3">
+                                <strong>Correct Items:</strong>
+                                <div class="mt-2">
+                                    {% for item in correct_list %}
+                                        <span class="badge bg-success me-1">{{ item }}</span>
+                                    {% endfor %}
+                                </div>
                             </div>
                         {% endif %}
                     {% endif %}
@@ -430,37 +623,124 @@
 <div id="aiModal" class="ai-modal">
     <div class="ai-modal-content">
         <div class="ai-modal-header">
-            <h3><i class="bi bi-robot"></i> DeepSeek Coder AI Question Generator</h3>
+            <h3><i class="bi bi-lightning"></i> Rankwise AI - Question Generator</h3>
             <span class="ai-close">&times;</span>
         </div>
         <div id="aiInputForm">
             <div class="ai-form-group">
-                <label class="ai-label" for="aiPrompt">What kind of question do you want DeepSeek Coder to generate?</label>
-                <input type="text" id="aiPrompt" class="ai-input" placeholder="e.g., Python question about loops">
-                <small class="form-text text-muted">This prompt will be sent to the DeepSeek Coder 6.7B model to generate a question</small>
+                <label class="ai-label">Select Topic Categories</label>
+                <div class="ai-categories-container">
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_cybersecurity" value="Cybersecurity">
+                        <label for="cat_cybersecurity">Cybersecurity</label>
+                    </div>
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_digital_electronics" value="Digital Electronics">
+                        <label for="cat_digital_electronics">Digital Electronics</label>
+                    </div>
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_linux_admin" value="Linux Administration">
+                        <label for="cat_linux_admin">Linux Administration</label>
+                    </div>
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_networking" value="Networking">
+                        <label for="cat_networking">Networking</label>
+                    </div>
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_robotics" value="Robotics">
+                        <label for="cat_robotics">Robotics</label>
+                    </div>
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_android_dev" value="Android App Development">
+                        <label for="cat_android_dev">Android App Development</label>
+                    </div>
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_database" value="Database">
+                        <label for="cat_database">Database</label>
+                    </div>
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_java" value="Java">
+                        <label for="cat_java">Java</label>
+                    </div>
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_csharp" value="C#">
+                        <label for="cat_csharp">C#</label>
+                    </div>
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_python" value="Python">
+                        <label for="cat_python">Python</label>
+                    </div>
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_webdesign" value="Web Design">
+                        <label for="cat_webdesign">Web Design</label>
+                    </div>
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_esports" value="Esports">
+                        <label for="cat_esports">Esports</label>
+                    </div>
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_c++" value="C++">
+                        <label for="cat_c++">C++</label>
+                    </div>
+                    <div class="ai-category-checkbox">
+                        <input type="checkbox" id="cat_c" value="C">
+                        <label for="cat_c">C</label>
+                    </div>
+                </div>
+                <small class="form-text text-muted">Select one or more categories to generate questions</small>
             </div>
-            <div class="ai-form-group">
-                <label class="ai-label" for="aiQuestionType">Question Type</label>
-                <select id="aiQuestionType" class="ai-input">
-                    <option value="multiple_choice">Multiple Choice</option>
-                    <option value="identification">Identification</option>
-                    <option value="coding">Coding</option>
-                </select>
+            
+            <!-- Hidden fields that appear when categories are selected -->
+            <div id="aiGenerationFields" style="display: none;">
+                <div class="ai-form-group">
+                    <label class="ai-label">Select Question Types</label>
+                    <div class="ai-categories-container">
+                        <div class="ai-category-checkbox">
+                            <input type="checkbox" id="type_multiple_choice" value="multiple_choice">
+                            <label for="type_multiple_choice">Multiple Choice</label>
+                        </div>
+                        <div class="ai-category-checkbox">
+                            <input type="checkbox" id="type_identification" value="identification">
+                            <label for="type_identification">Identification</label>
+                        </div>
+                        <div class="ai-category-checkbox">
+                            <input type="checkbox" id="type_coding" value="coding">
+                            <label for="type_coding">Coding</label>
+                        </div>
+                        <div class="ai-category-checkbox">
+                            <input type="checkbox" id="type_checkbox" value="checkbox">
+                            <label for="type_checkbox">Checkbox</label>
+                        </div>
+                        <div class="ai-category-checkbox">
+                            <input type="checkbox" id="type_true_false" value="true_false">
+                            <label for="type_true_false">True/False</label>
+                        </div>
+                        <div class="ai-category-checkbox">
+                            <input type="checkbox" id="type_enumeration" value="enumeration">
+                            <label for="type_enumeration">Enumeration</label>
+                        </div>
+                    </div>
+                    <small class="form-text text-muted">Select one or more question types</small>
+                </div>
+                <div class="ai-form-group">
+                    <label class="ai-label" for="aiCount">How many questions per category/type?</label>
+                    <input type="number" id="aiCount" class="ai-input" value="1" min="1" max="20">
+                    <small class="form-text text-muted">Up to 20 questions per combination. Exact duplicates are automatically removed.</small>
+                </div>
+                <button id="aiGenerateBtn" class="ai-btn">
+                    <i class="bi bi-magic"></i> Generate Questions
+                </button>
             </div>
-            <div class="ai-form-group">
-                <label class="ai-label" for="aiCount">How many questions?</label>
-                <input type="number" id="aiCount" class="ai-input" value="1" min="1" max="20">
-                <small class="form-text text-muted">Up to 20 at a time. Exact duplicates are automatically removed.</small>
-            </div>
-            <button id="aiGenerateBtn" class="ai-btn">
-                <i class="bi bi-magic"></i> Generate with DeepSeek Coder AI
-            </button>
             <div class="ai-error-container"></div>
         </div>
         
         <div id="aiLoading" class="ai-loading">
-            <div class="spinner"></div>
-            <p>DeepSeek Coder AI is thinking about your question...</p>
+            <div class="ai-progress-container">
+                <div class="ai-progress-bar-bg">
+                    <div class="ai-progress-bar-fill" id="aiProgressBar" style="width: 0%;">0%</div>
+                </div>
+                <div class="ai-progress-text" id="aiProgressText">Initializing...</div>
+            </div>
         </div>
         
         <div id="aiResult" class="ai-result">
@@ -482,22 +762,82 @@
 {% block scripts %}
 <script>
     $(document).ready(function() {
+        // Enable/disable all inputs inside sections
+        function disableAllSections() {
+            $('#multipleChoiceOptions :input, #identificationFields :input, #codingFields :input, #checkboxOptions :input, #trueFalseFields :input, #enumerationFields :input').prop('disabled', true);
+        }
+
+        function enableSection(selector) {
+            $(selector + ' :input').prop('disabled', false);
+        }
+
         // Show/hide fields based on question type
         $('#question_type').change(function() {
             const questionType = $(this).val();
             
             // Hide all question-specific fields
-            $('#multipleChoiceOptions, #identificationFields, #codingFields').hide();
+            $('#multipleChoiceOptions, #identificationFields, #codingFields, #checkboxOptions, #trueFalseFields, #enumerationFields').hide();
+            disableAllSections();
             
             // Show fields based on question type
             if (questionType === 'multiple_choice') {
                 $('#multipleChoiceOptions').show();
+                enableSection('#multipleChoiceOptions');
             } else if (questionType === 'identification') {
                 $('#identificationFields').show();
+                enableSection('#identificationFields');
             } else if (questionType === 'coding') {
                 $('#codingFields').show();
+                enableSection('#codingFields');
+                // Lazy load Monaco and create editors if not present
+                if (window.require && !window.__monacoLoaded) {
+                    window.require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' }});
+                    window.require(['vs/editor/editor.main'], function() {
+                        window.__monacoLoaded = true;
+                        
+                        // Sample code editor (light theme)
+                        window.__monacoEditor = monaco.editor.create(document.getElementById('sample_code_editor'), {
+                            value: '',
+                            language: ($('#coding_language').val() || 'Python').toLowerCase().replace('c++','cpp'),
+                            theme: 'vs-light',
+                            minimap: { enabled: false },
+                            fontSize: 14,
+                            automaticLayout: true
+                        });
+                        
+                        // Unit tests editor (dark theme)
+                        window.__unitTestsEditor = monaco.editor.create(document.getElementById('unit_tests_editor'), {
+                            value: 'def test_sum_function():\n    assert sum_numbers([1, 2, 3, 4]) == 10\n    assert sum_numbers([]) == 0',
+                            language: 'python',
+                            theme: 'vs-dark',
+                            minimap: { enabled: false },
+                            fontSize: 14,
+                            automaticLayout: true
+                        });
+                    });
+                }
+            } else if (questionType === 'checkbox') {
+                $('#checkboxOptions').show();
+                updateCheckboxCorrectAnswers();
+                enableSection('#checkboxOptions');
+            } else if (questionType === 'true_false') {
+                $('#trueFalseFields').show();
+                enableSection('#trueFalseFields');
+            } else if (questionType === 'enumeration') {
+                $('#enumerationFields').show();
+                enableSection('#enumerationFields');
             }
         });
+
+        // On load, disable all then enable the currently visible section if a value is selected
+        disableAllSections();
+        const initialType = $('#question_type').val();
+        if (initialType === 'multiple_choice') enableSection('#multipleChoiceOptions');
+        if (initialType === 'identification') enableSection('#identificationFields');
+        if (initialType === 'coding') enableSection('#codingFields');
+        if (initialType === 'checkbox') enableSection('#checkboxOptions');
+        if (initialType === 'true_false') enableSection('#trueFalseFields');
+        if (initialType === 'enumeration') enableSection('#enumerationFields');
         
         // Add option for multiple choice
         $('#addOption').click(function() {
@@ -552,10 +892,83 @@
                 $correctAnswerSelect.val(currentValue);
             }
         }
+
+        // Handle language change for coding questions
+        $('#coding_language').change(function() {
+            if (window.__monacoEditor) {
+                const lang = $(this).val().toLowerCase().replace('c++', 'cpp');
+                monaco.editor.setModelLanguage(window.__monacoEditor.getModel(), lang);
+            }
+        });
+
+        // On submit, copy Monaco content to hidden textareas so backend receives it
+        $('#questionForm').on('submit', function() {
+            if (window.__monacoEditor) {
+                $('#sample_code').val(window.__monacoEditor.getValue());
+            }
+            if (window.__unitTestsEditor) {
+                $('#expected_output').val(window.__unitTestsEditor.getValue());
+            }
+        });
+
+        // Add option for checkbox
+        $('#addOptionCheckbox').click(function() {
+            const optionsCount = $('.options-container-checkbox .option-item').length;
+            const newOption = `
+                <div class="option-item">
+                    <input type="text" class="form-control" name="options[]" placeholder="Option ${optionsCount + 1}">
+                    <span class="remove-option"><i class="bi bi-x-circle"></i></span>
+                </div>
+            `;
+            $('.options-container-checkbox').append(newOption);
+            updateCheckboxCorrectAnswers();
+        });
+
+        // Remove option for checkbox
+        $(document).on('click', '.remove-option', function() {
+            if ($('.options-container-checkbox .option-item').length > 1) {
+                $(this).parent().remove();
+                
+                // Update placeholders
+                $('.options-container-checkbox .option-item').each(function(index) {
+                    $(this).find('input').attr('placeholder', `Option ${index + 1}`);
+                });
+                
+                updateCheckboxCorrectAnswers();
+            }
+        });
+
+        // Keep checkbox correct answers in sync
+        $(document).on('input', '#checkboxOptions input[name="options[]"]', function() {
+            updateCheckboxCorrectAnswers();
+        });
+
+        function updateCheckboxCorrectAnswers() {
+            const container = $('#correct_answers_container');
+            const current = new Set(container.find('input:checked').map(function(){return $(this).val();}).get());
+            container.empty();
+            $('#checkboxOptions input[name="options[]"]').each(function() {
+                const val = $(this).val();
+                if (!val) return;
+                const id = 'cb_ca_' + btoa(val).replace(/=/g,'');
+                const checked = current.has(val) ? 'checked' : '';
+                container.append(`
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="correct_answer[]" value="${val}" id="${id}" ${checked}>
+                        <label class="form-check-label" for="${id}">${val}</label>
+                    </div>
+                `);
+            });
+        }
         
         // Add animation effects
         $('.question-card').each(function(index) {
             $(this).css('animation-delay', `${index * 0.1}s`);
+        });
+
+        // Auto-submit category changes
+        $('.question-category-select').on('change', function() {
+            $(this).closest('form').submit();
         });
         
         // AI Generator Modal
@@ -569,9 +982,18 @@
         const aiAddQuestionBtn = document.getElementById('aiAddQuestion');
         const aiAddSelectedBtn = document.getElementById('aiAddSelected');
         const aiQuestionPreview = document.getElementById('aiQuestionPreview');
-        const aiPrompt = document.getElementById('aiPrompt');
-        const aiQuestionType = document.getElementById('aiQuestionType');
         const aiCount = document.getElementById('aiCount');
+        const aiGenerationFields = document.getElementById('aiGenerationFields');
+        
+        // Handle category checkbox clicks to show/hide generation fields
+        $('input[type="checkbox"][id^="cat_"]').on('change', function() {
+            const checkedCategories = $('input[type="checkbox"][id^="cat_"]:checked').length;
+            if (checkedCategories > 0) {
+                aiGenerationFields.style.display = 'block';
+            } else {
+                aiGenerationFields.style.display = 'none';
+            }
+        });
         
         // Open modal
         aiGeneratorBtn.onclick = function() {
@@ -584,6 +1006,10 @@
         
         // Close modal
         closeBtn.onclick = function() {
+            // Prevent closing if currently generating questions
+            if (aiLoading.style.display === 'flex') {
+                return;
+            }
             aiModal.style.display = 'none';
             document.body.style.overflow = 'auto';
         }
@@ -591,6 +1017,10 @@
         // Close modal when clicking outside
         window.onclick = function(event) {
             if (event.target == aiModal) {
+                // Prevent closing if currently generating questions
+                if (aiLoading.style.display === 'flex') {
+                    return;
+                }
                 aiModal.style.display = 'none';
                 document.body.style.overflow = 'auto';
             }
@@ -605,17 +1035,63 @@
                 .trim();
         }
         
+        // Generate question from datasets
+        async function generateQuestionFromDatasets(prompt, questionType) {
+            try {
+                const response = await fetch('/form/ai-question', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        question_type: questionType,
+                    }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error generating question from datasets:', error);
+                throw error;
+            }
+        }
+        
         // Generate question(s) with AI
         aiGenerateBtn.addEventListener('click', async function() {
-            const promptValue = aiPrompt.value.trim();
-            const typeValue = aiQuestionType.value;
+            // Get selected categories
+            const selectedCategories = [];
+            $('input[type="checkbox"][id^="cat_"]:checked').each(function() {
+                selectedCategories.push($(this).val());
+            });
+            
+            // Get selected question types
+            const selectedTypes = [];
+            $('input[type="checkbox"][id^="type_"]:checked').each(function() {
+                selectedTypes.push($(this).val());
+            });
+            
             const count = Math.max(1, Math.min(parseInt(aiCount.value || '1', 10), 20));
             
-            if (!promptValue) {
+            if (selectedCategories.length === 0) {
                 const errorContainer = document.querySelector('.ai-error-container');
                 errorContainer.innerHTML = `
                     <div class="ai-error">
-                        <strong>Error:</strong> Please enter a prompt for the question generation
+                        <strong>Error:</strong> Please select at least one category
+                    </div>
+                `;
+                return;
+            }
+            
+            if (selectedTypes.length === 0) {
+                const errorContainer = document.querySelector('.ai-error-container');
+                errorContainer.innerHTML = `
+                    <div class="ai-error">
+                        <strong>Error:</strong> Please select at least one question type
                     </div>
                 `;
                 return;
@@ -630,21 +1106,59 @@
             aiLoading.style.display = 'flex';
             aiAddSelectedBtn.style.display = 'none';
             aiAddQuestionBtn.style.display = 'inline-block';
+            // Add generating class to prevent closing
+            aiModal.classList.add('generating');
             
             try {
-                const tasks = [];
-                for (let i = 0; i < count; i++) {
-                    const variantPrompt = `${promptValue} (Variant ${i + 1})`;
-                    tasks.push(window.aiConnector.generateQuestion(variantPrompt, typeValue));
-                }
-                const results = await Promise.allSettled(tasks);
+                // Calculate total questions to generate
+                const totalQuestions = selectedCategories.length * selectedTypes.length * count;
+                const results = [];
+                let currentProgress = 0;
                 
-                // Dedupe by normalized question text
+                // Helper function to update progress
+                const updateProgress = (completed) => {
+                    currentProgress = completed;
+                    const percentage = Math.round((completed / totalQuestions) * 100);
+                    document.getElementById('aiProgressBar').style.width = percentage + '%';
+                    document.getElementById('aiProgressBar').textContent = percentage + '%';
+                    document.getElementById('aiProgressText').textContent = 
+                        `Generating questions... ${completed}/${totalQuestions}`;
+                };
+                
+                updateProgress(0);
+                
+                // Generate questions sequentially with progress updates
+                for (const category of selectedCategories) {
+                    for (const typeValue of selectedTypes) {
+                        for (let i = 0; i < count; i++) {
+                            try {
+                                const categoryPrompt = `${category} (${i + 1})`;
+                                const result = await generateQuestionFromDatasets(categoryPrompt, typeValue);
+                                // Automatically set the category for the generated question
+                                if (result) {
+                                    result.category = category;
+                                }
+                                results.push({ status: 'fulfilled', value: result });
+                            } catch (error) {
+                                results.push({ status: 'rejected', reason: error });
+                            }
+                            updateProgress(currentProgress + 1);
+                        }
+                    }
+                }
+                
+                // Dedupe by normalized question text (less aggressive for coding questions)
                 const unique = [];
                 const seen = new Set();
                 results.forEach(r => {
                     if (r.status === 'fulfilled' && r.value && r.value.text) {
-                        const key = normalizeText(r.value.text);
+                        let key = normalizeText(r.value.text);
+                        
+                        // For coding questions, include language and topic in deduplication key
+                        if (r.value.question_type === 'coding' && r.value.language) {
+                            key = `${key}_${r.value.language}_${r.value.topic || ''}`;
+                        }
+                        
                         if (key && !seen.has(key)) {
                             seen.add(key);
                             unique.push(r.value);
@@ -655,6 +1169,8 @@
                 // Display the result
                 aiLoading.style.display = 'none';
                 aiResult.style.display = 'block';
+                // Remove generating class to allow closing
+                aiModal.classList.remove('generating');
                 
                 // Store the data for later use
                 aiResult.dataset.questionData = unique.length === 1 ? JSON.stringify(unique[0]) : '';
@@ -668,7 +1184,11 @@
                         <div class="ai-question-card">
                             <h4>${data.text}</h4>
                     `;
-                    if (typeValue === 'multiple_choice' && data.options) {
+                    // Display category if set
+                    if (data.category) {
+                        previewHtml += `<p><strong>Category:</strong> <span class="badge bg-secondary"><i class="bi bi-tag"></i> ${data.category}</span></p>`;
+                    }
+                    if (data.question_type === 'multiple_choice' && data.options) {
                         previewHtml += '<ul class="ai-options-list">';
                         data.options.forEach(function(option) {
                             const isCorrect = option === data.correct_answer;
@@ -681,15 +1201,51 @@
                         });
                         previewHtml += '</ul>';
                         previewHtml += `<p><strong>Correct Answer:</strong> <span class="badge bg-success">${data.correct_answer || 'Not specified'}</span></p>`;
-                    } else if (typeValue === 'identification') {
+                    } else if (data.question_type === 'identification') {
                         previewHtml += `<p><strong>Correct Answer:</strong> <span class="badge bg-success">${data.correct_answer || 'Not specified'}</span></p>`;
-                    } else if (typeValue === 'coding') {
+                    } else if (data.question_type === 'coding') {
+                        if (data.language) {
+                            previewHtml += `<p><strong>Language:</strong> <span class="badge bg-info">${data.language}</span></p>`;
+                        }
+                        if (data.topic) {
+                            previewHtml += `<p><strong>Topic:</strong> <span class="badge bg-secondary">${data.topic}</span></p>`;
+                        }
                         if (data.sample_code) {
                             previewHtml += `
                                 <div class="mb-3">
                                     <h5>Sample Code:</h5>
                                     <pre class="p-3 bg-light border rounded"><code>${data.sample_code}</code></pre>
                                 </div>`;
+                        }
+                        if (data.expected_output || data.unit_tests) {
+                            previewHtml += `
+                                <div class="mb-3">
+                                    <h5>Unit Tests:</h5>
+                                    <pre class="p-3 bg-dark text-light border rounded"><code>${data.expected_output || data.unit_tests}</code></pre>
+                                </div>`;
+                        }
+                    } else if (data.question_type === 'checkbox' && data.options) {
+                        const correctList = Array.isArray(data.correct_answer) ? data.correct_answer : [];
+                        previewHtml += '<ul class="ai-options-list">';
+                        data.options.forEach(function(option) {
+                            const isCorrect = correctList.includes(option);
+                            previewHtml += `
+                                <li class="ai-option-item ${isCorrect ? 'correct' : ''}">
+                                    ${option}
+                                    ${isCorrect ? '<span class="badge bg-success float-end">Correct</span>' : ''}
+                                </li>
+                            `;
+                        });
+                        previewHtml += '</ul>';
+                        if (correctList.length) {
+                            previewHtml += `<p><strong>Correct Answers:</strong> ${correctList.map(c=>`<span class=\"badge bg-success me-1\">${c}</span>`).join('')}</p>`;
+                        }
+                    } else if (data.question_type === 'true_false') {
+                        previewHtml += `<p><strong>Correct Answer:</strong> <span class="badge bg-success">${data.correct_answer || 'True'}</span></p>`;
+                    } else if (data.question_type === 'enumeration') {
+                        const list = Array.isArray(data.correct_answer) ? data.correct_answer : [];
+                        if (list.length) {
+                            previewHtml += `<p><strong>Correct Items:</strong> ${list.map(c=>`<span class=\"badge bg-success me-1\">${c}</span>`).join('')}</p>`;
                         }
                     }
                     previewHtml += '</div>';
@@ -704,10 +1260,38 @@
                                     <input class="form-check-input" type="checkbox" value="${idx}" id="qsel_${idx}" checked>
                                     <label class="form-check-label" for="qsel_${idx}"><strong>${q.text}</strong></label>
                                 </div>
+                                ${q.category ? `<p><strong>Category:</strong> <span class="badge bg-secondary"><i class="bi bi-tag"></i> ${q.category}</span></p>` : ''}
                                 ${q.question_type === 'multiple_choice' && q.options ? `
                                     <ul class="ai-options-list">
                                         ${q.options.map(o => `<li class=\"ai-option-item ${o===q.correct_answer ? 'correct' : ''}\">${o}${o===q.correct_answer ? '<span class=\"badge bg-success float-end\">Correct</span>' : ''}</li>`).join('')}
                                     </ul>` : ''}
+                                ${q.question_type === 'identification' ? `<p><strong>Correct Answer:</strong> <span class=\"badge bg-success\">${q.correct_answer || 'Not specified'}</span></p>` : ''}
+                                ${q.question_type === 'true_false' ? `<p><strong>Correct Answer:</strong> <span class=\"badge bg-success\">${q.correct_answer || 'True'}</span></p>` : ''}
+                                ${q.question_type === 'enumeration' ? (() => {
+                                    const list = Array.isArray(q.correct_answer) ? q.correct_answer : [];
+                                    return list.length ? `<p><strong>Correct Items:</strong> ${list.map(c=>`<span class=\"badge bg-success me-1\">${c}</span>`).join('')}</p>` : '';
+                                })() : ''}
+                                ${q.question_type === 'checkbox' && q.options ? (() => {
+                                    const correctList = Array.isArray(q.correct_answer) ? q.correct_answer : [];
+                                    return `<ul class=\"ai-options-list\">${q.options.map(o => `<li class=\"ai-option-item ${correctList.includes(o) ? 'correct' : ''}\">${o}${correctList.includes(o) ? '<span class=\"badge bg-success float-end\">Correct</span>' : ''}</li>`).join('')}</ul>${correctList.length ? `<p><strong>Correct Answers:</strong> ${correctList.map(c=>`<span class=\"badge bg-success me-1\">${c}</span>`).join('')}</p>` : ''}`;
+                                })() : ''}
+                                ${q.question_type === 'coding' ? `
+                                    <div class="mb-2">
+                                        <small class="text-muted">Language: <span class="badge bg-primary">${q.language || 'Unknown'}</span> | Topic: <span class="badge bg-secondary">${q.topic || 'Unknown'}</span></small>
+                                    </div>
+                                    ${q.sample_code ? `
+                                        <div class="mb-2">
+                                            <h6>Sample Code:</h6>
+                                            <pre class="p-2 bg-light border rounded small"><code>${q.sample_code}</code></pre>
+                                        </div>
+                                    ` : ''}
+                                    ${(q.expected_output || q.unit_tests) ? `
+                                        <div class="mb-2">
+                                            <h6>Unit Tests:</h6>
+                                            <pre class="p-2 bg-dark text-light border rounded small"><code>${q.expected_output || q.unit_tests}</code></pre>
+                                        </div>
+                                    ` : ''}
+                                ` : ''}
                             </div>
                         `;
                     });
@@ -718,6 +1302,8 @@
             } catch (error) {
                 aiLoading.style.display = 'none';
                 aiInputForm.style.display = 'block';
+                // Remove generating class to allow closing
+                aiModal.classList.remove('generating');
                 const errorContainer = document.querySelector('.ai-error-container');
                 errorContainer.innerHTML = `
                     <div class="ai-error">
@@ -814,13 +1400,43 @@
                     addField('question_text', questionData.text || '');
                     addField('question_type', questionData.question_type || 'multiple_choice');
                     addField('points', '1');
+                    if (questionData.category) addField('category', questionData.category);
                     if (questionData.correct_answer) addField('correct_answer', questionData.correct_answer);
                     if (questionData.question_type === 'multiple_choice' && Array.isArray(questionData.options)) {
                         questionData.options.forEach(o => fd.append('options[]', o));
                     }
                     if (questionData.question_type === 'coding') {
                         if (questionData.sample_code) addField('sample_code', questionData.sample_code);
-                        if (questionData.expected_output) addField('expected_output', questionData.expected_output);
+                        // Prefer unit_tests over expected_output for unit test field
+                        if (questionData.unit_tests) {
+                            addField('expected_output', questionData.unit_tests);
+                        } else if (questionData.expected_output) {
+                            addField('expected_output', questionData.expected_output);
+                        }
+                        if (questionData.language) addField('coding_language', questionData.language);
+                        if (questionData.hints) addField('hints', questionData.hints);
+                    }
+                    if (questionData.question_type === 'checkbox') {
+                        if (Array.isArray(questionData.options)) {
+                            questionData.options.forEach(o => fd.append('options[]', o));
+                        }
+                        if (Array.isArray(questionData.correct_answer)) {
+                            questionData.correct_answer.forEach(ca => fd.append('correct_answer[]', ca));
+                        }
+                    }
+                    if (questionData.question_type === 'true_false') {
+                        // Ensure correct_answer is either "True" or "False"
+                        let ca = (questionData.correct_answer || '').toString().toLowerCase();
+                        if (['true','t','1','yes'].includes(ca)) addField('correct_answer', 'True');
+                        else if (['false','f','0','no'].includes(ca)) addField('correct_answer', 'False');
+                        else if (ca) addField('correct_answer', questionData.correct_answer);
+                    }
+                    if (questionData.question_type === 'enumeration') {
+                        if (Array.isArray(questionData.correct_answer)) {
+                            questionData.correct_answer.forEach(item => fd.append('correct_answer[]', item));
+                        } else if (typeof questionData.correct_answer === 'string') {
+                            addField('correct_answer', questionData.correct_answer);
+                        }
                     }
                     await fetch(`/form/{{ form.id }}/question/new`, { method: 'POST', body: fd });
                 } catch (e) {
