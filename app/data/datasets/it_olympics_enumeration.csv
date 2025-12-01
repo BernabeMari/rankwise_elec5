@@ -26,30 +26,27 @@ Productivity,List three collaboration tools.,Slack;Trello;Google Workspace
 Game Development,List three game engines.,Unity;Unreal Engine;Godot
 Game Development,List three game design elements.,Mechanics;Dynamics;Aesthetics
 Game Development,List three gaming platforms.,PC;Console;Mobile
-Database Programming,List three types of databases.,Relational;NoSQL;Graph
-Database Programming,List three SQL commands.,SELECT;INSERT;UPDATE
-Database Programming,List three database normalization forms.,First Normal Form;Second Normal Form;Third Normal Form
-Java Programming,List three Java data types.,int;String;boolean
-Java Programming,List three Java access modifiers.,public;private;protected
-Java Programming,List three Java collection types.,ArrayList;HashMap;HashSet
-.NET Programming using C#,List three C# data types.,int;string;bool
-.NET Programming using C#,List three .NET framework components.,CLR;FCL;ASP.NET
-.NET Programming using C#,List three C# access modifiers.,public;private;protected
-Python Programming,List three Python data structures.,List;Dictionary;Tuple
-Python Programming,List three Python libraries for data science.,NumPy;Pandas;Matplotlib
-Python Programming,List three Python frameworks.,Django;Flask;FastAPI
+Database,List three types of databases.,Relational;NoSQL;Graph
+Database,List three SQL commands.,SELECT;INSERT;UPDATE
+Database,List three database normalization forms.,First Normal Form;Second Normal Form;Third Normal Form
+Java,List three Java data types.,int;String;boolean
+Java,List three Java access modifiers.,public;private;protected
+Java,List three Java collection types.,ArrayList;HashMap;HashSet
+C#,List three C# data types.,int;string;bool
+C#,List three .NET framework components.,CLR;FCL;ASP.NET
+C#,List three C# access modifiers.,public;private;protected
+Python,List three Python data structures.,List;Dictionary;Tuple
+Python,List three Python libraries for data science.,NumPy;Pandas;Matplotlib
+Python,List three Python frameworks.,Django;Flask;FastAPI
 Web Design,List three CSS layout techniques.,Flexbox;Grid;Float
 Web Design,List three web design principles.,Balance;Contrast;Hierarchy
 Web Design,List three responsive design breakpoints.,Mobile;Tablet;Desktop
-IT Quiz Bee,List three IT certification providers.,CompTIA;Cisco;Microsoft
-IT Quiz Bee,List three programming languages.,Python;Java;JavaScript
-IT Quiz Bee,List three cloud service providers.,AWS;Azure;Google Cloud
-Sports ML,List three machine learning algorithms for sports analytics.,Linear Regression;Decision Trees;Neural Networks
-Sports ML,List three sports statistics used in ML.,Player Performance;Team Rankings;Game Outcomes
-Sports ML,List three applications of ML in sports.,Performance Prediction;Injury Prevention;Talent Scouting
-Sports CODM,List three game modes in Call of Duty Mobile.,Team Deathmatch;Battle Royale;Domination
-Sports CODM,List three weapon types in CODM.,Assault Rifles;Sniper Rifles;SMGs
-Sports CODM,List three CODM map types.,Multiplayer Maps;Battle Royale Maps;Practice Maps
+Esports,List three machine learning algorithms for sports analytics.,Linear Regression;Decision Trees;Neural Networks
+Esports,List three sports statistics used in ML.,Player Performance;Team Rankings;Game Outcomes
+Esports,List three applications of ML in sports.,Performance Prediction;Injury Prevention;Talent Scouting
+Esports,List three game modes in Call of Duty Mobile.,Team Deathmatch;Battle Royale;Domination
+Esports,List three weapon types in CODM.,Assault Rifles;Sniper Rifles;SMGs
+Esports,List three CODM map types.,Multiplayer Maps;Battle Royale Maps;Practice Maps
 Cybersecurity,List three types of encryption.,Symmetric;Asymmetric;Hashing
 Cybersecurity,List three network security devices.,Firewall;IDS;IPS
 Cybersecurity,List three social engineering techniques.,Pretexting;Baiting;Tailgating
@@ -90,13 +87,696 @@ Game Development,List three 3D modeling software for games.,Blender;Maya;3ds Max
 Game Development,List three game audio tools.,FMOD;Wwise;Audacity
 Game Development,List three game testing types.,Functional;Performance;Compatibility
 Game Development,List three monetization strategies.,Premium;Freemium;In-App Purchases
-Database Programming,List three join types in SQL.,INNER JOIN;LEFT JOIN;RIGHT JOIN
-Database Programming,List three database indexing types.,B-Tree;Hash;Bitmap
-Database Programming,List three ACID properties.,Atomicity;Consistency;Isolation
-Database Programming,List three NoSQL database types.,Document;Key-Value;Column-Family
-Database Programming,List three database backup methods.,Full Backup;Incremental;Differential
-Java Programming,List three Java loops.,for;while;do-while
-Java Programming,List three Java exception types.,Checked;Unchecked;Error
-Java Programming,List three Java OOP principles.,Encapsulation;Inheritance;Polymorphism
-Java Programming,List three Java design patterns.,Singleton;Factory;Observer
-Java Programming,List three Java IDE options.,Eclipse;IntelliJ IDEA;NetBeans
+Database,List three join types in SQL.,INNER JOIN;LEFT JOIN;RIGHT JOIN
+Database,List three database indexing types.,B-Tree;Hash;Bitmap
+Database,List three ACID properties.,Atomicity;Consistency;Isolation
+Database,List three NoSQL database types.,Document;Key-Value;Column-Family
+Database,List three database backup methods.,Full Backup;Incremental;Differential
+Java,List three Java loops.,for;while;do-while
+Java,List three Java exception types.,Checked;Unchecked;Error
+Java,List three Java OOP principles.,Encapsulation;Inheritance;Polymorphism
+Java,List three Java design patterns.,Singleton;Factory;Observer
+Java ,List three Java IDE options.,Eclipse;IntelliJ IDEA;NetBeans
+Cybersecurity,List three types of malware.,Virus;Trojan;Ransomware
+Cybersecurity,What does CIA triad stand for?,Confidentiality;Integrity;Availability
+Cybersecurity,Name common authentication factors.,Something you know;Something you have;Something you are
+Cybersecurity,Give examples of social engineering attacks.,Phishing;Pretexting;Baiting
+Cybersecurity,What are common password attacks?,Brute force;Dictionary attack;Credential stuffing
+Cybersecurity,Name three network security devices.,Firewall;IDS;IPS
+Cybersecurity,What are common wireless security protocols?,WEP;WPA;WPA2
+Cybersecurity,Give three examples of cyber threats.,Malware;DDoS;Insider threats
+Cybersecurity,Name common encryption algorithms.,AES;RSA;3DES
+Cybersecurity,List common indicators of compromise.,Unusual traffic;Unexpected logins;System slowdown
+Cybersecurity,Name ways to secure email.,Spam filters;DKIM;Encryption
+Cybersecurity,What are common web application attacks?,XSS;SQL Injection;CSRF
+Cybersecurity,Name types of access control models.,DAC;MAC;RBAC
+Cybersecurity,Give common endpoint protections.,Antivirus;EDR;Patch management
+Cybersecurity,What are common backup strategies?,Full;Incremental;Differential
+Cybersecurity,Name common cryptographic hash functions.,MD5;SHA-1;SHA-256
+Cybersecurity,Give examples of privacy tools.,VPN;TOR;Encrypted messaging
+Cybersecurity,Name common cloud security risks.,Misconfigurations;Data breaches;Account hijacking
+Cybersecurity,What are network segmentation methods?,VLANs;Subnets;Firewalls
+Cybersecurity,Name secure coding practices.,Input validation;Least privilege;Error handling
+Cybersecurity,Name types of DDoS attacks.,SYN flood;UDP flood;HTTP flood
+Cybersecurity,Give common phishing indicators.,Fake URLs;Urgent tone;Unexpected attachments
+Cybersecurity,What are common log monitoring tools?,SIEM;Syslog;Splunk
+Cybersecurity,Name incident response phases.,Preparation;Containment;Recovery
+Cybersecurity,Give examples of MFA methods.,OTP;Biometrics;Smartcard
+Cybersecurity,Name types of firewalls.,Packet filtering;Stateful;Application-layer
+Cybersecurity,What are common ransomware tactics?,Encryption;Extortion;Data theft
+Cybersecurity,Name common cybersecurity frameworks.,NIST;ISO 27001;CIS Controls
+Cybersecurity,What are common password policies?,Minimum length;Complexity;Expiration
+Cybersecurity,Name types of network scanning.,Ping scan;Port scan;Vulnerability scan
+Cybersecurity,Give examples of insider threats.,Disgruntled employees;Negligent users;Malicious contractors
+Cybersecurity,Name types of physical security controls.,Locks;CCTV;Biometrics
+Cybersecurity,What are common authentication protocols?,Kerberos;OAuth;SAML
+Cybersecurity,Name examples of security logs.,Access logs;Event logs;Firewall logs
+Cybersecurity,Give examples of supply chain attacks.,Software tampering;Dependency injection;Firmware manipulation
+Cybersecurity,What are common mobile threats?,Spyware;Rogue apps;Bluetooth attacks
+Cybersecurity,Name data loss prevention methods.,Encryption;Access control;Monitoring
+Cybersecurity,Give examples of vulnerability categories.,High;Medium;Critical
+Cybersecurity,Name common penetration testing tools.,Nmap;Metasploit;Burp Suite
+Cybersecurity,What are common wireless attacks?,Evil twin;Deauthentication;Packet sniffing
+Cybersecurity,Name types of biometrics.,Fingerprint;Retina scan;Voice recognition
+Cybersecurity,Give examples of zero trust principles.,Verify explicitly;Least privilege;Assume breach
+Cybersecurity,What are common OS hardening steps?,Disable services;Apply patches;Restrict accounts
+Cybersecurity,Name common cyber laws.,GDPR;HIPAA;CCPA
+Cybersecurity,What are common identity attacks?,Credential theft;Privilege escalation;Pass-the-hash
+Cybersecurity,Name threat detection methods.,Behavior analysis;Log correlation;Anomaly detection
+Cybersecurity,Give examples of passwordless authentication.,Biometrics;Hardware keys;Magic links
+Cybersecurity,What are common API security measures?,Rate limiting;Token validation;HTTPS
+Cybersecurity,Name common cybersecurity roles.,Analyst;Engineer;CISO
+Cybersecurity,Give examples of secure communication protocols.,HTTPS;SSH;TLS
+Digital Electronics,Name basic logic gates.,AND;OR;NOT
+Digital Electronics,Give types of flip-flops.,SR;JK;D
+Digital Electronics,Name number systems.,Binary;Decimal;Hexadecimal
+Digital Electronics,Give common combinational circuits.,Multiplexer;Decoder;Adder
+Digital Electronics,Name sequential circuits.,Counters;Registers;FSMs
+Digital Electronics,Give examples of adders.,Half adder;Full adder;Ripple carry adder
+Digital Electronics,Name boolean algebra operations.,AND;OR;NOT
+Digital Electronics,Give examples of memory types.,RAM;ROM;Flash
+Digital Electronics,Name types of ROM.,PROM;EPROM;EEPROM
+Digital Electronics,Give examples of ADC types.,Flash;Successive approximation;Sigma-delta
+Digital Electronics,Name DAC types.,R-2R ladder;Weighted resistor;Sigma-delta
+Digital Electronics,Give examples of sensors.,Temperature;Light;Pressure
+Digital Electronics,Name types of counters.,Up counter;Down counter;Ring counter
+Digital Electronics,Give processor types.,CISC;RISC;DSP
+Digital Electronics,Name display technologies.,LCD;LED;OLED
+Digital Electronics,Give FPGA uses.,Signal processing;Prototyping;Control systems
+Digital Electronics,Name VHDL elements.,Entity;Architecture;Signal
+Digital Electronics,Give Verilog components.,Module;Wire;Register
+Digital Electronics,Name types of multiplexers.,2-to-1;4-to-1;8-to-1
+Digital Electronics,Give types of decoders.,2-to-4;3-to-8;4-to-16
+Digital Electronics,Name coding schemes.,Parity;Gray code;BCD
+Digital Electronics,Give examples of logic families.,TTL;CMOS;ECL
+Digital Electronics,Name types of registers.,Shift register;Parallel register;Serial register
+Digital Electronics,Give examples of microcontrollers.,Arduino;PIC;STM32
+Digital Electronics,Name types of memory addressing.,Direct;Indirect;Indexed
+Digital Electronics,Give common clock sources.,Crystal oscillator;RC oscillator;PLL
+Digital Electronics,Name examples of latches.,SR latch;D latch;Gated latch
+Digital Electronics,Give common communication buses.,I2C;SPI;UART
+Digital Electronics,Name programmable logic devices.,PAL;PLA;FPGA
+Digital Electronics,Give examples of sensor interfaces.,Analog input;Digital input;PWM
+Digital Electronics,Name types of timers.,Monostable;Astable;555 timer
+Digital Electronics,Give examples of processors.,x86;ARM;MIPS
+Digital Electronics,Name memory hierarchy levels.,Registers;Cache;RAM
+Digital Electronics,Give examples of FSMs.,Moore;Mealy;Hybrid
+Digital Electronics,Name types of shift registers.,SISO;SIPO;PISO
+Digital Electronics,Give power supply types.,Linear;Switching;Battery
+Digital Electronics,Name semiconductor materials.,Silicon;Germanium;Gallium arsenide
+Digital Electronics,Give signal types.,Analog;Digital;PWM
+Digital Electronics,Name boolean laws.,De Morgan’s law;Associative;Commutative
+Digital Electronics,Give examples of display drivers.,MAX7219;HD44780;TM1637
+Digital Electronics,Name PLC components.,Input module;Output module;CPU
+Digital Electronics,Give IC packaging types.,DIP;SMD;QFN
+Digital Electronics,Name common microprocessor registers.,ACC;PC;IR
+Digital Electronics,Give programmable interfaces.,GPIO;ADC;PWM
+Digital Electronics,Name types of digital filters.,FIR;IIR;Moving average
+Digital Electronics,Give examples of buses.,Address bus;Data bus;Control bus
+Digital Electronics,Name clock logic types.,Rising edge;Falling edge;Level triggered
+Digital Electronics,Give types of digital signals.,TTL;CMOS;LVDS
+Digital Electronics,Name FIR design components.,Taps;Coefficients;Window function
+Linux Administration,Name common Linux distros.,Ubuntu;CentOS;Debian
+Linux Administration,List package managers.,APT;YUM;Pacman
+Linux Administration,Name common shells.,Bash;Zsh;Fish
+Linux Administration,Give basic file commands.,ls;cp;mv
+Linux Administration,Name process management tools.,ps;top;htop
+Linux Administration,Give examples of services.,SSH;Apache;Cron
+Linux Administration,Name common config files.,/etc/passwd;/etc/fstab;/etc/hosts
+Linux Administration,Give common system logs.,/var/log/syslog;/var/log/auth.log;/var/log/dmesg
+Linux Administration,Name permissions types.,Read;Write;Execute
+Linux Administration,Give user management commands.,adduser;passwd;usermod
+Linux Administration,Name network tools.,ifconfig;ping;netstat
+Linux Administration,Give firewall tools.,UFW;Firewalld;iptables
+Linux Administration,Name system monitoring tools.,vmstat;iostat;dstat
+Linux Administration,Give archive commands.,tar;gzip;zip
+Linux Administration,Name text editors.,Nano;Vim;Emacs
+Linux Administration,Give common daemons.,systemd;sshd;cron
+Linux Administration,Name filesystem types.,ext4;XFS;Btrfs
+Linux Administration,Give storage tools.,fdisk;mkfs;mount
+Linux Administration,Name environment variables.,PATH;HOME;USER
+Linux Administration,Give package queries.,dpkg -l;rpm -qa;apt show
+Linux Administration,Name process states.,Running;Sleeping;Zombie
+Linux Administration,Give system startup stages.,Bootloader;Kernel init;Init system
+Linux Administration,Name kernel modules.,USB drivers;Network drivers;Filesystems
+Linux Administration,Give SSH hardening steps.,Key authentication;Disable root login;Change port
+Linux Administration,Name cron schedule fields.,Minute;Hour;Day
+Linux Administration,Give common logs.,Syslog;Kernel log;Authentication log
+Linux Administration,Name partition table types.,MBR;GPT;EFI
+Linux Administration,Give examples of automation tools.,Ansible;Puppet;Chef
+Linux Administration,Name virtualization tools.,KVM;VirtualBox;Docker
+Linux Administration,Give network configuration files.,/etc/network/interfaces;/etc/resolv.conf;/etc/hostname
+Linux Administration,Name log analysis tools.,journalctl;grep;awk
+Linux Administration,Give memory testing tools.,memtest86;stress;free
+Linux Administration,Name bootloaders.,GRUB;LILO;systemd-boot
+Linux Administration,Give security tools.,Fail2Ban;SELinux;AppArmor
+Linux Administration,Name system information tools.,uname;neofetch;lsb_release
+Linux Administration,Give compression algorithms.,gzip;bzip2;xz
+Linux Administration,Name SSH commands.,ssh;scp;sftp
+Linux Administration,Give file search commands.,find;locate;grep
+Linux Administration,Name device directories.,/dev;/proc;/sys
+Linux Administration,Give journalctl examples.,journalctl -u sshd;journalctl -b;journalctl -f
+Linux Administration,Name network config tools.,nmcli;ip;route
+Linux Administration,Give signal names.,SIGKILL;SIGTERM;SIGINT
+Linux Administration,Name systemd units.,Service;Target;Timer
+Linux Administration,Give command to change permissions.,chmod;chown;chgrp
+Linux Administration,Name directory structure levels.,/root;/home;/bin
+Linux Administration,Give examples of load averages.,1 min;5 min;15 min
+Linux Administration,Name SSH file locations.,~/.ssh/id_rsa;~/.ssh/authorized_keys;/etc/ssh/sshd_config
+Linux Administration,Give disk usage commands.,df;du;lsblk
+Linux Administration,Name Linux backup tools.,rsync;DejaDup;Timeshift
+Networking,Name OSI layers.,Physical;Data Link;Network
+Networking,Give types of IP addresses.,Public;Private;Static
+Networking,Name types of networks.,LAN;WAN;MAN
+Networking,Give routing protocols.,OSPF;BGP;RIP
+Networking,Name network devices.,Router;Switch;Hub
+Networking,Give examples of cables.,Ethernet;Fiber optic;Coaxial
+Networking,Name wireless standards.,802.11n;802.11ac;802.11ax
+Networking,Give VPN types.,Site-to-site;Remote access;SSL
+Networking,Name common ports.,80;443;22
+Networking,Give IP classes.,Class A;Class B;Class C
+Networking,Name switching methods.,Store-and-forward;Cut-through;Fragment-free
+Networking,Give NAT types.,Static;Dynamic;PAT
+Networking,Name subnetting tools.,CIDR;VLSM;Subnet mask
+Networking,Give examples of routing types.,Static;Dynamic;Default
+Networking,Name STP states.,Blocking;Listening;Forwarding
+Networking,Give DNS record types.,A;CNAME;MX
+Networking,Name wireless security methods.,WPA2;WPA3;802.1X
+Networking,Give QoS techniques.,Traffic shaping;Prioritization;Policing
+Networking,Name IPv6 address types.,Global;Link-local;Unique local
+Networking,Give types of firewalls.,Packet filtering;Stateful;NGFW
+Networking,Name SSL/TLS versions.,TLS 1.2;TLS 1.3;SSL 3.0
+Networking,Give WAN technologies.,MPLS;Frame Relay;Leased line
+Networking,Name IP configurations.,DHCP;Static;APIPA
+Networking,Give network topologies.,Star;Ring;Bus
+Networking,Name cable categories.,Cat5e;Cat6;Cat7
+Networking,Give common protocols.,TCP;UDP;ICMP
+Networking,Name physical layer devices.,Repeater;Hub;Cable
+Networking,Give examples of IPv4 ranges.,10.0.0.0/8;172.16.0.0/12;192.168.0.0/16
+Networking,Name link-state protocols.,OSPF;IS-IS;EIGRP
+Networking,Give packet filtering criteria.,IP;Port;Protocol
+Networking,Name VPN protocols.,IPsec;OpenVPN;WireGuard
+Networking,Give tunneling protocols.,GRE;L2TP;PPPoE
+Networking,Name types of MAC addresses.,Unicast;Multicast;Broadcast
+Networking,Give DHCP message types.,Discover;Offer;Request
+Networking,Name ARP message types.,Request;Reply;Gratuitous ARP
+Networking,Give examples of wireless channels.,Channel 1;Channel 6;Channel 11
+Networking,Name multicast protocols.,IGMP;PIM;MLD
+Networking,Give Ethernet standards.,100BASE-TX;1000BASE-T;10GBASE-T
+Networking,Name VoIP protocols.,SIP;RTP;H.323
+Networking,Give load balancing methods.,Round robin;Least connections;Weighted
+Networking,Name VLAN types.,Default;Data;Voice
+Networking,Give traceroute protocols.,ICMP;UDP;TCP
+Networking,Name wireless frequencies.,2.4 GHz;5 GHz;6 GHz
+Networking,Give WAN connection types.,DSL;Cable;Fiber
+Networking,Name router components.,Routing table;Interfaces;CPU
+Networking,Give campus network layers.,Core;Distribution;Access
+Networking,Name common network attacks.,DDoS;MITM;Spoofing
+Networking,Give IPv6 transition methods.,Dual stack;Tunneling;Translation
+Networking,Name firewall zones.,Inside;Outside;DMZ
+Robotics,Name robot types.,Humanoid;Mobile;Industrial
+Robotics,Give examples of sensors.,Ultrasonic;LIDAR;Infrared
+Robotics,Name actuators.,Servo;Stepper;DC motor
+Robotics,Give robot control methods.,Manual;Autonomous;Teleoperation
+Robotics,Name robot joints.,Revolute;Prismatic;Spherical
+Robotics,Give programming languages for robots.,Python;C++;ROS
+Robotics,Name robot kinematics types.,Forward;Inverse;Differential
+Robotics,Give robotic arms examples.,SCARA;Cartesian;Articulated
+Robotics,Name control systems.,PID;Open-loop;Closed-loop
+Robotics,Give examples of sensor fusion.,IMU+GPS;Camera+LIDAR;Radar+LIDAR
+Robotics,Name energy sources.,Battery;Solar;Hydraulic
+Robotics,Give examples of mobile robots.,AGV;Drone;Rover
+Robotics,Name mapping methods.,SLAM;Grid mapping;Topological mapping
+Robotics,Give types of AI models.,Neural networks;Decision trees;Reinforcement learning
+Robotics,Name robot grippers.,Vacuum;Two-finger;Magnetic
+Robotics,Give robotics simulators.,Gazebo;Webots;V-REP
+Robotics,Name path planning algorithms.,A*;Dijkstra;RRT
+Robotics,Give common microcontrollers.,Arduino;ESP32;STM32
+Robotics,Name sensor categories.,Proximity;Vision;Force
+Robotics,Give robot locomotion types.,Wheels;Legs;Tracks
+Robotics,Name control theory concepts.,Feedback;Stability;Gain
+Robotics,Give robot vision techniques.,Object detection;Segmentation;Tracking
+Robotics,Name collaborative robots.,Cobots;Shared autonomy;Telepresence
+Robotics,Give robot applications.,Manufacturing;Medicine;Agriculture
+Robotics,Name robot coordinate systems.,World;Base;Tool
+Robotics,Give examples of GPS-based robots.,Survey drones;Delivery robots;Outdoor rovers
+Robotics,Name ROS components.,Topics;Nodes;Services
+Robotics,Give sensor calibration steps.,Collect data;Analyze error;Apply correction
+Robotics,Name robot communication channels.,Wi-Fi;Bluetooth;Zigbee
+Robotics,Give motion types.,Linear;Rotary;Oscillatory
+Robotics,Name embedded systems.,Microcontroller board;SBC;DSP
+Robotics,Give robot behaviors.,Reactive;Deliberative;Hybrid
+Robotics,Name safety sensors.,Bump sensor;Laser scanner;Proximity switch
+Robotics,Give robot arm tasks.,Pick-and-place;Welding;Painting
+Robotics,Name kinematic constraints.,Joint limits;Speed limits;Payload
+Robotics,Give examples of robot learning.,Supervised;Unsupervised;Reinforcement
+Robotics,Name robot dynamics parameters.,Mass;Inertia;Torque
+Robotics,Give haptic devices.,Force-feedback controllers;Vibration motors;Gloves
+Robotics,Name AI techniques.,SLAM;Path planning;Object recognition
+Robotics,Give navigation methods.,GPS;IMU;Odometry
+Robotics,Name robot operation modes.,Manual;Semi-autonomous;Autonomous
+Robotics,Give communication protocols.,CAN;UART;I2C
+Robotics,Name robot design stages.,Concept;Prototype;Testing
+Robotics,Give autonomy levels.,Level 1;Level 2;Level 3
+Robotics,Name power electronics.,Motor drivers;Inverters;ESC
+Robotics,Give stability types.,Static;Dynamic;Hybrid
+Robotics,Name robot sensors for mapping.,LIDAR;Stereo camera;IMU
+Robotics,Give examples of warehouse robots.,Kiva robots;AGVs;Sorting arms
+Robotics,Name robot arm degrees of freedom.,3 DOF;4 DOF;6 DOF
+Robotics,Give robot testing methods.,Simulation;Field test;Unit testing
+Android App Development,Name Android programming languages.,Java;Kotlin;C++
+Android App Development,Give Android UI components.,Button;TextView;ImageView
+Android App Development,Name Android layout types.,LinearLayout;ConstraintLayout;RelativeLayout
+Android App Development,Give examples of Android storage.,SharedPreferences;SQLite;Room
+Android App Development,Name Android architecture patterns.,MVC;MVP;MVVM
+Android App Development,Give lifecycle methods.,onCreate;onStart;onResume
+Android App Development,Name Android build tools.,Gradle;ADB;Android Studio
+Android App Development,Give types of intents.,Explicit;Implicit;Broadcast
+Android App Development,Name Android permissions.,Camera;Location;Storage
+Android App Development,Give examples of services.,Foreground;Background;Bound
+Android App Development,Name Android navigation methods.,Activities;Fragments;Navigation component
+Android App Development,Give common XML attributes.,id;width;height
+Android App Development,Name Android animations.,Fade;Slide;Scale
+Android App Development,Give Android threading tools.,Handler;Executor;Coroutine
+Android App Development,Name data-binding features.,Binding adapters;Two-way binding;Expressions
+Android App Development,Give types of notifications.,Simple;Big;Heads-up
+Android App Development,Name Android Jetpack components.,LiveData;ViewModel;Navigation
+Android App Development,Give examples of Android UI layouts.,FrameLayout;GridLayout;TableLayout
+Android App Development,Name Android sensors.,Accelerometer;Gyroscope;Proximity
+Android App Development,Give Android networking libraries.,Retrofit;Volley;OkHttp
+Android App Development,Name UI themes.,Light;Dark;Material
+Android App Development,Give Android optimization methods.,Profiling;Memory cleanup;Caching
+Android App Development,Name media APIs.,MediaPlayer;ExoPlayer;MediaRecorder
+Android App Development,Give image libraries.,Glide;Picasso;Coil
+Android App Development,Name Google Play requirements.,Signed APK;App bundle;Privacy policy
+Android App Development,Give map features.,Markers;Polylines;Camera movement
+Android App Development,Name push notification tools.,FCM;OneSignal;Airship
+Android App Development,Give app monetization methods.,Ads;IAP;Subscriptions
+Android App Development,Name Android drawable types.,Bitmap;Vector;Shape
+Android App Development,Give examples of app testing tools.,JUnit;Espresso;UI Automator
+Android App Development,Name Android security practices.,Obfuscation;Encryption;Permission control
+Android App Development,Give deep link types.,App links;URI schemes;Dynamic links
+Android App Development,Name Android project files.,Manifest;Gradle;Resources
+Android App Development,Give audio formats.,MP3;WAV;AAC
+Android App Development,Name accessibility tools.,TalkBack;Alt text;Content descriptions
+Android App Development,Give location APIs.,FusedLocation;Geocoder;GPS provider
+Android App Development,Name camera APIs.,Camera;Camera2;CameraX
+Android App Development,Give architecture layers.,UI;Domain;Data
+Android App Development,Name Android emulator features.,Virtual device;Snapshots;Cold boot
+Android App Development,Give app distribution channels.,Google Play;APK;Amazon Store
+Android App Development,Name fragment lifecycle methods.,onAttach;onCreateView;onDestroyView
+Android App Development,Give keyboard types.,Numeric;Text;Phone
+Android App Development,Name app bar elements.,Title;Menu;Navigation icon
+Android App Development,Give examples of foreground tasks.,Location tracking;Media playback;Call services
+Android App Development,Name layout optimization tips.,Constraint chains;Lazy loading;Reduce nesting
+Android App Development,Give commonly used gradle settings.,MinSdk;TargetSdk;VersionCode
+Android App Development,Name Android debugging tools.,Logcat;Profiler;Debugger
+Android App Development,Give app startup types.,Cold;Warm;Hot
+Database,Name relational databases.,MySQL;PostgreSQL;SQL Server
+Database,Give NoSQL database types.,Document;Key-value;Graph
+Database,Name SQL commands.,SELECT;INSERT;UPDATE
+Database,Give join types.,INNER;LEFT;RIGHT
+Database,Name database keys.,Primary;Foreign;Unique
+Database,Give indexing types.,B-tree;Hash;Bitmap
+Database,Name normalization forms.,1NF;2NF;3NF
+Database,Give examples of constraints.,NOT NULL;CHECK;DEFAULT
+Database,Name SQL aggregate functions.,SUM;AVG;COUNT
+Database,Give triggers types.,BEFORE;AFTER;INSTEAD OF
+Database,Name ACID properties.,Atomicity;Consistency;Isolation
+Database,Give transaction isolation levels.,Read uncommitted;Read committed;Serializable
+Database,Name backup types.,Full;Incremental;Differential
+Database,Give replication types.,Master-slave;Multi-master;Synchronous
+Database,Name sharding methods.,Range;Hash;Directory
+Database,Give schema items.,Tables;Views;Procedures
+Database,Name query optimization methods.,Indexing;Caching;Partitioning
+Database,Give common SQL clauses.,WHERE;GROUP BY;ORDER BY
+Database,Name stored procedure languages.,PL/SQL;T-SQL;pgSQL
+Database,Give examples of database users.,Admin;Developer;Analyst
+Database,Name DDL commands.,CREATE;ALTER;DROP
+Database,Give DML commands.,INSERT;UPDATE;DELETE
+Database,Name database connection methods.,ODBC;JDBC;ADO.NET
+Database,Give database security methods.,Encryption;Access control;Auditing
+Database,Name database file types.,Data file;Log file;Temp file
+Database,Give types of views.,Materialized;Simple;Complex
+Database,Name clustering strategies.,Shared-disk;Shared-nothing;Multi-node
+Database,Give NoSQL examples.,MongoDB;Redis;Cassandra
+Database,Name common data types.,INT;VARCHAR;DATE
+Database,Give cursor use cases.,Row-by-row processing;Procedures;Stored logic
+Database,Name data modeling tools.,ERD;UML;Schema diagram
+Database,Give distributed database features.,Replication;Partitioning;Consistency
+Database,Name database roles.,Owner;Reader;Writer
+Database,Give commonly used monitoring tools.,pgAdmin;phpMyAdmin;MySQL Workbench
+Database,Name cloud databases.,Firestore;DynamoDB;Azure SQL
+Database,Give OLAP operations.,Roll-up;Drill-down;Slice
+Database,Name ETL components.,Extract;Transform;Load
+Database,Give examples of data warehouses.,Redshift;BigQuery;Snowflake
+Database,Name database engines.,InnoDB;MyISAM;WAL
+Database,Give SQL operators.,AND;OR;LIKE
+Database,Name schema types.,Star;Snowflake;Galaxy
+Database,Give CAP theorem components.,Consistency;Availability;Partition tolerance
+Database,Name database functions.,Scalar;Aggregate;Window
+Database,Give table relationships.,One-to-one;One-to-many;Many-to-many
+Database,Name partition types.,Range;List;Hash
+Database,Give database migration tools.,Flyway;Liquibase;Prisma
+Database,Name column constraints.,UNIQUE;CHECK;DEFAULT
+Database,Give time-series databases.,InfluxDB;TimescaleDB;Druid
+Java,Name Java data types.,int;float;boolean
+Java,Give OOP principles.,Encapsulation;Inheritance;Polymorphism
+Java,Name Java access modifiers.,public;private;protected
+Java,Give exception types.,Checked;Unchecked;Error
+Java,Name Java loops.,for;while;do-while
+Java,Give collection types.,List;Set;Map
+Java,Name Java streams operations.,filter;map;reduce
+Java,Give thread states.,New;Runnable;Blocked
+Java,Name Java keywords.,static;final;abstract
+Java,Give examples of JVM languages.,Kotlin;Scala;Groovy
+Java,Name Java frameworks.,Spring;Hibernate;Struts
+Java,Give Java GUI frameworks.,Swing;JavaFX;AWT
+Java,Name string methods.,length;substring;indexOf
+Java,Give Java file operations.,FileInputStream;FileOutputStream;BufferedReader
+Java,Name lambda features.,Anonymous functions;Functional interface;Stream support
+Java,Give types of classes.,Final;Abstract;Inner
+Java,Name Java memory areas.,Heap;Stack;Method area
+Java,Give JDBC components.,Driver;Connection;Statement
+Java,Name Java versions.,Java 8;Java 11;Java 17
+Java,Give polymorphism types.,Compile-time;Run-time;Overriding
+Java,Name common Java tools.,Maven;Gradle;Ant
+Java,Give array types.,One-dimensional;Multi-dimensional;Jagged
+Java,Name Java annotations.,@Override;@Deprecated;@Autowired
+Java,Give garbage collection algorithms.,Serial;Parallel;G1
+Java,Name Java interfaces.,Runnable;Serializable;Comparable
+Java,Give concurrency tools.,ExecutorService;Semaphore;Lock
+Java,Name Java wrappers.,Integer;Double;Boolean
+Java,Give input classes.,Scanner;BufferedReader;Console
+Java,Name Java operators.,Arithmetic;Logical;Bitwise
+Java,Give Java package examples.,java.util;java.io;java.net
+Java,Name security features.,Classloader;Bytecode verifier;Security manager
+Java,Give immutable examples.,String;LocalDate;UUID
+Java,Name Java time classes.,LocalDate;Instant;Duration
+Java,Give list implementations.,ArrayList;LinkedList;Vector
+Java,Name map implementations.,HashMap;TreeMap;LinkedHashMap
+Java,Give set implementations.,HashSet;TreeSet;LinkedHashSet
+Java,Name Java build tools.,Maven;Gradle;Ant
+Java,Give servlet components.,Request;Response;Config
+Java,Name common HTTP methods.,GET;POST;PUT
+Java,Give cryptography examples.,MessageDigest;KeyStore;Cipher
+Java,Name Java design patterns.,Singleton;Factory;Adapter
+Java,Give message queue tools.,Kafka;RabbitMQ;ActiveMQ
+Java,Name Java deployment files.,JAR;WAR;EAR
+Java,Give thread-safe classes.,Vector;Hashtable;ConcurrentHashMap
+Java,Name JVM components.,Classloader;Runtime;JIT compiler
+Java,Give Java compiler flags.,-cp;-d;-verbose
+Java,Name Java testing tools.,JUnit;TestNG;Mockito
+Java,Give Java serialization formats.,JSON;XML;Protocol Buffers
+Java,Name Java server types.,Tomcat;WildFly;Jetty
+C#,Name C# data types.,int;string;double
+C#,Give OOP principles.,Abstraction;Inheritance;Polymorphism
+C#,Name C# access modifiers.,public;private;internal
+C#,Give LINQ operations.,Where;Select;GroupBy
+C#,Name async keywords.,async;await;Task
+C#,Give exception types.,try;catch;finally
+C#,Name collection types.,List;Dictionary;Queue
+C#,Give .NET frameworks.,ASP.NET;WPF;Xamarin
+C#,Name entity framework features.,DbContext;Migrations;LINQ queries
+C#,Give thread operations.,Start;Join;Sleep
+C#,Name C# loops.,for;while;foreach
+C#,Give delegates examples.,Action;Func;Predicate
+C#,Name event components.,Publisher;Subscriber;Handler
+C#,Give file handling classes.,StreamReader;StreamWriter;File
+C#,Name C# attributes.,[Obsolete];[Serializable];[Required]
+C#,Give database access tools.,ADO.NET;Entity Framework;Dapper
+C#,Name serialization formats.,JSON;XML;Binary
+C#,Give ASP.NET components.,Controllers;Views;Middleware
+C#,Name MVC elements.,Model;View;Controller
+C#,Give NuGet packages.,Newtonsoft.Json;Dapper;AutoMapper
+C#,Name C# operators.,Arithmetic;Logical;Comparison
+C#,Give struct uses.,Value type;Lightweight;No inheritance
+C#,Name interface members.,Methods;Properties;Events
+C#,Give data annotation types.,[Key];[StringLength];[EmailAddress]
+C#,Name design patterns.,Singleton;Repository;Factory
+C#,Give generic examples.,List<T>;Dictionary<TKey,TValue>;IEnumerable<T>
+C#,Name dependency injection tools.,Constructor;ServiceCollection;Scoped
+C#,Give ASP.NET routing types.,Attribute;Convention;Endpoint
+C#,Name WPF components.,Window;Grid;Binding
+C#,Give .NET CLI commands.,dotnet new;dotnet build;dotnet run
+C#,Name config files.,appsettings.json;launchSettings.json;web.config
+C#,Give memory types.,Stack;Heap;GC
+C#,Name testing frameworks.,xUnit;NUnit;MSTest
+C#,Give HTTP methods.,GET;PUT;DELETE
+C#,Name REST features.,Stateless;Uniform interface;Cacheable
+C#,Give common C# keywords.,var;dynamic;readonly
+C#,Name C# conversion types.,Implicit;Explicit;Casting
+C#,Give extension method examples.,Custom ToString;Math helpers;String helpers
+C#,Name asynchronous tools.,Tasks;Threads;Parallel
+C#,Give ASP.NET authentication methods.,Cookies;JWT;OAuth
+C#,Name common web tokens.,JWT;Access token;Refresh token
+C#,Give Azure services.,App Service;Functions;Cosmos DB
+C#,Name compile-time errors.,Syntax error;Type mismatch;Missing reference
+C#,Give runtime exceptions.,NullReferenceException;IndexOutOfRangeException;DivideByZeroException
+C#,Name code quality tools.,SonarQube;Resharper;FxCop
+C#,Give hashing algorithms.,SHA256;MD5;Bcrypt
+C#,Name HTTP status codes.,200;404;500
+C#,Give build types.,Debug;Release;Custom
+Python,Name Python data types.,int;list;dict
+Python,Give Python loops.,for;while;loop-else
+Python,Name Python libraries.,NumPy;Pandas;Requests
+Python,Give Python frameworks.,Django;Flask;FastAPI
+Python,Name OOP features.,Inheritance;Encapsulation;Polymorphism
+Python,Give file operations.,open;read;write
+Python,Name list methods.,append;extend;remove
+Python,Give tuple features.,Immutable;Ordered;Indexable
+Python,Name set operations.,union;intersection;difference
+Python,Give dict methods.,keys;values;items
+Python,Name Python statements.,if;elif;else
+Python,Give function parameters.,Positional;Keyword;Default
+Python,Name decorators uses.,Logging;Timing;Authorization
+Python,Give exception types.,ValueError;TypeError;KeyError
+Python,Name Python keywords.,import;lambda;yield
+Python,Give common modules.,os;sys;json
+Python,Name environment tools.,venv;pip;conda
+Python,Give async features.,async;await;Event loop
+Python,Name common algorithms.,Sorting;Searching;Recursion
+Python,Give Python numeric types.,int;float;complex
+Python,Name Python operators.,Arithmetic;Comparison;Logical
+Python,Give string functions.,split;join;replace
+Python,Name list comprehensions.,Filtering;Mapping;Conditional
+Python,Give concurrency tools.,Threading;Multiprocessing;AsyncIO
+Python,Name debugging tools.,pdb;print;traceback
+Python,Give unit testing tools.,unittest;pytest;doctest
+Python,Name data science tools.,Pandas;Matplotlib;SciPy
+Python,Give ML frameworks.,TensorFlow;PyTorch;Scikit-learn
+Python,Name Python packaging tools.,pip;setuptools;wheel
+Python,Give web scraping tools.,BeautifulSoup;Selenium;Scrapy
+Python,Name Python web servers.,Gunicorn;Uvicorn;WSGI
+Python,Give encryption tools.,hashlib;cryptography;PyNaCl
+Python,Name common file formats.,CSV;JSON;XML
+Python,Give RE tools.,match;search;findall
+Python,Name string formatting methods.,%;format;f-string
+Python,Give the use of *args and **kwargs.,Variable arguments;Dynamic functions;Flexibility
+Python,Name Python iterators.,range;enumerate;zip
+Python,Give properties of lambda.,Anonymous;Single expression;Inline
+Python,Name Python GUI libraries.,Tkinter;PyQt;Kivy
+Python,Give database libraries.,sqlite3;SQLAlchemy;PyMySQL
+Python,Name network modules.,socket;http;asyncio
+Python,Give cryptographic hash algorithms.,SHA256;MD5;SHA1
+Python,Name visualization tools.,Matplotlib;Plotly;Seaborn
+Python,Give Python code styles.,PEP8;Black format;Docstrings
+Python,Name Python interpreters.,CPython;PyPy;Jython
+Python,Give Python async libraries.,aiohttp;asyncpg;trio
+Python,Name Python testing types.,Unit;Integration;Mocking
+Python,Give example of generators.,yield;Lazy iteration;Streams
+Python,Name Python built-ins.,len;print;range
+Web Design,Name core web languages.,HTML;CSS;JavaScript
+Web Design,Give HTML elements.,div;p;span
+Web Design,Name CSS selectors.,class;id;element
+Web Design,Give layout techniques.,Flexbox;Grid;Float
+Web Design,Name HTML5 features.,Canvas;Audio;Video
+Web Design,Give CSS units.,px;em;rem
+Web Design,Name positioning types.,Relative;Absolute;Fixed
+Web Design,Give color formats.,RGB;HEX;HSL
+Web Design,Name typography terms.,Font-family;Line-height;Kerning
+Web Design,Give UI principles.,Contrast;Alignment;Consistency
+Web Design,Name web frameworks.,React;Vue;Angular
+Web Design,Give responsive techniques.,Media queries;Fluid grids;Flexible images
+Web Design,Name web animations.,Transitions;Keyframes;Transforms
+Web Design,Give SEO practices.,Meta tags;Sitemap;Keywords
+Web Design,Name HTTP request types.,GET;POST;PUT
+Web Design,Give accessibility features.,Alt text;ARIA labels;Keyboard navigation
+Web Design,Name graphic formats.,PNG;SVG;JPEG
+Web Design,Give navigation types.,Sidebar;Navbar;BreadCrumbs
+Web Design,Name web tools.,Figma;Adobe XD;Sketch
+Web Design,Give testing tools.,Lighthouse;WAVE;BrowserStack
+Web Design,Name UX processes.,Research;Wireframe;Prototype
+Web Design,Give CSS frameworks.,Bootstrap;Tailwind;Bulma
+Web Design,Name frontend build tools.,Webpack;Vite;Parcel
+Web Design,Give landing page elements.,Hero;CTA;Footer
+Web Design,Name JavaScript APIs.,DOM;Fetch;Canvas
+Web Design,Give CSS pseudo classes.,hover;focus;active
+Web Design,Name page layout sections.,Header;Main;Footer
+Web Design,Give responsive image attributes.,srcset;sizes;picture
+Web Design,Name grid components.,Rows;Columns;Gap
+Web Design,Give HTML form fields.,input;select;textarea
+Web Design,Name micro-interactions.,Hover effects;Notifications;Button animations
+Web Design,Give progressive enhancement steps.,Basic HTML;Added CSS;JS features
+Web Design,Name website types.,Portfolio;E-commerce;Blog
+Web Design,Give content optimization tips.,Compression;Minification;Lazy loading
+Web Design,Name CSS preprocessors.,SASS;LESS;Stylus
+Web Design,Give hosting platforms.,Netlify;Vercel;GitHub Pages
+Web Design,Name frameworks for styling.,Material UI;Chakra UI;Bootstrap
+Web Design,Give HTML5 form features.,Required;Pattern;Input types
+Web Design,Name web engines.,WebKit;Blink;Gecko
+Web Design,Give wireframe fidelity types.,Low;Medium;High
+Web Design,Name responsive breakpoints.,Mobile;Tablet;Desktop
+Web Design,Give page speed metrics.,LCP;CLS;FID
+Web Design,Name layout philosophies.,Mobile-first;Content-first;Grid-first
+Web Design,Give UX heuristics.,Visibility;Feedback;Error prevention
+Web Design,Name CSS display types.,Block;Inline;Inline-block
+Web Design,Give examples of site structure.,Flat;Hierarchical;Database-driven
+Web Design,Name common web icons.,Hamburger;Search;Settings
+Web Design,Give dark mode techniques.,Invert colors;CSS variables;Media query
+Esports,Name three Mobile Legends roles.,Tank;Mage;Marksman
+Esports,Which ML hero is known for split pushing?,Zilong
+Esports,What is the highest ML rank?,Mythical Immortal
+Esports,Name a popular ML marksman hero.,Lesley
+Esports,Which ML hero can create a clone?,Sun
+Esports,Name three ML maps.,Imperial Sanctuary;Celestial Palace;Western Expanse
+Esports,Which ML role protects the team?,Tank
+Esports,Name a famous ML team.,Blacklist International
+Esports,What does ML “rotation” refer to?,Moving between lanes for advantage
+Esports,Who is known as the ML “Filipino Sniper”?,OHEB
+Esports,Name a ML hero with crowd control.,Tigreal
+Esports,What item provides lifesteal?,Haas' Claws
+Esports,Name a ML support hero.,Rafaela
+Esports,Which ML hero can go invisible?,Natalia
+Esports,Name a ML jungle emblem.,Assassin Emblem
+Esports,What is the purple buff for?,Skill cooldown reduction
+Esports,What is the orange buff for?,Damage boost
+Esports,Name an ML MPL region.,MPL Philippines
+Esports,Name an ML fighter hero.,Chou
+Esports,Which role farms the jungle?,Jungler
+Esports,Name a ML tank hero.,Lolita
+Esports,What is ML’s main objective?,Destroy the enemy base
+Esports,What is ML’s in-game currency?,Battle Points
+Esports,What ML skill uses “Flicker”?,Battle Spell
+Esports,Name a ML mage hero.,Kagura
+Esports,Who is the ML hero that uses electric abilities?,Eudora
+Esports,Which ML hero is known for knock-ups?,Tigreal
+Esports,What item gives magic power?,Lightning Truncheon
+Esports,What does “gank” mean?,Surprise attack
+Esports,Name a ML AoE hero.,Gord
+Esports,Name a ML hero with a global ultimate.,Yi Sun Shin
+Esports,Which ML game mode gives temporary buffs?,Brawl
+Esports,Name a ML Esports event.,M5 World Championship
+Esports,Name one CODM multiplayer mode.,Team Deathmatch
+Esports,Name a CODM battle royale class.,Ninja
+Esports,What is CODM’s ranked mode called?,Ranked Match
+Esports,What CODM feature allows custom gun builds?,Gunsmith
+Esports,Name a CODM scorestreak.,UAV
+Esports,Name a CODM sniper rifle.,DL Q33
+Esports,Which CODM mode features zombies?,Zombies Mode
+Esports,Name a CODM operator skill.,Purifier
+Esports,Which CODM class uses a grappling hook?,Ninja
+Esports,What is the highest CODM rank?,Legendary
+Esports,Name a CODM map.,Nuketown
+Esports,What is CODM in-game currency?,CP (COD Points)
+Esports,Name a CODM legendary weapon skin.,Mythic AK-47
+Esports,What is CODM BR’s objective?,Be the last team standing
+Esports,Name a popular CODM esports team.,NRX
+Esports,Name a CODM assault rifle.,AK117
+C++,What is the extension for C++ files?,.cpp
+C++,Which keyword creates an object?,new
+C++,What is the standard output stream?,cout
+C++,What library includes cout?,iostream
+C++,Which symbol is used for scope resolution?,::
+C++,What keyword defines a class?,class
+C++,Which function is the program entry point?,main
+C++,What operator is used for pointers?,*
+C++,What operator accesses members through a pointer?,->
+C++,Which keyword prevents modification?,const
+C++,What is the term for wrapping data & functions?,Encapsulation
+C++,What is function overloading?,Same name different parameters
+C++,What is inheritance?,Deriving from another class
+C++,Which keyword defines inheritance?,public
+C++,What is polymorphism?,Many forms of behavior
+C++,Which keyword creates templates?,template
+C++,What is STL?,Standard Template Library
+C++,Name an STL container.,vector
+C++,Name an STL algorithm.,sort
+C++,What function allocates memory?,malloc
+C++,What operator releases memory?,delete
+C++,What encapsulates exception handling?,try-catch
+C++,What indicates an error was thrown?,throw
+C++,What is a constructor?,Class initialization function
+C++,What is a destructor?,Cleans up on object end
+C++,Which symbol comments a line?,//
+C++,Which operator increments a value?,++
+C++,What is a reference?,Alias for a variable
+C++,Which keyword defines a namespace?,namespace
+C++,Name a common C++ IDE.,Visual Studio
+C++,What does OOP stand for?,Object-Oriented Programming
+C++,What library handles strings?,string
+C++,What keyword includes libraries?,#include
+C++,Which type holds true/false?,bool
+C++,What is a pointer?,Variable storing memory address
+C++,What keyword returns data from a function?,return
+C++,What operator compares equality?,==
+C++,What is the size of a char?,1 byte
+C++,What converts types?,casting
+C++,Name a loop structure.,for
+C++,Name a decision structure.,if
+C++,What is recursion?,Function calling itself
+C++,Which keyword creates enums?,enum
+C++,Which operator gets array size of vectors?,size()
+C++,What is a pure virtual function?,= 0 function
+C++,What is an abstract class?,Class with pure virtual function
+C++,What are access modifiers?,public;private;protected
+C++,What does nullptr represent?,Null pointer
+C,What is the extension for C files?,.c
+C,Which function starts execution?,main
+C,What header is needed for printf?,stdio.h
+C,What operator assigns values?,=
+C,What operator compares equality?,==
+C,What keyword declares a variable?,int
+C,Which loop repeats until condition changes?,while
+C,Which loop runs a fixed number of times?,for
+C,Which statement chooses conditions?,if
+C,What keyword defines constants?,const
+C,What symbol starts a comment?,//
+C,Which function prints output?,printf
+C,Which function reads input?,scanf
+C,What are arrays?,Collection of same-type elements
+C,What operator gets address?,&
+C,What stores memory addresses?,pointer
+C,What operator dereferences pointers?,*
+C,What library handles strings?,string.h
+C,Which function copies strings?,strcpy
+C,Which function measures string length?,strlen
+C,What is recursion?,Function calling itself
+C,What is a struct?,User-defined data type
+C,What keyword defines a struct?,struct
+C,Which header handles memory?,stdlib.h
+C,What function allocates memory?,malloc
+C,What function frees memory?,free
+C,What is a function prototype?,Function declaration
+C,What is a char?,Character data type
+C,What data type holds decimals?,float
+C,What data type holds whole numbers?,int
+C,What is a header file?,File with declarations
+C,Which directive includes headers?,#include
+C,What does return do?,Exits function with value
+C,What is pointer arithmetic?,Math on addresses
+C,Which loop ensures at least one execution?,do-while
+C,What is segmentation fault?,Invalid memory access
+C,What is a compiler?,Translates code
+C,Name a C compiler.,GCC
+C,What is a macro?,Code replaced before compilation
+C,Which operator increments?,++
+C,Which operator decrements?,--
+C,What is an enum?,Set of named integers
+C,What keyword exits loops?,break
+C,What keyword skips to next iteration?,continue
+C,What function compares strings?,strcmp
+C,What is a null character?,'\0'
+C,What is a library?,Collection of functions
+C,What type stores large integers?,long
+C,What is a binary file?,Non-text file

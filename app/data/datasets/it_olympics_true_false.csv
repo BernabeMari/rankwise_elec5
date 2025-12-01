@@ -173,3 +173,708 @@ Sports CODM,Ranked mode affects player ranking.,True
 Sports CODM,CODM requires constant internet connection.,True
 Sports CODM,All maps are available in all game modes.,False
 Sports CODM,Operator skills provide temporary advantages.,True
+Cybersecurity,A firewall can only block incoming traffic.,False
+Cybersecurity,HTTPS uses port 443.,True
+Cybersecurity,Two-factor authentication adds extra security.,True
+Cybersecurity,Phishing attacks only come through email.,False
+Cybersecurity,A VPN encrypts internet traffic.,True
+Cybersecurity,Antivirus software can detect all malware.,False
+Cybersecurity,Strong passwords should be at least 8 characters.,True
+Cybersecurity,Public WiFi networks are always safe.,False
+Cybersecurity,Encryption makes data unreadable without a key.,True
+Cybersecurity,Social engineering targets human psychology.,True
+Cybersecurity,A virus needs user action to spread.,True
+Cybersecurity,Zero-day vulnerabilities have no available patch.,True
+Cybersecurity,SSL and TLS are the same thing.,False
+Cybersecurity,Ransomware encrypts files and demands payment.,True
+Cybersecurity,MAC addresses can be spoofed.,True
+Cybersecurity,Biometric authentication is unhackable.,False
+Cybersecurity,DDoS attacks use multiple computers.,True
+Cybersecurity,HTTP is more secure than HTTPS.,False
+Cybersecurity,A honeypot attracts attackers intentionally.,True
+Cybersecurity,Backup data should be stored offsite.,True
+Cybersecurity,All security updates should be installed immediately.,True
+Cybersecurity,Penetration testing is illegal.,False
+Cybersecurity,WPA3 is more secure than WEP.,True
+Cybersecurity,Rootkits hide at the operating system level.,True
+Cybersecurity,Multi-factor authentication only uses passwords.,False
+Cybersecurity,SQL injection targets databases.,True
+Cybersecurity,Cybersecurity is only an IT department concern.,False
+Cybersecurity,Digital signatures verify sender authenticity.,True
+Cybersecurity,Malware can spread through USB drives.,True
+Cybersecurity,Network segmentation improves security.,True
+Cybersecurity,All free antivirus programs are ineffective.,False
+Cybersecurity,CAPTCHA prevents automated attacks.,True
+Cybersecurity,Incident response plans should be tested regularly.,True
+Cybersecurity,Encryption slows down system performance.,True
+Cybersecurity,Spyware monitors user activity secretly.,True
+Cybersecurity,Port scanning is always malicious.,False
+Cybersecurity,Data at rest should be encrypted.,True
+Cybersecurity,Clicking suspicious links is harmless if antivirus is installed.,False
+Cybersecurity,Security policies should be regularly updated.,True
+Cybersecurity,Whitelisting is more restrictive than blacklisting.,True
+Cybersecurity,Trojans replicate themselves automatically.,False
+Cybersecurity,End-to-end encryption protects data in transit.,True
+Cybersecurity,Password managers are unsafe.,False
+Cybersecurity,Insider threats come from within the organization.,True
+Cybersecurity,Browser cookies can track user activity.,True
+Cybersecurity,A secure network needs only strong passwords.,False
+Cybersecurity,Patch management reduces vulnerabilities.,True
+Cybersecurity,Air-gapped systems are connected to the internet.,False
+Cybersecurity,Security awareness training reduces human error.,True
+Cybersecurity,All encryption algorithms are equally secure.,False
+Digital Electronics,A byte contains 8 bits.,True
+Digital Electronics,AND gate outputs 1 when all inputs are 1.,True
+Digital Electronics,Digital signals are continuous.,False
+Digital Electronics,A flip-flop stores one bit of data.,True
+Digital Electronics,OR gate outputs 0 when all inputs are 0.,True
+Digital Electronics,Hexadecimal uses base 16.,True
+Digital Electronics,NOT gate has two inputs.,False
+Digital Electronics,Combinational circuits have memory.,False
+Digital Electronics,XOR gate outputs 1 when inputs are different.,True
+Digital Electronics,Binary uses only 0 and 1.,True
+Digital Electronics,A multiplexer selects one input from many.,True
+Digital Electronics,NAND gate is a universal gate.,True
+Digital Electronics,Sequential circuits depend on past inputs.,True
+Digital Electronics,Octal number system uses base 8.,True
+Digital Electronics,A decoder converts binary to decimal.,True
+Digital Electronics,Logic 1 represents high voltage.,True
+Digital Electronics,A full adder has three inputs.,True
+Digital Electronics,Digital electronics use discrete values.,True
+Digital Electronics,A counter counts pulses.,True
+Digital Electronics,NOR gate is a universal gate.,True
+Digital Electronics,Analog signals have infinite precision.,True
+Digital Electronics,A register stores multiple bits.,True
+Digital Electronics,Karnaugh maps simplify Boolean expressions.,True
+Digital Electronics,Propagation delay affects circuit speed.,True
+Digital Electronics,A half adder can handle carry input.,False
+Digital Electronics,Truth tables show all input-output combinations.,True
+Digital Electronics,RAM is non-volatile memory.,False
+Digital Electronics,ROM retains data without power.,True
+Digital Electronics,A comparator checks if two values are equal.,True
+Digital Electronics,De Morgan's theorem applies to Boolean algebra.,True
+Digital Electronics,Clock signals synchronize digital circuits.,True
+Digital Electronics,Asynchronous circuits don't use clock signals.,True
+Digital Electronics,A latch is edge-triggered.,False
+Digital Electronics,Transistors act as electronic switches.,True
+Digital Electronics,Gray code changes one bit at a time.,True
+Digital Electronics,PWM controls power through pulse width.,True
+Digital Electronics,A 4-bit system can represent 16 values.,True
+Digital Electronics,Logic gates are built from transistors.,True
+Digital Electronics,BCD represents each decimal digit in binary.,True
+Digital Electronics,Timing diagrams show signal behavior over time.,True
+Digital Electronics,Volatile memory needs constant power.,True
+Digital Electronics,An encoder converts multiple inputs to binary.,True
+Digital Electronics,Metastability is a stable state.,False
+Digital Electronics,Digital circuits are immune to noise.,False
+Digital Electronics,Fan-out determines how many gates can be driven.,True
+Digital Electronics,CMOS uses less power than TTL.,True
+Digital Electronics,Parity bits detect errors.,True
+Digital Electronics,Binary arithmetic is the basis of digital computing.,True
+Digital Electronics,A demultiplexer distributes one input to many outputs.,True
+Digital Electronics,Setup time must occur before clock edge.,True
+Linux Administration,Linux is open-source.,True
+Linux Administration,The root user has unlimited privileges.,True
+Linux Administration,Windows and Linux use the same file system.,False
+Linux Administration,chmod changes file permissions.,True
+Linux Administration,The kernel is the core of Linux.,True
+Linux Administration,Linux requires a GUI to operate.,False
+Linux Administration,sudo executes commands with elevated privileges.,True
+Linux Administration,Linux is case-sensitive.,True
+Linux Administration,The /home directory stores user files.,True
+Linux Administration,apt-get is used on Red Hat systems.,False
+Linux Administration,bash is a command-line shell.,True
+Linux Administration,Linux supports multitasking.,True
+Linux Administration,The /etc directory contains configuration files.,True
+Linux Administration,rm command permanently deletes files.,True
+Linux Administration,Linux is immune to viruses.,False
+Linux Administration,grep searches for text patterns.,True
+Linux Administration,A daemon runs in the background.,True
+Linux Administration,Linux distributions all use the same kernel.,True
+Linux Administration,The pipe operator connects commands.,True
+Linux Administration,cron schedules automated tasks.,True
+Linux Administration,Linux requires disk defragmentation.,False
+Linux Administration,SSH provides encrypted remote access.,True
+Linux Administration,The /var directory stores variable data.,True
+Linux Administration,Linux supports multiple users simultaneously.,True
+Linux Administration,Package managers install software.,True
+Linux Administration,Hard links reference the same inode.,True
+Linux Administration,Symbolic links are shortcuts.,True
+Linux Administration,The /dev directory contains device files.,True
+Linux Administration,Linux file permissions use three categories.,True
+Linux Administration,systemd is a system and service manager.,True
+Linux Administration,Linux requires antivirus software.,False
+Linux Administration,The root directory is /.,True
+Linux Administration,Top command shows real-time processes.,True
+Linux Administration,Linux supports swap space.,True
+Linux Administration,File extensions determine file type in Linux.,False
+Linux Administration,The PATH variable lists executable directories.,True
+Linux Administration,Linux can run on various hardware.,True
+Linux Administration,Mounting makes filesystems accessible.,True
+Linux Administration,The /bin directory contains binary executables.,True
+Linux Administration,Linux logs are stored in /var/log.,True
+Linux Administration,Ubuntu is a Linux distribution.,True
+Linux Administration,Kill command stops processes gracefully by default.,False
+Linux Administration,Linux supports RAID configurations.,True
+Linux Administration,The /tmp directory stores temporary files.,True
+Linux Administration,File ownership can be changed with chown.,True
+Linux Administration,Linux uses forward slashes in paths.,True
+Linux Administration,The superuser account is called root.,True
+Linux Administration,Linux can boot without a bootloader.,False
+Linux Administration,Environment variables affect system behavior.,True
+Linux Administration,Linux supports virtual terminals.,True
+Networking,The OSI model has 7 layers.,True
+Networking,TCP is connectionless.,False
+Networking,IP addresses identify devices on networks.,True
+Networking,UDP guarantees packet delivery.,False
+Networking,DNS translates domain names to IP addresses.,True
+Networking,A switch operates at Layer 2.,True
+Networking,IPv4 addresses are 32 bits.,True
+Networking,IPv6 addresses are 128 bits.,True
+Networking,HTTP is encrypted.,False
+Networking,A subnet mask divides networks.,True
+Networking,Routers connect different networks.,True
+Networking,MAC addresses are 48 bits.,True
+Networking,DHCP automatically assigns IP addresses.,True
+Networking,FTP uses port 21.,True
+Networking,A hub broadcasts to all connected devices.,True
+Networking,Switches reduce network collisions.,True
+Networking,Private IP addresses are routable on the internet.,False
+Networking,ICMP is used by ping.,True
+Networking,A gateway connects networks using different protocols.,True
+Networking,Bandwidth measures data transfer rate.,True
+Networking,Latency is the delay in data transmission.,True
+Networking,NAT translates private IPs to public IPs.,True
+Networking,A firewall filters network traffic.,True
+Networking,Ethernet uses CSMA/CD.,True
+Networking,VLANs segment networks logically.,True
+Networking,The default HTTP port is 80.,True
+Networking,SSL and TLS encrypt web traffic.,True
+Networking,A repeater amplifies signals.,True
+Networking,Broadcast addresses send to all devices in a network.,True
+Networking,Unicast sends to one specific device.,True
+Networking,Multicast sends to multiple specific devices.,True
+Networking,ARP resolves IP addresses to MAC addresses.,True
+Networking,Packets can be fragmented during transmission.,True
+Networking,QoS prioritizes network traffic.,True
+Networking,A DMZ is a secure internal network.,False
+Networking,Load balancing distributes traffic across servers.,True
+Networking,Proxy servers act as intermediaries.,True
+Networking,802.11 is the WiFi standard.,True
+Networking,Full duplex allows simultaneous two-way communication.,True
+Networking,Half duplex allows only one-way communication at a time.,True
+Networking,The loopback address is 127.0.0.1.,True
+Networking,BGP is an interior gateway protocol.,False
+Networking,OSPF uses link-state routing.,True
+Networking,RIP uses hop count as a metric.,True
+Networking,A collision domain is where collisions can occur.,True
+Networking,SNMPv3 adds security features.,True
+Networking,Traceroute shows the path packets take.,True
+Networking,MTU defines maximum packet size.,True
+Networking,Jitter is variation in packet delay.,True
+Networking,WPA2 is more secure than WEP.,True
+Networking,Port forwarding redirects traffic to specific devices.,True
+Robotics,Robots can operate autonomously.,True
+Robotics,All robots have wheels.,False
+Robotics,Sensors provide environmental information.,True
+Robotics,Actuators create movement.,True
+Robotics,Arduino is a robotics platform.,True
+Robotics,Servo motors provide precise control.,True
+Robotics,Robots require programming.,True
+Robotics,Ultrasonic sensors measure distance.,True
+Robotics,All robots are humanoid.,False
+Robotics,PWM controls motor speed.,True
+Robotics,Robots can learn from experience.,True
+Robotics,The end effector is the robot's tool.,True
+Robotics,Encoders measure rotation.,True
+Robotics,DC motors rotate continuously.,True
+Robotics,Stepper motors move in precise steps.,True
+Robotics,Gyroscopes measure angular velocity.,True
+Robotics,Accelerometers measure acceleration.,True
+Robotics,Robots need power sources.,True
+Robotics,ROS is a robotics framework.,True
+Robotics,PIR sensors detect motion.,True
+Robotics,All robots need cameras.,False
+Robotics,Kinematics studies robot motion.,True
+Robotics,Feedback loops improve robot control.,True
+Robotics,Industrial robots are always mobile.,False
+Robotics,Microcontrollers control robot functions.,True
+Robotics,Robots can work in hazardous environments.,True
+Robotics,LiDAR uses laser for distance measurement.,True
+Robotics,Path planning helps robots navigate.,True
+Robotics,Obstacle avoidance prevents collisions.,True
+Robotics,Robots communicate through protocols.,True
+Robotics,Machine learning enhances robot capabilities.,True
+Robotics,Grippers are end effectors.,True
+Robotics,Robotic arms have multiple joints.,True
+Robotics,Degrees of freedom indicate movement axes.,True
+Robotics,Teleoperation is remote robot control.,True
+Robotics,Swarm robotics involves multiple robots.,True
+Robotics,Computer vision helps robots see.,True
+Robotics,Localization determines robot position.,True
+Robotics,SLAM maps and localizes simultaneously.,True
+Robotics,Battery life limits robot operation time.,True
+Robotics,Torque measures rotational force.,True
+Robotics,Proximity sensors detect nearby objects.,True
+Robotics,Robots can be programmed with Python.,True
+Robotics,Wheeled robots are faster than legged robots.,True
+Robotics,Inverse kinematics calculates joint angles.,True
+Robotics,Robots need calibration for accuracy.,True
+Robotics,Force sensors measure applied pressure.,True
+Robotics,Collaborative robots work alongside humans.,True
+Robotics,Simulation tests robots virtually.,True
+Robotics,Mechatronics combines mechanics and electronics.,True
+Android App Development,Android Studio is the official Android IDE.,True
+Android App Development,Kotlin is a programming language for Android.,True
+Android App Development,Activities represent screens in Android apps.,True
+Android App Development,Android apps are packaged as APK files.,True
+Android App Development,Services run in the foreground only.,False
+Android App Development,XML is used for Android layouts.,True
+Android App Development,Fragments are reusable UI components.,True
+Android App Development,Android requires a physical device for testing.,False
+Android App Development,Gradle builds Android projects.,True
+Android App Development,RecyclerView displays scrollable lists.,True
+Android App Development,Intent navigates between activities.,True
+Android App Development,SharedPreferences stores large amounts of data.,False
+Android App Development,Android apps can run on iOS.,False
+Android App Development,ViewModel survives configuration changes.,True
+Android App Development,LiveData observes data changes.,True
+Android App Development,Room is an Android database library.,True
+Android App Development,Android Manifest declares app permissions.,True
+Android App Development,ConstraintLayout is a flexible layout manager.,True
+Android App Development,Coroutines handle asynchronous operations.,True
+Android App Development,Android uses Java Virtual Machine.,False
+Android App Development,Broadcast Receivers respond to system events.,True
+Android App Development,Content Providers share data between apps.,True
+Android App Development,Material Design is Google's design language.,True
+Android App Development,Retrofit handles network requests.,True
+Android App Development,Glide loads images efficiently.,True
+Android App Development,Toast displays long messages.,False
+Android App Development,Android apps require internet permission by default.,False
+Android App Development,ViewBinding eliminates findViewById calls.,True
+Android App Development,Android has a built-in SQLite database.,True
+Android App Development,Espresso tests UI components.,True
+Android App Development,JUnit tests app logic.,True
+Android App Development,minSdkVersion specifies minimum Android version.,True
+Android App Development,Android apps are written in Swift.,False
+Android App Development,Navigation Component manages app navigation.,True
+Android App Development,WorkManager schedules background tasks.,True
+Android App Development,Data Binding connects UI to data sources.,True
+Android App Development,Android apps can access device location.,True
+Android App Development,Proguard obfuscates code.,True
+Android App Development,AlertDialog shows popup messages.,True
+Android App Development,Android supports push notifications.,True
+Android App Development,Firebase provides backend services.,True
+Android App Development,Permissions must be declared in code only.,False
+Android App Development,Android apps can use camera functionality.,True
+Android App Development,Threads run code in parallel.,True
+Android App Development,Android supports multiple screen sizes.,True
+Android App Development,Google Play Store distributes Android apps.,True
+Android App Development,Activities have a lifecycle.,True
+Android App Development,ProgressBar shows loading indicators.,True
+Android App Development,Android apps must have a launcher icon.,True
+Database,SQL stands for Structured Query Language.,True
+Database,NoSQL databases use tables.,False
+Database,Primary keys must be unique.,True
+Database,Foreign keys link tables together.,True
+Database,SELECT retrieves data from databases.,True
+Database,DELETE removes records permanently.,True
+Database,Indexes slow down queries.,False
+Database,NULL represents missing values.,True
+Database,Transactions ensure data consistency.,True
+Database,ROLLBACK undoes changes.,True
+Database,COMMIT saves changes permanently.,True
+Database,Views are virtual tables.,True
+Database,Triggers execute automatically.,True
+Database,JOIN combines data from multiple tables.,True
+Database,WHERE filters query results.,True
+Database,GROUP BY aggregates data.,True
+Database,ORDER BY sorts results.,True
+Database,DISTINCT removes duplicates.,True
+Database,INNER JOIN returns only matching rows.,True
+Database,LEFT JOIN includes all left table rows.,True
+Database,Normalization reduces data redundancy.,True
+Database,Denormalization improves read performance.,True
+Database,ACID ensures transaction reliability.,True
+Database,MongoDB is a relational database.,False
+Database,PRIMARY KEY can contain NULL values.,False
+Database,UNIQUE constraint allows duplicate values.,False
+Database,CASCADE deletes related records.,True
+Database,Stored procedures improve performance.,True
+Database,Database schemas define structure.,True
+Database,Relationships connect tables.,True
+Database,One-to-many allows multiple related records.,True
+Database,Many-to-many requires a junction table.,True
+Database,SQL is case-sensitive.,False
+Database,COUNT returns the number of rows.,True
+Database,SUM calculates total values.,True
+Database,AVG calculates average values.,True
+Database,MAX returns the highest value.,True
+Database,MIN returns the lowest value.,True
+Database,Subqueries can be nested.,True
+Database,LIKE performs pattern matching.,True
+Database,IN checks for multiple values.,True
+Database,BETWEEN filters ranges.,True
+Database,ALTER modifies table structure.,True
+Database,CREATE INDEX improves query speed.,True
+Database,DROP deletes database objects.,True
+Database,UPDATE modifies existing records.,True
+Database,INSERT adds new records.,True
+Database,Database backup prevents data loss.,True
+Database,Replication copies data across servers.,True
+Database,Partitioning divides large tables.,True
+Java,Java is platform-independent.,True
+Java,JVM executes Java bytecode.,True
+Java,Java is case-sensitive.,True
+Java,main method is the entry point.,True
+Java,Java supports multiple inheritance through classes.,False
+Java,Interfaces can have multiple implementations.,True
+Java,Java is compiled and interpreted.,True
+Java,String is a primitive data type.,False
+Java,Arrays have fixed size.,True
+Java,ArrayList is dynamically sized.,True
+Java,HashMap stores key-value pairs.,True
+Java,Java uses garbage collection.,True
+Java,final variables cannot be changed.,True
+Java,static members belong to the class.,True
+Java,private members are accessible outside the class.,False
+Java,Java supports operator overloading.,False
+Java,try-catch handles exceptions.,True
+Java,finally block always executes.,True
+Java,Java has pointers.,False
+Java,equals compares object content.,True
+Java,== compares references for objects.,True
+Java,Java supports multithreading.,True
+Java,Abstract classes can be instantiated.,False
+Java,Interfaces can have method implementations.,True
+Java,Java is object-oriented.,True
+Java,Encapsulation hides data.,True
+Java,Polymorphism allows multiple forms.,True
+Java,Inheritance promotes code reuse.,True
+Java,Overloading uses same method name.,True
+Java,Overriding redefines parent methods.,True
+Java,Java has automatic memory management.,True
+Java,NullPointerException occurs when accessing null.,True
+Java,Java supports lambda expressions.,True
+Java,Streams process collections.,True
+Java,Java can read files.,True
+Java,Java can write files.,True
+Java,Serialization converts objects to bytes.,True
+Java,Java is faster than C++.,False
+Java,Maven manages Java dependencies.,True
+Java,JUnit tests Java code.,True
+Java,Spring is a Java framework.,True
+Java,Java runs on JVM.,True
+Java,Java supports generics.,True
+Java,Collections store multiple objects.,True
+Java,Iterator traverses collections.,True
+Java,Java is strongly typed.,True
+Java,break exits loops.,True
+Java,continue skips loop iteration.,True
+Java,switch handles multiple cases.,True
+Java,Java supports recursion.,True
+C#,C# is pronounced "C Sharp".,True
+C#,.NET is C#'s platform.,True
+C# is case-sensitive.,True
+C#,Main is the entry point.,True
+C#,C# supports garbage collection.,True
+C#,var allows type inference.,True
+C#,C# supports multiple inheritance.,False
+C#,Interfaces can have multiple implementations.,True
+C#,string is a reference type.,True
+C#,int is a value type.,True
+C#,List is dynamically sized.,True
+C#,Arrays have fixed size.,True
+C#,Dictionary stores key-value pairs.,True
+C#,LINQ queries collections.,True
+C#,async/await handles asynchronous code.,True
+C#,Properties encapsulate fields.,True
+C#,get accessor retrieves values.,True
+C#,set accessor assigns values.,True
+C#,Events notify subscribers.,True
+C#,Delegates point to methods.,True
+C#,sealed prevents inheritance.,True
+C#,abstract classes can be instantiated.,False
+C#,Interfaces cannot have fields.,True
+C#,C# supports operator overloading.,True
+C#,try-catch handles exceptions.,True
+C#,finally always executes.,True
+C#,throw raises exceptions.,True
+C#,null represents no value.,True
+C#,?? is the null-coalescing operator.,True
+C#,?. is the null-conditional operator.,True
+C#,StringBuilder is mutable.,True
+C#,string is immutable.,True
+C#,C# supports lambda expressions.,True
+C#,C# has automatic properties.,True
+C#,static members belong to the type.,True
+C#,const defines compile-time constants.,True
+C#,readonly allows runtime initialization.,True
+C#,namespace organizes code.,True
+C#,using imports namespaces.,True
+C#,C# supports generics.,True
+C#,IEnumerable enables iteration.,True
+C#,yield returns values lazily.,True
+C#,C# supports extension methods.,True
+C#,partial classes split definitions.,True
+C#,C# is object-oriented.,True
+C#,Task represents asynchronous operations.,True
+C#,NuGet manages packages.,True
+C#,Visual Studio is a C# IDE.,True
+C#,C# can build web applications.,True
+C#,ASP.NET is a web framework.,True
+C#,Entity Framework handles databases.,True
+Python,Python is interpreted.,True
+Python,Python uses indentation for blocks.,True
+Python,Python is case-sensitive.,True
+Python,Lists are mutable.,True
+Python,Tuples are immutable.,True
+Python,Dictionaries store key-value pairs.,True
+Python,Sets contain unique elements.,True
+Python,Python supports multiple inheritance.,True
+Python,def defines functions.,True
+Python,class defines classes.,True
+Python,self refers to the instance.,True
+Python,__init__ is the constructor.,True
+Python,Python has automatic garbage collection.,True
+Python,Python is dynamically typed.,True
+Python,None represents null.,True
+Python,== compares values.,True
+Python,is compares identity.,True
+Python,Lists use square brackets.,True
+Python,Tuples use parentheses.,True
+Python,Dictionaries use curly braces.,True
+Python,Python supports lambda functions.,True
+Python,map applies functions to iterables.,True
+Python,filter selects elements.,True
+Python,List comprehensions create lists.,True
+Python,Python supports exception handling.,True
+Python,try-except catches exceptions.,True
+Python,finally always executes.,True
+Python,raise throws exceptions.,True
+Python,Python supports file operations.,True
+Python,with statement manages resources.,True
+Python,Python strings are immutable.,True
+Python,f-strings format strings.,True
+Python,len returns length.,True
+Python,range generates sequences.,True
+Python,enumerate adds index to iteration.,True
+Python,zip combines iterables.,True
+Python,sorted returns sorted list.,True
+Python,reversed returns reversed iterator.,True
+Python,any checks if any element is true.,True
+Python,all checks if all elements are true.,True
+Python,isinstance checks object type.,True
+Python,Python supports decorators.,True
+Python,Generators use yield.,True
+Python,Python has global and local scope.,True
+Python,import loads modules.,True
+Python,pip installs packages.,True
+Python,Python supports operator overloading.,True
+Python,Python can access databases.,True
+Python,Django is a web framework.,True
+Python,Flask is a lightweight framework.,True
+Python,NumPy handles numerical computing.,True
+Python,pandas analyzes data.,True
+Web Design,HTML structures web content.,True
+Web Design,CSS styles web pages.,True
+Web Design,JavaScript adds interactivity.,True
+Web Design,HTML uses tags.,True
+Web Design,<div> is a container element.,True
+Web Design,<span> is an inline element.,True
+Web Design,CSS selects elements by ID using #.,True
+Web Design,CSS selects elements by class using dot.,True
+Web Design,Responsive design adapts to screen sizes.,True
+Web Design,Media queries enable responsive design.,True
+Web Design,Flexbox creates flexible layouts.,True
+Web Design,CSS Grid creates grid layouts.,True
+Web Design,Padding adds space inside elements.,True
+Web Design,Margin adds space outside elements.,True
+Web Design,HTML is a programming language.,False
+Web Design,CSS can animate elements.,True
+Web Design,JavaScript is the same as Java.,False
+Web Design,<a> creates hyperlinks.,True
+Web Design,<img> displays images.,True
+Web Design,<form> creates forms.,True
+Web Design,<input> creates input fields.,True
+Web Design,<button> creates buttons.,True
+Web Design,HTML5 is the latest HTML version.,True
+Web Design,CSS3 adds new styling features.,True
+Web Design,Bootstrap is a CSS framework.,True
+Web Design,Tailwind CSS is a utility-first framework.,True
+Web Design,jQuery is a JavaScript library.,True
+Web Design,React is a JavaScript framework.,True
+Web Design,Vue.js builds user interfaces.,True
+Web Design,Angular is developed by Google.,True
+Web Design,Semantic HTML improves accessibility.,True
+Web Design,Alt text describes images.,True
+Web Design,SEO improves search rankings.,True
+Web Design,HTTPS is more secure than HTTP.,True
+Web Design,Cookies store user data.,True
+Web Design,Local storage persists data.,True
+Web Design,Session storage clears on close.,True
+Web Design,JSON formats data.,True
+Web Design,APIs connect web services.,True
+Web Design,AJAX loads data asynchronously.,True
+Web Design,DOM represents page structure.,True
+Web Design,Event listeners handle interactions.,True
+Web Design,Viewport controls mobile display.,True
+Web Design,rem is a relative unit.,True
+Web Design,px is an absolute unit.,True
+Web Design,Pseudo-classes style element states.,True
+Web Design,:hover applies on mouse over.,True
+Web Design,z-index controls stacking order.,True
+Web Design,position property places elements.,True
+Web Design,display property controls layout.,True
+Web Design,Wireframes plan page layout.,True
+Esports,Mobile Legends is a MOBA game.,True
+Esports,CODM is a first-person shooter.,True
+Esports,Mobile Legends has 5 players per team.,True
+Esports,CODM supports battle royale mode.,True
+Esports,Marksman is a role in Mobile Legends.,True
+Esports,Lord gives team buff in Mobile Legends.,True
+Esports,CODM uses scorestreaks.,True
+Esports,Mobile Legends has three lanes.,True
+Esports,Operators are characters in CODM.,True
+Esports,Turtle gives gold in Mobile Legends.,True
+Esports,CODM has multiplayer mode.,True
+Esports,Tanks initiate team fights.,True
+Esports,Gunsmith customizes weapons in CODM.,True
+Esports,Mages deal magical damage.,True
+Esports,Search and Destroy is a CODM mode.,True
+Esports,Mobile Legends has ranked mode.,True
+Esports,DLQ33 is a sniper rifle in CODM.,True
+Esports,Assassins eliminate enemy carries.,True
+Esports,Hardpoint is a CODM game mode.,True
+Esports,Mythical Glory is the highest rank in Mobile Legends.,True
+Esports,CODM has Domination mode.,True
+Esports,Supports assist teammates in Mobile Legends.,True
+Esports,AK-47 is an assault rifle in CODM.,True
+Esports,Fighters dominate lanes.,True
+Esports,CODM has operator skills.,True
+Esports,Mobile Legends turrets defend lanes.,True
+Esports,Legendary is the highest rank in CODM.,True
+Esports,Ultimate abilities are powerful skills.,True
+Esports,CODM supports controller gameplay.,True
+Esports,Mobile Legends has equipment items.,True
+Esports,CP is the currency in CODM.,False
+Esports,Early game is the starting phase.,True
+Esports,CODM has weapon skins.,True
+Esports,Mobile Legends has hero roles.,True
+Esports,Kill streaks reward consecutive kills in CODM.,True
+Esports,Late game decides matches in Mobile Legends.,True
+Esports,CODM World Championship is an official tournament.,True
+Esports,Mobile Legends has MPL tournaments.,True
+Esports,Scrims are practice matches.,True
+Esports,KDA measures player performance.,True
+Esports,Draft phase involves hero selection.,True
+Esports,CODM has ranked matches.,True
+Esports,Wipeout eliminates all enemies.,True
+Esports,VOD review analyzes gameplay.,True
+Esports,Sensitivity settings affect aiming.,True
+Esports,Mobile Legends has jungle creeps.,True
+Esports,CODM supports team deathmatch.,True
+Esports,Map awareness is important in both games.,True
+Esports,Mobile Legends has seasonal events.,True
+Esports,CODM has limited-time modes.,True
+C++,C++ supports object-oriented programming.,True
+C++,cout is used for output.,True
+C++,cin is used for input.,True
+C++,C++ is case-sensitive.,True
+C++,main is the entry point.,True
+C++,new allocates memory.,True
+C++,delete frees memory.,True
+C++,Pointers store memory addresses.,True
+C++,References are aliases for variables.,True
+C++,C++ supports multiple inheritance.,True
+C++,Classes define objects.,True
+C++,Constructors initialize objects.,True
+C++,Destructors clean up objects.,True
+C++,public members are accessible everywhere.,True
+C++,private members are class-only.,True
+C++,protected allows derived class access.,True
+C++,Encapsulation hides implementation.,True
+C++,Polymorphism allows multiple forms.,True
+C++,Overloading uses same function name.,True
+C++,Overriding redefines inherited functions.,True
+C++,virtual enables runtime polymorphism.,True
+C++,abstract classes cannot be instantiated.,True
+C++,Templates enable generic programming.,True
+C++,STL provides standard containers.,True
+C++,vector is a dynamic array.,True
+C++,list is a linked list.,True
+C++,map stores key-value pairs.,True
+C++,stack is LIFO.,True
+C++,queue is FIFO.,True
+C++,const prevents modification.,True
+C++,static variables persist.,True
+C++,inline suggests function inlining.,True
+C++,namespace prevents name conflicts.,True
+C++,:: is the scope resolution operator.,True
+C++,C++ supports exception handling.,True
+C++,try-catch handles exceptions.,True
+C++,throw raises exceptions.,True
+C++,C++ compiles to machine code.,True
+C++,C++ is faster than Python.,True
+C++,C++ supports operator overloading.,True
+C++,friend functions access private members.,True
+C++,this pointer refers to current object.,True
+C++,Smart pointers manage memory automatically.,True
+C++,nullptr represents null pointer.,True
+C++,C++ supports lambda expressions.,True
+C++,auto enables type inference.,True
+C++,C++ has preprocessor directives.,True
+C++,#include adds header files.,True
+C++,#define creates macros.,True
+C++,C++ supports recursion.,True
+C,C is a procedural language.,True
+C,printf outputs text.,True
+C,scanf reads input.,True
+C,C is case-sensitive.,True
+C,main is the entry point.,True
+C,Pointers store addresses.,True
+C,malloc allocates memory.,True
+C,free deallocates memory.,True
+C,Arrays have fixed size.,True
+C,Strings end with null character.,True
+C,strcpy copies strings.,True
+C,strcmp compares strings.,True
+C,strlen returns string length.,True
+C,Structures group variables.,True
+C,typedef creates type aliases.,True
+C,Unions share memory.,True
+C,Enums define named constants.,True
+C,const prevents modification.,True
+C,#include adds headers.,True
+C,#define creates macros.,True
+C,if-else makes decisions.,True
+C,switch handles multiple cases.,True
+C,for loops iterate.,True
+C,while loops with condition.,True
+C,do-while loops at least once.,True
+C,break exits loops.,True
+C,continue skips iteration.,True
+C,return exits functions.,True
+C,Functions can return values.,True
+C,C supports recursion.,True
+C,Pass by value copies data.,True
+C,Pass by reference uses pointers.,True
+C,fopen opens files.,True
+C,fclose closes files.,True
+C,fprintf writes to files.,True
+C,fscanf reads from files.,True
+C,C has no garbage collection.,True
+C,Memory leaks occur without free.,True
+C,Bitwise operators manipulate bits.,True
+C,& is bitwise AND.,True
+C,| is bitwise OR.,True
+C,^ is bitwise XOR.,True
+C,~ inverts bits.,True
+C,<< shifts bits left.,True
+C,>> shifts bits right.,True
+C,C is platform-dependent.,True
+C,C compiles to machine code.,True
+C,C is faster than interpreted languages.,True
+C,Preprocessor runs before compilation.,True
+C,Header files contain declarations.,True
+C,C supports modular programming.,True

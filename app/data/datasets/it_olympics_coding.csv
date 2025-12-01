@@ -1,5 +1,5 @@
 "problem_id","topic","language","problem_statement","unit_tests","expected_outputs","scoring_criteria","max_score","hints"
-"1","Algorithms","Python","Write a Python code that takes a list of numbers and returns their sum","def test_sum_function():
+"1","Java","Java","Write a Python code that takes a list of numbers and returns their sum","def test_sum_function():
     assert sum_numbers([1, 2, 3, 4]) == 10
     assert sum_numbers([]) == 0
     assert sum_numbers([-1, 1]) == 0

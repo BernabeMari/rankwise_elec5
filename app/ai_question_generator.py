@@ -70,6 +70,23 @@ class AIQuestionGenerator:
         # Get relevant dataset files for the question type
         target_datasets = question_type_datasets.get(question_type, ['it_olympics_coding.csv'])
         
+        # Normalize language so noisy UI labels like "Java (1)" still map to
+        # the clean language values used in the CSV (e.g., "java").
+        lang_filter = None
+        if language:
+            lang_val = str(language).lower()
+            language_aliases = {
+                'python': ['python', 'py'],
+                'java': ['java'],
+                'c++': ['c++', 'cpp', 'c plus plus'],
+                'c': [' c ', 'c language', 'clang', ' c,', '(c)'],
+                'javascript': ['javascript', 'js'],
+            }
+            for clean_lang, aliases in language_aliases.items():
+                if any(alias in lang_val for alias in aliases) or lang_val.strip().startswith(clean_lang):
+                    lang_filter = clean_lang
+                    break
+
         for filename, df in datasets.items():
             # Only search in datasets relevant to the question type
             if filename not in target_datasets:
@@ -78,11 +95,19 @@ class AIQuestionGenerator:
             for _, row in df.iterrows():
                 # Check if language matches (if specified)
                 row_language = str(row.get('language', '')).lower()
-                if language and row_language and language.lower() not in row_language:
+                if lang_filter and row_language and lang_filter not in row_language:
                     continue
                 
                 # Check relevance based on keywords
                 relevance_score = self._calculate_relevance_for_dataset(row, keywords, prompt_lower, filename)
+
+                # For coding questions with a specific language filter, treat any
+                # matching-language row as at least minimally relevant so we
+                # always get some context (even when the prompt is just "Java (1)"
+                # with no other useful keywords).
+                if question_type == 'coding' and lang_filter and row_language and lang_filter in row_language:
+                    if relevance_score <= 0:
+                        relevance_score = 1
                 
                 if relevance_score > 0:
                     # Map dataset columns to standard format
@@ -714,14 +739,22 @@ Generate a question that follows the EXACT patterns from the dataset examples an
             # Check if LM Studio is available
             if self._check_lm_studio_available():
                 print("LM Studio is available, using AI generation with dataset context...")
-                return self._generate_with_lm_studio(prompt, context_examples, language, question_type)
+                question_data = self._generate_with_lm_studio(prompt, context_examples, language, question_type)
             else:
                 print("LM Studio not available, using dataset-based fallback generation...")
-                return self._generate_from_datasets(prompt, context_examples, language, question_type)
+                question_data = self._generate_from_datasets(prompt, context_examples, language, question_type)
                 
         except Exception as e:
             print(f"Error in question generation: {e}")
-            return self._create_fallback_question(prompt, context_examples, language, question_type)
+            question_data = self._create_fallback_question(prompt, context_examples, language, question_type)
+
+        # Post-process: for coding questions we do NOT want to send any sample
+        # starter code back to the frontend. Keep only the question text,
+        # tests, hints, etc.
+        if question_type == 'coding' and isinstance(question_data, dict):
+            question_data['sample_code'] = ""
+
+        return question_data
     
     def _generate_with_lm_studio(self, prompt: str, context_examples: List[Dict[str, Any]], language: str = None, question_type: str = 'coding') -> Dict[str, Any]:
         """Generate question using LM Studio with dataset context"""
@@ -801,9 +834,22 @@ Return JSON format based on question type: {question_type}"""
             from app.routes import generate_question_from_datasets
             
             print(f"Using dataset fallback for {question_type} question...")
+
+            # For coding questions, strengthen language awareness by explicitly
+            # including the language name in the prompt so that
+            # generate_question_from_datasets() can filter by the CSV
+            # 'language' column (e.g., only Java problems when language='Java').
+            ds_prompt = prompt
+            if question_type == 'coding' and language:
+                try:
+                    lang_lower = str(language).lower()
+                    if lang_lower not in str(prompt or "").lower():
+                        ds_prompt = f"{language} {prompt or ''}".strip()
+                except Exception:
+                    ds_prompt = prompt
             
             # Use the existing dataset generation function
-            dataset_result = generate_question_from_datasets(prompt, question_type)
+            dataset_result = generate_question_from_datasets(ds_prompt, question_type)
             
             # Convert to the expected format
             return {
