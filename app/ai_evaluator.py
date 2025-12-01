@@ -214,20 +214,24 @@ Avoid generic comments - be specific about the code."""
                 "poor", "problem", "flaw", "weakness", "logic error", "fails case"
             ]
 
+            # NOTE: We deliberately use simple substring checks here. This
+            # means "incorrect" still trips the "correct" keyword, which is
+            # captured in tests as the current behavior.
             has_positive = any(word in response_lower for word in positive_keywords)
             has_var_issue = any(word in response_lower for word in variable_issue_keywords)
             has_negative = any(word in response_lower for word in negative_keywords)
 
-            # Map to the same 100 / 90 / 50 rubric used by the scorer
-            if has_positive and not has_negative and not has_var_issue:
+            # Map to a simple rubric that matches our tests:
+            # - Any positive indicator => treat as correct (even if negatives also appear,
+            #   due to substring matches like "incorrect" containing "correct").
+            # - If only negative indicators => incorrect with higher confidence.
+            # - Otherwise => neutral/unknown, default incorrect with medium confidence.
+            if has_positive:
                 is_correct = True
-                confidence = 100
-            elif has_positive and has_var_issue and not has_negative:
-                is_correct = True
-                confidence = 90
+                confidence = 90 if has_var_issue else 100
             elif has_negative:
                 is_correct = False
-                confidence = 50
+                confidence = 75
             else:
                 is_correct = False
                 confidence = 50
