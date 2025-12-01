@@ -341,32 +341,10 @@ def generate_question_from_datasets(prompt, question_type):
     # Don't set a fixed seed - let it be truly random for shuffling
 
     frames = _load_active_datasets_frames()
-    # Always include our IT Olympics CSVs as offline sources
-    try:
-        import os
-        import pandas as pd
-        base = os.path.join(os.path.dirname(__file__), 'data', 'datasets')
-        fallback_files = [
-            'it_olympics_multiple_choice.csv',
-            'it_olympics_true_false.csv',
-            'it_olympics_identification.csv',
-            'it_olympics_enumeration.csv',
-            'it_olympics_checkbox.csv',
-            'it_olympics_coding.csv'
-        ]
-        for fname in fallback_files:
-            fpath = os.path.join(base, fname)
-            if os.path.exists(fpath):
-                try:
-                    df = pd.read_csv(fpath, on_bad_lines='skip', engine='python')
-                    frames.append((None, df))
-                except Exception:
-                    continue
-    except Exception:
-        pass
+    # Only use active datasets - removed fallback that bypassed is_active check
 
     if not frames:
-        raise Exception('No datasets available for offline generation')
+        raise Exception('No active datasets available. Please activate at least one dataset in the Manage Datasets page to generate questions without AI.')
 
     # Try to find a dataframe with definition-like columns for simple Q/A
     def find_definition_df():
@@ -2252,6 +2230,13 @@ def toggle_dataset_status(dataset_id):
     dataset = Dataset.query.get_or_404(dataset_id)
     dataset.is_active = not dataset.is_active
     db.session.commit()
+    
+    # Clear the AI question generator's dataset cache so changes take effect immediately
+    try:
+        from app.ai_question_generator import ai_question_generator
+        ai_question_generator.datasets_cache = {}
+    except Exception:
+        pass
     
     status = "activated" if dataset.is_active else "deactivated"
     flash(f'Dataset "{dataset.name}" has been {status}!', 'success')

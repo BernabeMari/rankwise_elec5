@@ -27,23 +27,32 @@ class AIQuestionGenerator:
             return False
         
     def _load_datasets(self) -> Dict[str, pd.DataFrame]:
-        """Load all available datasets"""
+        """Load only active datasets from the database"""
         if self.datasets_cache:
             return self.datasets_cache
             
         datasets = {}
-        datasets_dir = os.path.join(os.path.dirname(__file__), 'data', 'datasets')
         
-        if os.path.exists(datasets_dir):
-            for filename in os.listdir(datasets_dir):
-                if filename.endswith('.csv'):
-                    file_path = os.path.join(datasets_dir, filename)
+        # Import here to avoid circular imports
+        try:
+            from app.models.models import Dataset
+            from app import db
+            
+            # Only load datasets that are marked as active
+            active_datasets = Dataset.query.filter_by(is_active=True, is_builtin=True).all()
+            
+            for ds in active_datasets:
+                if os.path.exists(ds.file_path):
                     try:
-                        df = pd.read_csv(file_path, on_bad_lines='skip', engine='python')
-                        datasets[filename] = df
-                        print(f"Loaded dataset: {filename} with {len(df)} rows")
+                        df = pd.read_csv(ds.file_path, on_bad_lines='skip', engine='python')
+                        datasets[ds.filename] = df
+                        print(f"Loaded active dataset: {ds.filename} with {len(df)} rows")
                     except Exception as e:
-                        print(f"Error loading {filename}: {e}")
+                        print(f"Error loading {ds.filename}: {e}")
+        except Exception as e:
+            print(f"Error loading active datasets from database: {e}")
+            # Fallback: if database query fails, return empty dict
+            # This ensures inactive datasets are never used
         
         self.datasets_cache = datasets
         return datasets
@@ -800,6 +809,11 @@ Generate a question that follows the EXACT patterns from the dataset examples an
                 question_data = self._generate_from_datasets(prompt, context_examples, language, question_type)
                 
         except Exception as e:
+            error_msg = str(e)
+            # If it's a "no active datasets" error, re-raise it so the user sees the message
+            if "No active datasets available" in error_msg:
+                print(f"No active datasets available: {error_msg}")
+                raise
             print(f"Error in question generation: {e}")
             # Ensure we have a safe default for context_examples even if the
             # failure happened before they were populated.
@@ -921,6 +935,12 @@ Return JSON format based on question type: {question_type}"""
             }
                 
         except Exception as e:
+            error_msg = str(e)
+            # Check if it's the "no active datasets" error
+            if "No active datasets available" in error_msg or "No datasets available" in error_msg:
+                print(f"No active datasets available: {error_msg}")
+                # Re-raise with a clear message that will be shown to the user
+                raise Exception("No active datasets available. Please activate at least one dataset in the Manage Datasets page to generate questions without AI.")
             print(f"Error in dataset generation: {e}")
             return self._create_fallback_question(prompt, context_examples, language, question_type)
     
