@@ -1,257 +1,505 @@
-"problem_id","language","problem_statement","unit_tests","expected_output"
-"1","Python","Write a Python code that takes a list of numbers and returns their sum","def test_sum_function():
+"problem_id","topic","language","problem_statement","unit_tests","expected_outputs","scoring_criteria","max_score","hints"
+"1","Algorithms","Python","Write a Python code that takes a list of numbers and returns their sum","def test_sum_function():
     assert sum_numbers([1, 2, 3, 4]) == 10
     assert sum_numbers([]) == 0
     assert sum_numbers([-1, 1]) == 0
     assert sum_numbers([5]) == 5
-    assert sum_numbers([1, 2, 3, 4, 5]) == 15","10"
-"2","Python","Write a Python function that returns the maximum number from a list","def test_max_function():
-    assert find_max([1, 5, 3, 9, 2]) == 9
-    assert find_max([10]) == 10
-    assert find_max([-5, -1, -10]) == -1
-    assert find_max([0, 0, 0]) == 0","9"
-"3","Python","Write a Python function that counts the number of vowels in a string","def test_count_vowels():
+    assert sum_numbers([1, 2, 3, 4, 5]) == 15","10
+0
+0
+5
+15","Function correctly implemented: 40 points
+Handles empty list: 20 points
+Handles negative numbers: 20 points
+Handles single element: 10 points
+Handles multiple elements: 10 points","100","Function name: sum_numbers. Parameter: numbers (list). Return: sum of all numbers in the list."
+"2","Python","C","Implement a function in C that returns the sum of an integer array","#include 
+int main() {
+    int arr1[] = {1, 2, 3, 4};
+    int arr2[] = {};
+    int arr3[] = {-1, 1};
+    int arr4[] = {5};
+    assert(sum_array(arr1, 4) == 10);
+    assert(sum_array(arr2, 0) == 0);
+    assert(sum_array(arr3, 2) == 0);
+    assert(sum_array(arr4, 1) == 5);
+    return 0;
+}","10
+0
+0
+5","Function correctly implemented: 40 points
+Handles empty array: 20 points
+Handles negative numbers: 20 points
+Handles single element: 10 points
+Handles multiple elements: 10 points","100","Function name: sum_array. Parameters: int arr[], int size. Return: int (sum of array elements)."
+"3","Algorithms","C++","Implement a function in C++ that returns the sum of a vector of integers","#include 
+#include 
+int main() {
+    std::vector v1 = {1, 2, 3, 4};
+    std::vector v2 = {};
+    std::vector v3 = {-1, 1};
+    std::vector v4 = {5};
+    assert(sum_vector(v1) == 10);
+    assert(sum_vector(v2) == 0);
+    assert(sum_vector(v3) == 0);
+    assert(sum_vector(v4) == 5);
+    return 0;
+}","10
+0
+0
+5","Function correctly implemented: 40 points
+Handles empty vector: 20 points
+Handles negative numbers: 20 points
+Handles single element: 10 points
+Handles multiple elements: 10 points","100","Function name: sum_vector. Parameter: std::vector v. Return: int (sum of vector elements)."
+"4","Algorithms","Java","Write a Java code that returns the sum of an int array","public class TestSum {
+    public static void main(String[] args) {
+        int[] arr1 = {1, 2, 3, 4};
+        int[] arr2 = {};
+        int[] arr3 = {-1, 1};
+        int[] arr4 = {5};
+        assert sumArray(arr1) == 10;
+        assert sumArray(arr2) == 0;
+        assert sumArray(arr3) == 0;
+        assert sumArray(arr4) == 5;
+    }
+}","10
+0
+0
+5","Function correctly implemented: 40 points
+Handles empty array: 20 points
+Handles negative numbers: 20 points
+Handles single element: 10 points
+Handles multiple elements: 10 points","100","Method name: sumArray. Parameter: int[] arr. Return: int (sum of array elements)."
+"5","Conditionals","Python","Write a function that checks if a number is even or odd and returns 'Even' or 'Odd'","def test_even_odd():
+    assert even_or_odd(2) == 'Even'
+    assert even_or_odd(3) == 'Odd'
+    assert even_or_odd(0) == 'Even'
+    assert even_or_odd(-4) == 'Even'
+    assert even_or_odd(-7) == 'Odd'","Even
+Odd
+Even
+Even
+Odd","Correctly identifies even numbers: 40 points
+Correctly identifies odd numbers: 40 points
+Handles zero: 10 points
+Handles negative numbers: 10 points","100","Function name: even_or_odd. Parameter: num (int). Return: 'Even' or 'Odd' string."
+"6","Conditionals","Python","Write a function that returns 'Positive', 'Negative', or 'Zero' depending on the number","def test_number_sign():
+    assert number_sign(5) == 'Positive'
+    assert number_sign(-3) == 'Negative'
+    assert number_sign(0) == 'Zero'","Positive
+Negative
+Zero","Correctly handles positive numbers: 40 points
+Correctly handles negative numbers: 40 points
+Handles zero: 20 points","100","Function name: number_sign. Parameter: num (int). Return: 'Positive', 'Negative', or 'Zero' string."
+"7","Conditionals","Python","Write a function that returns 'Pass' if score >= 75, otherwise 'Fail'","def test_pass_fail():
+    assert pass_fail(80) == 'Pass'
+    assert pass_fail(74) == 'Fail'
+    assert pass_fail(75) == 'Pass'","Pass
+Fail
+Pass","Handles boundary conditions: 40 points
+Correct output for Pass: 30 points
+Correct output for Fail: 30 points","100","Function name: pass_fail. Parameter: score (int). Return: 'Pass' or 'Fail' string."
+"8","Conditionals","Python","Write a function that returns the largest of two numbers","def test_max_two():
+    assert max_two(3, 7) == 7
+    assert max_two(10, 5) == 10
+    assert max_two(-1, -3) == -1","7
+10
+-1","Handles greater number correctly: 50 points
+Handles negative numbers: 30 points
+Handles equality: 20 points","100","Function name: max_two. Parameters: a (int), b (int). Return: int (larger number)."
+"9","Conditionals","Python","Write a function that returns the largest of three numbers","def test_max_three():
+    assert max_three(3, 7, 5) == 7
+    assert max_three(10, 5, 15) == 15
+    assert max_three(-1, -3, -2) == -1","7
+15
+-1","Correctly identifies largest: 50 points
+Handles negative numbers: 30 points
+Handles equal values: 20 points","100","Function name: max_three. Parameters: a (int), b (int), c (int). Return: int (largest number)."
+"10","Switch Case","Python","Use match-case to return a day name given a number (1=Monday, ..., 7=Sunday)","def test_day_name():
+    assert day_name(1) == 'Monday'
+    assert day_name(5) == 'Friday'
+    assert day_name(7) == 'Sunday'
+    assert day_name(8) == 'Invalid'","Monday
+Friday
+Sunday
+Invalid","Correctly maps days 1–7: 70 points
+Handles invalid input: 30 points","100","Function name: day_name. Parameter: day_num (int). Return: day name string or 'Invalid'."
+"11","Switch Case","Python","Use match-case to return traffic light meaning ('red' → 'Stop', 'yellow' → 'Caution', 'green' → 'Go')","def test_traffic_light():
+    assert traffic_light('red') == 'Stop'
+    assert traffic_light('yellow') == 'Caution'
+    assert traffic_light('green') == 'Go'
+    assert traffic_light('blue') == 'Invalid'","Stop
+Caution
+Go
+Invalid","Correctly matches each case: 70 points
+Handles invalid color: 30 points","100","Function name: traffic_light. Parameter: color (str). Return: action string ('Stop', 'Caution', 'Go', or 'Invalid')."
+"12","Loops","Python","Write a function that returns the sum of numbers from 1 to n using a loop","def test_sum_n():
+    assert sum_to_n(5) == 15
+    assert sum_to_n(1) == 1
+    assert sum_to_n(0) == 0","15
+1
+0","Correct loop implementation: 50 points
+Handles 0: 30 points
+Handles small numbers: 20 points","100","Function name: sum_to_n. Parameter: n (int). Return: int (sum from 1 to n)."
+"13","Loops","Python","Write a function that returns the factorial of a number using a loop","def test_factorial():
+    assert factorial(5) == 120
+    assert factorial(0) == 1
+    assert factorial(1) == 1","120
+1
+1","Correctly computes factorial: 60 points
+Handles 0 and 1: 40 points","100","Function name: factorial. Parameter: n (int). Return: int (factorial of n)."
+"14","Loops","Python","Write a function that counts how many even numbers are in a list","def test_count_even():
+    assert count_even([1, 2, 3, 4]) == 2
+    assert count_even([1, 3, 5]) == 0
+    assert count_even([]) == 0","2
+0
+0","Correctly counts evens: 50 points
+Handles empty list: 30 points
+Handles all odd: 20 points","100","Function name: count_even. Parameter: numbers (list). Return: int (count of even numbers)."
+"15","Loops","Python","Write a function that prints numbers 1 to n and returns a list of them","def test_print_numbers():
+    assert print_numbers(5) == [1, 2, 3, 4, 5]
+    assert print_numbers(0) == []","[1, 2, 3, 4, 5]
+[]","Correctly generates range: 60 points
+Handles zero: 40 points","100","Function name: print_numbers. Parameter: n (int). Return: list (numbers from 1 to n)."
+"16","Loops","Python","Write a function that returns the sum of even numbers from 1 to n","def test_sum_even_n():
+    assert sum_even_n(5) == 6
+    assert sum_even_n(10) == 30
+    assert sum_even_n(1) == 0","6
+30
+0","Correctly sums even numbers: 60 points
+Handles odd limits: 40 points","100","Function name: sum_even_n. Parameter: n (int). Return: int (sum of even numbers from 1 to n)."
+"17","Conditionals","Python","Write a function that checks if a year is a leap year","def test_leap_year():
+    assert leap_year(2020) == True
+    assert leap_year(1900) == False
+    assert leap_year(2000) == True","True
+False
+True","Handles divisible by 4 rule: 40 points
+Handles century rule: 40 points
+Handles 400-year rule: 20 points","100","Function name: leap_year. Parameter: year (int). Return: bool (True if leap year)."
+"18","Switch Case","Python","Use match-case to return operation result ('add','sub','mul','div') on two numbers","def test_calculator():
+    assert calculator('add',2,3) == 5
+    assert calculator('sub',5,2) == 3
+    assert calculator('mul',3,4) == 12
+    assert calculator('div',6,3) == 2
+    assert calculator('mod',5,2) == 'Invalid'","5
+3
+12
+2
+Invalid","Handles all valid operations: 70 points
+Handles invalid operation: 30 points","100","Function name: calculator. Parameters: operation (str), a (int), b (int). Return: int or 'Invalid'."
+"19","Conditionals","Python","Write a function that returns the absolute value of a number without using abs()","def test_absolute():
+    assert absolute(-5) == 5
+    assert absolute(3) == 3
+    assert absolute(0) == 0","5
+3
+0","Handles negatives: 40 points
+Handles positives: 40 points
+Handles zero: 20 points","100","Function name: absolute. Parameter: num (int). Return: int (absolute value)."
+"20","Loops","Python","Write a function that counts the number of vowels in a string","def test_count_vowels():
     assert count_vowels('hello') == 2
-    assert count_vowels('aeiou') == 5
-    assert count_vowels('xyz') == 0
-    assert count_vowels('') == 0","2"
-"4","Python","Write a Python function that reverses a string","def test_reverse_string():
-    assert reverse_string('hello') == 'olleh'
-    assert reverse_string('Python') == 'nohtyP'
-    assert reverse_string('a') == 'a'
-    assert reverse_string('') == ''","olleh"
-"5","Python","Write a Python function that checks if a number is even","def test_is_even():
-    assert is_even(4) == True
-    assert is_even(7) == False
-    assert is_even(0) == True
-    assert is_even(-2) == True","True"
-"6","Python","Write a Python function that returns the length of a list","def test_list_length():
-    assert get_length([1, 2, 3]) == 3
-    assert get_length([]) == 0
-    assert get_length(['a', 'b']) == 2
-    assert get_length([1]) == 1","3"
-"7","Python","Write a Python function that multiplies all numbers in a list","def test_multiply_list():
-    assert multiply_all([2, 3, 4]) == 24
-    assert multiply_all([1, 1, 1]) == 1
-    assert multiply_all([5]) == 5
-    assert multiply_all([2, 0, 5]) == 0","24"
-"8","Python","Write a Python function that finds the minimum number in a list","def test_find_min():
-    assert find_min([3, 1, 4, 1, 5]) == 1
-    assert find_min([10]) == 10
-    assert find_min([-5, -1, -10]) == -10
-    assert find_min([0, 0, 0]) == 0","1"
-"9","Python","Write a Python function that checks if a string is a palindrome","def test_is_palindrome():
+    assert count_vowels('sky') == 0
+    assert count_vowels('AEIOU') == 5","2
+0
+5","Counts lowercase vowels: 50 points
+Counts uppercase vowels: 30 points
+Handles empty strings: 20 points","100","Function name: count_vowels. Parameter: text (str). Return: int (count of vowels)."
+"21","Conditionals","Python","Write a function that returns the grade letter given a score","def test_grade_letter():
+    assert grade_letter(95) == 'A'
+    assert grade_letter(82) == 'B'
+    assert grade_letter(70) == 'C'
+    assert grade_letter(60) == 'D'
+    assert grade_letter(40) == 'F'","A
+B
+C
+D
+F","Correct grade classification: 80 points
+Handles lower limits: 20 points","100","Function name: grade_letter. Parameter: score (int). Return: str (grade letter A-F)."
+"22","Loops","Python","Write a function that reverses a string using a loop","def test_reverse_string():
+    assert reverse_string('abc') == 'cba'
+    assert reverse_string('') == ''
+    assert reverse_string('a') == 'a'","cba
+
+a","Correct reversal: 60 points
+Handles empty and single character: 40 points","100","Function name: reverse_string. Parameter: text (str). Return: str (reversed string)."
+"23","Loops","Python","Write a function that returns the product of all numbers in a list","def test_product_list():
+    assert product_list([1, 2, 3, 4]) == 24
+    assert product_list([5]) == 5
+    assert product_list([]) == 1","24
+5
+1","Correct multiplication logic: 50 points
+Handles empty list (return 1): 50 points","100","Function name: product_list. Parameter: numbers (list). Return: int (product of all numbers)."
+"24","Conditionals","Python","Write a function that returns True if a number is divisible by both 3 and 5","def test_divisible_by_3_and_5():
+    assert divisible_by_3_and_5(15) == True
+    assert divisible_by_3_and_5(10) == False
+    assert divisible_by_3_and_5(9) == False","True
+False
+False","Correctly checks divisibility: 80 points
+Handles negatives and zero: 20 points","100","Function name: divisible_by_3_and_5. Parameter: num (int). Return: bool (True if divisible by both 3 and 5)."
+"25","Loops","Python","Write a function that finds the smallest number in a list","def test_min_in_list():
+    assert min_in_list([3,1,2]) == 1
+    assert min_in_list([-5,-2,-9]) == -9
+    assert min_in_list([7]) == 7","1
+-9
+7","Correct minimum logic: 60 points
+Handles negatives and single element: 40 points","100","Function name: min_in_list. Parameter: numbers (list). Return: int (smallest number)."
+"26","Control Structures","Python","Write a Python function that checks if a number is even or odd using if-else statements","def test_even_odd():
+    assert check_even_odd(4) == 'even'
+    assert check_even_odd(7) == 'odd'
+    assert check_even_odd(0) == 'even'
+    assert check_even_odd(-2) == 'even'
+    assert check_even_odd(-3) == 'odd'","even
+odd
+even
+even
+odd","Correct if-else logic: 50 points
+Handles zero and negatives: 30 points
+Proper return values: 20 points","100","Function name: check_even_odd. Parameter: num (int). Return: str ('even' or 'odd')."
+"27","Control Structures","Python","Write a Python function that finds the maximum of three numbers using if-else statements","def test_max_three():
+    assert max_three(1, 2, 3) == 3
+    assert max_three(5, 2, 1) == 5
+    assert max_three(1, 5, 2) == 5
+    assert max_three(3, 3, 3) == 3
+    assert max_three(-1, -2, -3) == -1","3
+5
+5
+3
+-1","Correct comparison logic: 60 points
+Handles equal values: 20 points
+Handles negatives: 20 points","100","Function name: max_three. Parameters: a (int), b (int), c (int). Return: int (largest number)."
+"28","Control Structures","Python","Write a Python function that determines the grade based on score using if-elif-else","def test_grade():
+    assert get_grade(95) == 'A'
+    assert get_grade(85) == 'B'
+    assert get_grade(75) == 'C'
+    assert get_grade(65) == 'D'
+    assert get_grade(55) == 'F'
+    assert get_grade(100) == 'A'
+    assert get_grade(0) == 'F'","A
+B
+C
+D
+F
+A
+F","Correct grade logic: 50 points
+Handles all grade ranges: 30 points
+Edge cases (0, 100): 20 points","100","Function name: get_grade. Parameter: score (int). Return: str (grade letter A-F)."
+"29","Loops","Python","Write a Python function that prints numbers from 1 to n using a for loop","def test_count_up():
+    # This test checks the function exists and can be called
+    try:
+        count_up(5)
+        result = True
+    except:
+        result = False
+    assert result == True","True","Function exists and runs: 100 points","100","Function name: count_up. Parameter: n (int). Return: None (prints numbers 1 to n)."
+"30","Loops","Python","Write a Python function that calculates factorial using a for loop","def test_factorial():
+    assert factorial(5) == 120
+    assert factorial(3) == 6
+    assert factorial(1) == 1
+    assert factorial(0) == 1
+    assert factorial(4) == 24","120
+6
+1
+1
+24","Correct factorial logic: 60 points
+Handles edge cases (0, 1): 40 points","100","Function name: factorial. Parameter: n (int). Return: int (factorial of n)."
+"31","Algorithms","Python","Write a Python function that adds two integers","def test_add_function():
+    assert add_two_numbers(a=2, b=3) == 5
+    assert add_two_numbers(a=-1, b=-4) == -5
+    assert add_two_numbers(a=-2, b=5) == 3
+    assert add_two_numbers(a=0, b=7) == 7
+    assert add_two_numbers(a=0, b=0) == 0","5
+-5
+3
+7
+0","Function correctly implemented using 'a' and 'b': 50 points
+Handles positive numbers: 20 points
+Handles negative numbers: 20 points
+Handles zeros: 10 points","100","Function name: add_two_numbers. Parameters: a (int), b (int). Return: int (sum of a and b)."
+"32","Loops","Python","Write a function that returns True if a string is a palindrome","def test_is_palindrome():
     assert is_palindrome('racecar') == True
     assert is_palindrome('hello') == False
+    assert is_palindrome('') == True
     assert is_palindrome('a') == True
-    assert is_palindrome('') == True","True"
-"10","Python","Write a Python function that removes duplicates from a list","def test_remove_duplicates():
-    assert remove_duplicates([1, 2, 2, 3, 4, 4]) == [1, 2, 3, 4]
-    assert remove_duplicates([1, 1, 1]) == [1]
+    assert is_palindrome('Aa') == False","True
+False
+True
+True
+False","Correct palindrome logic: 60 points
+Handles edge cases: 40 points","100","Function name: is_palindrome. Parameter: text (str). Return: bool (True if palindrome)."
+"33","Algorithms","Python","Write a function that returns the nth Fibonacci number","def test_fibonacci():
+    assert fibonacci(0) == 0
+    assert fibonacci(1) == 1
+    assert fibonacci(5) == 5
+    assert fibonacci(10) == 55
+    assert fibonacci(7) == 13","0
+1
+5
+55
+13","Correct Fibonacci logic: 60 points
+Handles base cases: 40 points","100","Function name: fibonacci. Parameter: n (int). Return: int (nth Fibonacci number)."
+"34","Loops","Python","Write a function that removes duplicates from a list while preserving order","def test_remove_duplicates():
+    assert remove_duplicates([1,2,2,3]) == [1,2,3]
     assert remove_duplicates([]) == []
-    assert remove_duplicates([1, 2, 3]) == [1, 2, 3]","[1, 2, 3, 4]"
-"11","Python","Write a Python function that converts a string to uppercase","def test_to_uppercase():
-    assert to_uppercase('hello') == 'HELLO'
-    assert to_uppercase('Python') == 'PYTHON'
-    assert to_uppercase('') == ''
-    assert to_uppercase('123') == '123'","HELLO"
-"12","Python","Write a Python function that counts occurrences of an element in a list","def test_count_element():
-    assert count_element([1, 2, 3, 2, 2], 2) == 3
-    assert count_element([1, 1, 1], 1) == 3
-    assert count_element([1, 2, 3], 4) == 0
-    assert count_element([], 1) == 0","3"
-"13","Python","Write a Python function that returns the first n elements of a list","def test_first_n():
-    assert first_n([1, 2, 3, 4, 5], 3) == [1, 2, 3]
-    assert first_n([1, 2], 5) == [1, 2]
-    assert first_n([1, 2, 3], 0) == []
-    assert first_n([], 3) == []","[1, 2, 3]"
-"14","Python","Write a Python function that checks if a list is empty","def test_is_empty():
-    assert is_empty([]) == True
-    assert is_empty([1]) == False
-    assert is_empty([1, 2, 3]) == False
-    assert is_empty(['']) == False","True"
-"15","Python","Write a Python function that returns the average of numbers in a list","def test_average():
-    assert average([1, 2, 3, 4]) == 2.5
-    assert average([10]) == 10
-    assert average([5, 5, 5]) == 5
-    assert average([0, 10]) == 5","2.5"
-"16","Python","Write a Python function that concatenates two strings","def test_concat_strings():
-    assert concat('hello', 'world') == 'helloworld'
-    assert concat('', 'test') == 'test'
-    assert concat('a', 'b') == 'ab'
-    assert concat('', '') == ''","helloworld"
-"17","Python","Write a Python function that checks if a number is positive","def test_is_positive():
-    assert is_positive(5) == True
-    assert is_positive(-3) == False
-    assert is_positive(0) == False
-    assert is_positive(100) == True","True"
-"18","Python","Write a Python function that squares a number","def test_square():
-    assert square(4) == 16
-    assert square(0) == 0
-    assert square(-3) == 9
-    assert square(10) == 100","16"
-"19","Python","Write a Python function that returns the last element of a list","def test_last_element():
-    assert last_element([1, 2, 3]) == 3
-    assert last_element(['a', 'b']) == 'b'
-    assert last_element([5]) == 5
-    assert last_element([1, 2, 3, 4, 5]) == 5","3"
-"20","Python","Write a Python function that checks if a string contains a substring","def test_contains_substring():
-    assert contains('hello world', 'world') == True
-    assert contains('Python', 'Java') == False
-    assert contains('test', 'test') == True
-    assert contains('abc', '') == True","True"
-"21","Python","Write a Python function that converts Celsius to Fahrenheit","def test_celsius_to_fahrenheit():
+    assert remove_duplicates([5,5,5]) == [5]
+    assert remove_duplicates([1,2,3]) == [1,2,3]","[1,2,3]
+[]
+[5]
+[1,2,3]","Removes duplicates correctly: 60 points
+Preserves order: 40 points","100","Function name: remove_duplicates. Parameter: numbers (list). Return: list (unique elements in order)."
+"35","Conditionals","Python","Write a function that returns the type of triangle given three sides","def test_triangle_type():
+    assert triangle_type(3,3,3) == 'Equilateral'
+    assert triangle_type(3,3,4) == 'Isosceles'
+    assert triangle_type(3,4,5) == 'Scalene'
+    assert triangle_type(1,2,10) == 'Not a triangle'","Equilateral
+Isosceles
+Scalene
+Not a triangle","Identifies all triangle types: 70 points
+Validates triangle inequality: 30 points","100","Function name: triangle_type. Parameters: a (int), b (int), c (int). Return: str (triangle type)."
+"36","Loops","Python","Write a function that finds the second largest number in a list","def test_second_largest():
+    assert second_largest([1,2,3,4,5]) == 4
+    assert second_largest([5,5,4,3]) == 4
+    assert second_largest([10,20]) == 10
+    assert second_largest([7]) == None","4
+4
+10
+None","Finds second largest correctly: 70 points
+Handles edge cases: 30 points","100","Function name: second_largest. Parameter: numbers (list). Return: int or None (second largest number)."
+"37","Algorithms","Python","Write a function that checks if a number is prime","def test_is_prime():
+    assert is_prime(2) == True
+    assert is_prime(17) == True
+    assert is_prime(4) == False
+    assert is_prime(1) == False
+    assert is_prime(0) == False","True
+True
+False
+False
+False","Correct primality test: 70 points
+Handles edge cases: 30 points","100","Function name: is_prime. Parameter: num (int). Return: bool (True if prime)."
+"38","Loops","Python","Write a function that returns the sum of digits in a number","def test_sum_digits():
+    assert sum_digits(123) == 6
+    assert sum_digits(0) == 0
+    assert sum_digits(999) == 27
+    assert sum_digits(5) == 5","6
+0
+27
+5","Correct digit sum logic: 70 points
+Handles single digit and zero: 30 points","100","Function name: sum_digits. Parameter: num (int). Return: int (sum of all digits)."
+"39","Conditionals","Python","Write a function that converts temperature from Celsius to Fahrenheit","def test_celsius_to_fahrenheit():
     assert celsius_to_fahrenheit(0) == 32
     assert celsius_to_fahrenheit(100) == 212
     assert celsius_to_fahrenheit(-40) == -40
-    assert celsius_to_fahrenheit(37) == 98.6","32"
-"22","Python","Write a Python function that returns absolute value of a number","def test_absolute():
-    assert absolute(-5) == 5
-    assert absolute(5) == 5
-    assert absolute(0) == 0
-    assert absolute(-100) == 100","5"
-"23","Python","Write a Python function that checks if a number is odd","def test_is_odd():
-    assert is_odd(3) == True
-    assert is_odd(4) == False
-    assert is_odd(0) == False
-    assert is_odd(-7) == True","True"
-"24","Python","Write a Python function that returns factorial of a number","def test_factorial():
-    assert factorial(5) == 120
-    assert factorial(0) == 1
-    assert factorial(1) == 1
-    assert factorial(3) == 6","120"
-"25","Python","Write a Python function that counts words in a string","def test_count_words():
-    assert count_words('hello world') == 2
-    assert count_words('Python') == 1
-    assert count_words('') == 0
-    assert count_words('one two three') == 3","2"
-"26","Python","Write a Python function that replaces spaces with underscores","def test_replace_spaces():
-    assert replace_spaces('hello world') == 'hello_world'
-    assert replace_spaces('Python is fun') == 'Python_is_fun'
-    assert replace_spaces('test') == 'test'
-    assert replace_spaces('') == ''","hello_world"
-"27","Python","Write a Python function that returns the sum of digits in a number","def test_sum_digits():
-    assert sum_digits(123) == 6
-    assert sum_digits(0) == 0
-    assert sum_digits(99) == 18
-    assert sum_digits(5) == 5","6"
-"28","Python","Write a Python function that checks if a year is a leap year","def test_is_leap_year():
-    assert is_leap_year(2020) == True
-    assert is_leap_year(2021) == False
-    assert is_leap_year(2000) == True
-    assert is_leap_year(1900) == False","True"
-"29","Python","Write a Python function that returns every other element from a list","def test_every_other():
-    assert every_other([1, 2, 3, 4, 5]) == [1, 3, 5]
-    assert every_other([10, 20]) == [10]
-    assert every_other([1]) == [1]
-    assert every_other([]) == []","[1, 3, 5]"
-"30","Python","Write a Python function that checks if a string starts with a given prefix","def test_starts_with():
-    assert starts_with('hello', 'he') == True
-    assert starts_with('Python', 'Py') == True
-    assert starts_with('test', 'te') == True
-    assert starts_with('abc', 'xyz') == False","True"
-"31","Python","Write a Python function that returns the cube of a number","def test_cube():
-    assert cube(3) == 27
-    assert cube(0) == 0
-    assert cube(-2) == -8
-    assert cube(10) == 1000","27"
-"32","Python","Write a Python function that converts a list to a string","def test_list_to_string():
-    assert list_to_string([1, 2, 3]) == '123'
-    assert list_to_string(['a', 'b', 'c']) == 'abc'
-    assert list_to_string([]) == ''
-    assert list_to_string(['hello']) == 'hello'","123"
-"33","Python","Write a Python function that checks if two strings are equal","def test_strings_equal():
-    assert strings_equal('hello', 'hello') == True
-    assert strings_equal('test', 'Test') == False
-    assert strings_equal('', '') == True
-    assert strings_equal('a', 'b') == False","True"
-"34","Python","Write a Python function that returns the second largest number in a list","def test_second_largest():
-    assert second_largest([1, 5, 3, 9, 2]) == 5
-    assert second_largest([10, 20, 30]) == 20
-    assert second_largest([5, 5, 3]) == 3
-    assert second_largest([1, 2]) == 1","5"
-"35","Python","Write a Python function that checks if a list contains a specific element","def test_contains_element():
-    assert contains_element([1, 2, 3], 2) == True
-    assert contains_element([1, 2, 3], 5) == False
-    assert contains_element([], 1) == False
-    assert contains_element(['a', 'b'], 'a') == True","True"
-"36","Python","Write a Python function that returns the middle element of a list","def test_middle_element():
-    assert middle_element([1, 2, 3, 4, 5]) == 3
-    assert middle_element([10, 20, 30]) == 20
-    assert middle_element([5]) == 5
-    assert middle_element([1, 2, 3, 4, 5, 6, 7]) == 4","3"
-"37","Python","Write a Python function that converts kilometers to miles","def test_km_to_miles():
-    assert km_to_miles(10) == 6.21371
-    assert km_to_miles(0) == 0
-    assert km_to_miles(1) == 0.621371
-    assert km_to_miles(100) == 62.1371","6.21371"
-"38","Python","Write a Python function that repeats a string n times","def test_repeat_string():
-    assert repeat_string('hi', 3) == 'hihihi'
-    assert repeat_string('a', 5) == 'aaaaa'
-    assert repeat_string('test', 0) == ''
-    assert repeat_string('', 3) == ''","hihihi"
-"39","Python","Write a Python function that returns common elements between two lists","def test_common_elements():
-    assert common_elements([1, 2, 3], [2, 3, 4]) == [2, 3]
-    assert common_elements([1, 2], [3, 4]) == []
-    assert common_elements([], [1, 2]) == []
-    assert common_elements([1, 1, 2], [1, 2]) == [1, 2]","[2, 3]"
-"40","Python","Write a Python function that checks if a string ends with a given suffix","def test_ends_with():
-    assert ends_with('hello', 'lo') == True
-    assert ends_with('Python', 'on') == True
-    assert ends_with('test', 'xyz') == False
-    assert ends_with('', '') == True","True"
-"41","Python","Write a Python function that capitalizes the first letter of a string","def test_capitalize_first():
-    assert capitalize_first('hello') == 'Hello'
-    assert capitalize_first('python') == 'Python'
-    assert capitalize_first('') == ''
-    assert capitalize_first('test') == 'Test'","Hello"
-"42","Python","Write a Python function that returns the product of two numbers","def test_multiply():
-    assert multiply(3, 4) == 12
-    assert multiply(0, 5) == 0
-    assert multiply(-2, 3) == -6
-    assert multiply(10, 10) == 100","12"
-"43","Python","Write a Python function that checks if a number is divisible by another","def test_is_divisible():
-    assert is_divisible(10, 2) == True
-    assert is_divisible(7, 3) == False
-    assert is_divisible(0, 5) == True
-    assert is_divisible(15, 5) == True","True"
-"44","Python","Write a Python function that sorts a list in ascending order","def test_sort_list():
-    assert sort_list([3, 1, 4, 2]) == [1, 2, 3, 4]
-    assert sort_list([5, 5, 5]) == [5, 5, 5]
-    assert sort_list([]) == []
-    assert sort_list([1]) == [1]","[1, 2, 3, 4]"
-"45","Python","Write a Python function that returns the difference between two numbers","def test_subtract():
-    assert subtract(10, 5) == 5
-    assert subtract(0, 0) == 0
-    assert subtract(-5, -3) == -2
-    assert subtract(100, 50) == 50","5"
-"46","Python","Write a Python function that converts a string to lowercase","def test_to_lowercase():
-    assert to_lowercase('HELLO') == 'hello'
-    assert to_lowercase('Python') == 'python'
-    assert to_lowercase('') == ''
-    assert to_lowercase('TEST') == 'test'","hello"
-"47","Python","Write a Python function that returns the remainder of division","def test_modulo():
-    assert modulo(10, 3) == 1
-    assert modulo(15, 5) == 0
-    assert modulo(7, 2) == 1
-    assert modulo(20, 6) == 2","1"
-"48","Python","Write a Python function that checks if a list is sorted","def test_is_sorted():
-    assert is_sorted([1, 2, 3, 4]) == True
-    assert is_sorted([1, 3, 2]) == False
-    assert is_sorted([]) == True
-    assert is_sorted([5]) == True","True"
-"49","Python","Write a Python function that returns unique elements from a list","def test_unique_elements():
-    assert unique_elements([1, 2, 2, 3, 3, 3]) == [1, 2, 3]
-    assert unique_elements([1, 1, 1]) == [1]
-    assert unique_elements([]) == []
-    assert unique_elements([1, 2, 3]) == [1, 2, 3]","[1, 2, 3]"
-"50","Python","Write a Python function that returns the index of an element in a list","def test_find_index():
-    assert find_index([1, 2, 3, 4], 3) == 2
-    assert find_index(['a', 'b', 'c'], 'b') == 1
-    assert find_index([10, 20, 30], 10) == 0
-    assert find_index([1, 2, 3], 5) == -1","2"
-"51","Python","Write a Python function that swaps two variables","def test_swap():
-    assert swap(5, 10) == (10, 5)
-    assert swap('a', 'b') == ('b', 'a')
-    assert swap(0, 0) == (0, 0)
-    assert swap(1, 2) == (2, 1)","(10, 5)"
+    assert celsius_to_fahrenheit(37) == 98.6","32
+212
+-40
+98.6","Correct conversion formula: 70 points
+Handles negative and decimal: 30 points","100","Function name: celsius_to_fahrenheit. Parameter: celsius (float). Return: float (Fahrenheit temperature)."
+"40","Loops","Python","Write a function that returns a list of all divisors of a number","def test_find_divisors():
+    assert find_divisors(12) == [1,2,3,4,6,12]
+    assert find_divisors(1) == [1]
+    assert find_divisors(7) == [1,7]
+    assert find_divisors(20) == [1,2,4,5,10,20]","[1,2,3,4,6,12]
+[1]
+[1,7]
+[1,2,4,5,10,20]","Finds all divisors correctly: 70 points
+Handles edge cases: 30 points","100","Function name: find_divisors. Parameter: num (int). Return: list (all divisors of num)."
+"41","Algorithms","Python","Write a function that returns the GCD of two numbers","def test_gcd():
+    assert gcd(12, 18) == 6
+    assert gcd(7, 13) == 1
+    assert gcd(100, 50) == 50
+    assert gcd(0, 5) == 5","6
+1
+50
+5","Correct GCD logic: 70 points
+Handles edge cases: 30 points","100","Function name: gcd. Parameters: a (int), b (int). Return: int (greatest common divisor)."
+"42","Loops","Python","Write a function that counts consonants in a string","def test_count_consonants():
+    assert count_consonants('hello') == 3
+    assert count_consonants('aeiou') == 0
+    assert count_consonants('xyz') == 3
+    assert count_consonants('') == 0","3
+0
+3
+0","Counts consonants correctly: 60 points
+Handles vowels and empty: 40 points","100","Function name: count_consonants. Parameter: text (str). Return: int (count of consonants)."
+"43","Conditionals","Python","Write a function that returns the season based on month number","def test_get_season():
+    assert get_season(1) == 'Winter'
+    assert get_season(5) == 'Spring'
+    assert get_season(7) == 'Summer'
+    assert get_season(10) == 'Fall'","Winter
+Spring
+Summer
+Fall","Correct season mapping: 80 points
+Handles all months: 20 points","100","Function name: get_season. Parameter: month (int). Return: str (season name)."
+"44","Loops","Python","Write a function that returns True if all elements in a list are unique","def test_all_unique():
+    assert all_unique([1,2,3,4]) == True
+    assert all_unique([1,2,1]) == False
+    assert all_unique([]) == True
+    assert all_unique([5]) == True","True
+False
+True
+True","Checks uniqueness correctly: 70 points
+Handles edge cases: 30 points","100","Function name: all_unique. Parameter: numbers (list). Return: bool (True if all unique)."
+"45","Algorithms","Python","Write a function that returns the LCM of two numbers","def test_lcm():
+    assert lcm(4, 6) == 12
+    assert lcm(7, 5) == 35
+    assert lcm(12, 18) == 36
+    assert lcm(1, 10) == 10","12
+35
+36
+10","Correct LCM logic: 70 points
+Handles different cases: 30 points","100","Function name: lcm. Parameters: a (int), b (int). Return: int (least common multiple)."
+"46","Loops","Python","Write a function that returns the average of numbers in a list","def test_average():
+    assert average([1,2,3,4,5]) == 3.0
+    assert average([10]) == 10.0
+    assert average([2,4,6]) == 4.0
+    assert average([0,0,0]) == 0.0","3.0
+10.0
+4.0
+0.0","Calculates average correctly: 70 points
+Handles single element and zeros: 30 points","100","Function name: average. Parameter: numbers (list). Return: float (average of numbers)."
+"47","Conditionals","Python","Write a function that returns the quadrant of a coordinate point","def test_quadrant():
+    assert quadrant(1, 1) == 'Q1'
+    assert quadrant(-1, 1) == 'Q2'
+    assert quadrant(-1, -1) == 'Q3'
+    assert quadrant(1, -1) == 'Q4'
+    assert quadrant(0, 0) == 'Origin'","Q1
+Q2
+Q3
+Q4
+Origin","Identifies all quadrants: 70 points
+Handles origin and axes: 30 points","100","Function name: quadrant. Parameters: x (int), y (int). Return: str (quadrant or 'Origin')."
+"48","Loops","Python","Write a function that capitalizes the first letter of each word in a string","def test_capitalize_words():
+    assert capitalize_words('hello world') == 'Hello World'
+    assert capitalize_words('python programming') == 'Python Programming'
+    assert capitalize_words('a') == 'A'
+    assert capitalize_words('') == ''","Hello World
+Python Programming
+A
+","Capitalizes correctly: 70 points
+Handles edge cases: 30 points","100","Function name: capitalize_words. Parameter: text (str). Return: str (capitalized words)."
+"49","Algorithms","Python","Write a function that returns the power of a number without using ** or pow()","def test_power():
+    assert power(2, 3) == 8
+    assert power(5, 0) == 1
+    assert power(3, 4) == 81
+    assert power(10, 2) == 100","8
+1
+81
+100","Correct power calculation: 70 points
+Handles zero exponent: 30 points","100","Function name: power. Parameters: base (int), exp (int). Return: int (base raised to exp)."
+"50","Loops","Python","Write a function that flattens a nested list one level deep","def test_flatten():
+    assert flatten([[1,2],[3,4]]) == [1,2,3,4]
+    assert flatten([[1],[2],[3]]) == [1,2,3]
+    assert flatten([[]]) == []
+    assert flatten([[1,2,3]]) == [1,2,3]","[1,2,3,4]
+[1,2,3]
+[]
+[1,2,3]","Flattens correctly: 70 points
+Handles edge cases: 30 points","100","Function name: flatten. Parameter: nested_list (list). Return: list (flattened one level)."
+"51","Conditionals","Python","Write a function that validates if a string is a valid email format","def test_is_valid_email():
+    assert is_valid_email('test@example.com') == True
+    assert is_valid_email('invalid.email') == False
+    assert is_valid_email('user@domain') == False
+    assert is_valid_email('@example.com') == False","True
+False
+False
+False","Validates email correctly: 70 points
+Handles invalid formats: 30 points","100","Function name: is_valid_email. Parameter: email (str). Return: bool (True if valid email)."

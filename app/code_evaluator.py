@@ -8,8 +8,10 @@ import os
 import sys
 import tempfile
 import subprocess
+import shutil
+import glob
 import re
-from typing import Tuple, List, Dict, Any
+from typing import Tuple, List, Dict, Any, Optional
 import pandas as pd
 
 # Import AI evaluator
@@ -34,6 +36,8 @@ class CodeEvaluator:
             'c++': self._evaluate_cpp,
             'cpp': self._evaluate_cpp,
             'java': self._evaluate_java,
+            'c#': self._evaluate_csharp,
+            'csharp': self._evaluate_csharp,
             'javascript': self._evaluate_javascript,
             'js': self._evaluate_javascript
         }
@@ -60,13 +64,18 @@ class CodeEvaluator:
             lang_key = language.lower().strip()
             if lang_key not in self.supported_languages:
                 return False, 0, f"Unsupported language: {language}"
+
+            has_unit_tests = bool(problem_data.get('unit_tests') and str(problem_data.get('unit_tests')).strip())
+            if not has_unit_tests:
+                return self._evaluate_ai_only_general(code, problem_data, language)
             
             # Step 1: AI Evaluation (if available)
+            ai_available = self._ai_available()
             ai_correct = None
             ai_confidence = 0
             ai_feedback = ""
             
-            if AI_AVAILABLE:
+            if ai_available:
                 try:
                     ai_correct, ai_confidence, ai_feedback = ai_evaluator.evaluate_code(
                         code, 
@@ -85,7 +94,7 @@ class CodeEvaluator:
             
             # Step 3: Combine Results
             return self._combine_evaluation_results(
-                ai_correct, ai_confidence, ai_feedback,
+                ai_available, ai_correct, ai_confidence, ai_feedback,
                 unit_correct, unit_score, unit_feedback,
                 problem_data
             )
@@ -113,13 +122,18 @@ class CodeEvaluator:
             lang_key = language.lower()
             if lang_key not in self.supported_languages:
                 return False, 0, f"Unsupported language: {language}"
+
+            has_unit_tests = bool(unit_tests and unit_tests.strip())
+            if not has_unit_tests:
+                return self._evaluate_ai_only_general(code, problem_data, language)
             
             # Step 1: AI Evaluation (if available)
+            ai_available = self._ai_available()
             ai_correct = None
             ai_confidence = 0
             ai_feedback = ""
             
-            if AI_AVAILABLE:
+            if ai_available:
                 try:
                     ai_correct, ai_confidence, ai_feedback = ai_evaluator.evaluate_code(
                         code, 
@@ -138,7 +152,7 @@ class CodeEvaluator:
             
             # Step 3: Combine Results
             return self._combine_evaluation_results(
-                ai_correct, ai_confidence, ai_feedback,
+                ai_available, ai_correct, ai_confidence, ai_feedback,
                 unit_correct, unit_score, unit_feedback,
                 problem_data
             )
@@ -146,7 +160,7 @@ class CodeEvaluator:
         except Exception as e:
             return False, 0, f"Custom evaluation error: {str(e)}"
     
-    def _combine_evaluation_results(self, ai_correct: bool, ai_confidence: int, ai_feedback: str,
+    def _combine_evaluation_results(self, ai_available: bool, ai_correct: bool, ai_confidence: int, ai_feedback: str,
                                   unit_correct: bool, unit_score: int, unit_feedback: str,
                                   problem_data: Dict[str, Any]) -> Tuple[bool, int, str]:
         """
@@ -169,7 +183,7 @@ class CodeEvaluator:
 
         if not ai_only:
             # Add AI feedback if available
-            if AI_AVAILABLE and ai_feedback:
+            if ai_available and ai_feedback:
                 feedback_parts.append(f"AI Analysis (Confidence: {ai_confidence}%):")
                 feedback_parts.append(ai_feedback)
                 feedback_parts.append("")  # Empty line for separation
@@ -241,12 +255,13 @@ class CodeEvaluator:
             
             return {
                 'problem_id': row['problem_id'],
+                'topic': row['topic'],
                 'language': row['language'],
                 'problem_statement': row['problem_statement'],
                 'unit_tests': row['unit_tests'],
-                'expected_outputs': '',  # Column removed from CSV
-                'scoring_criteria': 'Auto-graded by unit tests',  # Default value
-                'max_score': 100  # Default value
+                'expected_outputs': row['expected_outputs'],
+                'scoring_criteria': row['scoring_criteria'],
+                'max_score': int(row['max_score'])
             }
             
         except Exception as e:
@@ -572,42 +587,90 @@ class CodeEvaluator:
     
     def _evaluate_python_ai_only(self, code: str, problem_data: Dict[str, Any]) -> Tuple[bool, int, str]:
         """Evaluate Python code using AI-only scoring when no unit tests are provided"""
-        try:
-            # Check if code has interactive elements that would cause issues
-            has_input = 'input(' in code
-            has_print = 'print(' in code
-            
-            if not AI_AVAILABLE:
-                # Fallback to rule-based scoring when AI is not available
-                return self._evaluate_python_fallback_scoring(code, problem_data)
-            
-            # Get AI evaluation
-            ai_correct, ai_confidence, ai_feedback = ai_evaluator.evaluate_code(
-                code, 
-                problem_data['problem_statement'], 
-                "python",
-                ""  # No unit tests
-            )
-            
-            # Convert AI confidence to score based on the specified rubric
-            score = self._convert_ai_confidence_to_score(ai_confidence, ai_feedback, code)
-            
-            # Determine if code is correct (score >= 75%)
-            is_correct = score >= 75
-            
-            # Build feedback (no penalty for missing unit tests)
-            feedback_parts = [f"AI Evaluation:"]
-            feedback_parts.append(ai_feedback)
-            
-            if has_input:
-                feedback_parts.append("\nNote: Code contains input() calls which cannot be tested without interactive input.")
-            if has_print and not has_input:
-                feedback_parts.append("\nNote: Code uses print() instead of return statements - consider returning values for better function design.")
+        has_input = 'input(' in code
+        has_print = 'print(' in code
 
-            feedback = "\n".join(feedback_parts)
+        is_correct, score, feedback = self._evaluate_ai_only_general(code, problem_data, "python")
+
+        notes = []
+        if has_input:
+            notes.append("Note: Code contains input() calls which cannot be tested without interactive input.")
+        if has_print and not has_input:
+            notes.append("Note: Code uses print() instead of return statements - consider returning values for better function design.")
+
+        if notes and feedback:
+            feedback = f"{feedback}\n" + "\n".join(notes)
+
+        return is_correct, score, feedback
+
+    def _evaluate_ai_only_general(self, code: str, problem_data: Dict[str, Any], language: str) -> Tuple[bool, int, str]:
+        """Use AI evaluator exclusively when no unit tests exist.
+
+        If LM Studio / the AI backend is not available, we NO LONGER try to
+        score the submission heuristically – we instead return a 0 score and
+        explain that automatic grading is unavailable for this question.
+        """
+        try:
+            if not self._ai_available():
+                # When there are no unit tests AND the AI evaluator is not
+                # reachable, we cannot reliably grade the code. Return 0 with
+                # a clear explanation instead of guessing a score.
+                return (
+                    False,
+                    0,
+                    "AI Evaluation (No unit tests provided): LM Studio/AI evaluator is unavailable "
+                    "and there are no unit tests, so this code cannot be scored automatically."
+                )
             
+            ai_correct, ai_confidence, ai_feedback = ai_evaluator.evaluate_code(
+                code,
+                problem_data.get('problem_statement', ''),
+                language,
+                ""
+            )
+
+            code_stripped = code.strip()
+            if not code_stripped or len(code_stripped) < 10:
+                score = 0
+            else:
+                if ai_correct:
+                    # Default: full credit when AI says the solution is correct.
+                    score = 100
+
+                    # If AI explicitly complains about variable naming, optionally drop to 90,
+                    # but only when there are non‑single‑letter variable identifiers.
+                    feedback_lower = ai_feedback.lower()
+                    variable_issue_keywords = [
+                        "variable name", "variable naming", "naming", "rename",
+                        "more descriptive", "meaningful name"
+                    ]
+                    has_var_issue = any(k in feedback_lower for k in variable_issue_keywords)
+
+                    if has_var_issue:
+                        # Heuristic: collect identifiers and see if any are longer than 1 char
+                        import keyword
+                        identifiers = re.findall(r'\b[a-zA-Z_][a-zA-Z0-9_]*\b', code_stripped)
+                        python_keywords = set(keyword.kwlist)
+                        common_builtins = {"print", "range", "len", "int", "str", "float", "list", "dict", "set"}
+                        simple_ok_letters = {"i", "j", "k", "n", "m", "x", "y", "z", "a", "b", "c"}
+
+                        user_vars = [
+                            name for name in identifiers
+                            if name not in python_keywords
+                            and name not in common_builtins
+                        ]
+
+                        has_long_var = any(len(name) > 1 for name in user_vars if name not in simple_ok_letters)
+
+                        if has_long_var:
+                            score = 90  # Penalize only when there are "real" badly named variables
+                else:
+                    # AI says the solution is not correct: partial credit only
+                    score = 50
+
+            is_correct = score >= 75
+            feedback = f"AI Evaluation (No unit tests provided):\n{ai_feedback}"
             return is_correct, score, feedback
-            
         except Exception as e:
             return False, 0, f"AI-only evaluation error: {str(e)}"
     
@@ -616,6 +679,30 @@ class CodeEvaluator:
         try:
             feedback_lower = ai_feedback.lower()
             code_lower = code.lower().strip()
+
+            # Explicit rubric when AI-only grading is used
+            perfect_keywords = [
+                "fully correct", "works correctly", "meets requirements",
+                "solves the problem", "passes all tests", "no issues found",
+                "implementation is correct", "logic is correct", "output is correct"
+            ]
+            variable_issue_keywords = [
+                "variable", "typo", "naming", "style", "minor issue",
+                "cosmetic", "small issue", "rename", "clean up"
+            ]
+            logic_issue_keywords = [
+                "logic error", "wrong output", "incorrect result", "fails case",
+                "wrong logic", "does not handle", "bug", "major flaw", "incorrect logic"
+            ]
+
+            if any(word in feedback_lower for word in logic_issue_keywords):
+                return 50
+
+            if any(word in feedback_lower for word in perfect_keywords):
+                return 100
+
+            if any(word in feedback_lower for word in variable_issue_keywords):
+                return 90
             
             # Check for interactive code issues
             has_input = 'input(' in code
@@ -927,7 +1014,6 @@ class CodeEvaluator:
                 output = run_result.stdout.strip()
                 if "tests passed" in output:
                     # Extract test count from output like "4/5 tests passed"
-                    import re
                     match = re.search(r'(\d+)/(\d+) tests passed', output)
                     if match:
                         passed = int(match.group(1))
@@ -1123,7 +1209,6 @@ class CodeEvaluator:
                 output = run_result.stdout.strip()
                 if "tests passed" in output:
                     # Extract test count from output like "4/5 tests passed"
-                    import re
                     match = re.search(r'(\d+)/(\d+) tests passed', output)
                     if match:
                         passed = int(match.group(1))
@@ -1168,18 +1253,25 @@ class CodeEvaluator:
                 # For Java, always create a single class with the student's method and test harness
                 # Extract method name from student code
                 method_name = "sumArray"  # Default
+                method_pattern = re.compile(r'(?:public\s+)?static\s+[^\s]+\s+(\w+)\s*\(', re.IGNORECASE)
                 if code.strip().startswith('public class'):
                     # Extract method name from complete class
                     for line in code.splitlines():
-                        if 'public static int' in line and '(' in line:
-                            method_name = line.split('(')[0].split()[-1]
-                            break
+                        match = method_pattern.search(line)
+                        if match:
+                            candidate = match.group(1)
+                            if candidate.lower() != 'main':
+                                method_name = candidate
+                                break
                 else:
                     # Extract method name from method definition
                     for line in code.splitlines():
-                        if 'int ' in line and '(' in line and ')' in line:
-                            method_name = line.split('(')[0].split()[-1]
-                            break
+                        match = method_pattern.search(line)
+                        if match:
+                            candidate = match.group(1)
+                            if candidate.lower() != 'main':
+                                method_name = candidate
+                                break
                 
                 # Write complete Java class with student code and test harness
                 f.write(f"public class {class_name} {{\n")
@@ -1191,21 +1283,20 @@ class CodeEvaluator:
                     brace_count = 0
                     method_found = False
                     for line in code.splitlines():
-                        line = line.strip()
-                        if 'public static int' in line and '(' in line:
+                        raw_line = line.rstrip()
+                        stripped = raw_line.strip()
+                        match = method_pattern.search(stripped)
+                        if match and match.group(1).lower() != 'main':
                             in_method = True
                             method_found = True
-                            f.write("    " + line + "\n")
-                            # Count the opening brace in the method declaration
-                            if '{' in line:
-                                brace_count += line.count('{')
-                        elif in_method:
-                            f.write("    " + line + "\n")
-                            if '{' in line:
-                                brace_count += line.count('{')
-                            if '}' in line:
-                                brace_count -= line.count('}')
-                            if brace_count == 0:
+                            f.write("    " + raw_line.strip() + "\n")
+                            brace_count += raw_line.count('{') - raw_line.count('}')
+                            continue
+                        if in_method:
+                            f.write("    " + raw_line.strip() + "\n")
+                            brace_count += raw_line.count('{') - raw_line.count('}')
+                            if brace_count <= 0:
+                                in_method = False
                                 break
                     
                     # If no method was found, write the entire class content (excluding class declaration)
@@ -1224,46 +1315,93 @@ class CodeEvaluator:
                 
                 f.write("\n")
                 
-                # Extract and write test logic (remove the class wrapper)
+                # Extract and normalize test logic.
                 test_lines = []
                 in_main = False
-                for line in unit_tests_text.splitlines():
-                    line = line.strip()
-                    if line.startswith('public static void main(String[] args)'):
-                        in_main = True
+                brace_depth = 0
+                for raw_line in unit_tests_text.splitlines():
+                    line = raw_line.strip()
+                    if not line:
                         continue
-                    elif in_main and line == '}':
-                        break
-                    elif in_main and line:
+                    if line.startswith('public static void main'):
+                        in_main = True
+                        brace_depth = line.count('{') - line.count('}')
+                        continue
+                    if in_main:
+                        if line == '}':
+                            if brace_depth <= 0:
+                                in_main = False
+                                continue
                         test_lines.append(line)
+                        brace_depth += line.count('{') - line.count('}')
+                        if brace_depth <= 0:
+                            in_main = False
+                
+                setup_lines: List[str] = []
+                assert_conditions: List[str] = []
+                expected_func_name: str = None
+
+                def _normalize_condition(condition: str) -> str:
+                    nonlocal expected_func_name
+                    cond = condition.strip()
+                    if cond.startswith('assert'):
+                        cond = cond[len('assert'):].strip()
+                    cond = cond.rstrip(';')
+                    if expected_func_name is None:
+                        match = re.search(r'([A-Za-z_][A-Za-z0-9_]*)\s*\(', cond)
+                        if match:
+                            candidate = match.group(1)
+                            if candidate.lower() not in {'math', 'system', 'arrays'}:
+                                expected_func_name = candidate
+                    if expected_func_name and expected_func_name != method_name:
+                        cond = re.sub(rf'\b{re.escape(expected_func_name)}\b', method_name, cond)
+                    return cond
+
+                def _collect_from_lines(lines: List[str]) -> None:
+                    for item in lines:
+                        stripped = item.strip()
+                        if not stripped or stripped in {'{', '}'}:
+                            continue
+                        if stripped.startswith('assert'):
+                            assert_conditions.append(_normalize_condition(stripped))
+                        else:
+                            if not stripped.endswith(';') and not stripped.endswith('}'):
+                                stripped = stripped + ';'
+                            setup_lines.append(stripped)
+
+                _collect_from_lines(test_lines)
+
+                if not assert_conditions:
+                    fallback_lines = [ln.strip() for ln in unit_tests_text.splitlines()]
+                    _collect_from_lines(fallback_lines)
+
+                if not assert_conditions:
+                    return False, 0, "No assert statements found in Java unit tests."
                 
                 # Write test harness
                 f.write("    public static void main(String[] args) {\n")
                 f.write("        int tests_passed = 0;\n")
                 f.write("        int total_tests = 0;\n")
-                f.write("        boolean[] test_results = new boolean[10];\n")
+                f.write(f"        boolean[] test_results = new boolean[{max(1, len(assert_conditions))}];\n")
                 f.write("        \n")
                 
-                # First, write all variable declarations
-                for test_line in test_lines:
-                    if 'int[]' in test_line and '=' in test_line:
-                        f.write(f"        {test_line};\n")
+                for line in setup_lines:
+                    f.write(f"        {line}\n")
+                if setup_lines:
+                    f.write("        \n")
                 
-                f.write("        \n")
-                
-                for i, test_line in enumerate(test_lines):
-                    if 'assert ' in test_line:
-                        # Convert assert to test counting and fix method name
-                        test_condition = test_line.replace('assert ', '').replace(';', '')
-                        if 'sumArray' in test_condition:
-                            test_condition = test_condition.replace('sumArray', method_name)
-                        f.write(f"        total_tests++;\n")
-                        f.write(f"        if ({test_condition}) {{\n")
-                        f.write(f"            test_results[{i}] = true;\n")
-                        f.write(f"            tests_passed++;\n")
-                        f.write(f"        }} else {{\n")
-                        f.write(f"            test_results[{i}] = false;\n")
-                        f.write(f"        }}\n")
+                for idx, condition in enumerate(assert_conditions):
+                    f.write("        total_tests++;\n")
+                    f.write("        try {\n")
+                    f.write(f"            if ({condition}) {{\n")
+                    f.write(f"                test_results[{idx}] = true;\n")
+                    f.write("                tests_passed++;\n")
+                    f.write("            } else {\n")
+                    f.write(f"                test_results[{idx}] = false;\n")
+                    f.write("            }\n")
+                    f.write("        } catch (Exception e) {\n")
+                    f.write(f"            test_results[{idx}] = false;\n")
+                    f.write("        }\n")
                 
                 f.write("        \n")
                 f.write("        System.out.println(tests_passed + \"/\" + total_tests + \" tests passed\");\n")
@@ -1276,19 +1414,39 @@ class CodeEvaluator:
             # Compile and run
             try:
                 # Compile
+                compile_cmd = ['javac', java_file]
                 compile_result = subprocess.run(
-                    ['javac', java_file],
+                    compile_cmd,
                     capture_output=True,
                     text=True,
                     timeout=10
                 )
                 
+                used_preview = False
+                preview_hint = (compile_result.stderr or "").lower()
+                
+                if compile_result.returncode != 0 and ("preview feature" in preview_hint or "uses preview features" in preview_hint):
+                    # Retry compilation with preview features enabled for the detected Java release
+                    java_release = self._get_java_release()
+                    compile_cmd = ['javac', '--enable-preview', '--release', java_release, java_file]
+                    compile_result = subprocess.run(
+                        compile_cmd,
+                        capture_output=True,
+                        text=True,
+                        timeout=10
+                    )
+                    used_preview = True
+                
                 if compile_result.returncode != 0:
                     return False, 0, f"Compilation error: {compile_result.stderr}"
                 
                 # Run the single class
+                run_cmd = ['java']
+                if used_preview:
+                    run_cmd.append('--enable-preview')
+                run_cmd.extend(['-cp', os.path.dirname(java_file), class_name])
                 run_result = subprocess.run(
-                    ['java', '-cp', os.path.dirname(java_file), class_name],
+                    run_cmd,
                     capture_output=True,
                     text=True,
                     timeout=10
@@ -1298,7 +1456,6 @@ class CodeEvaluator:
                 output = run_result.stdout.strip()
                 if "tests passed" in output:
                     # Extract test count from output like "4/5 tests passed"
-                    import re
                     match = re.search(r'(\d+)/(\d+) tests passed', output)
                     if match:
                         passed = int(match.group(1))
@@ -1366,6 +1523,211 @@ class CodeEvaluator:
         except Exception as e:
             return False, 0, f"JavaScript evaluation error: {str(e)}"
     
+    def _evaluate_csharp(self, code: str, problem_data: Dict[str, Any]) -> Tuple[bool, int, str]:
+        """Evaluate C# code by generating a temporary dotnet project and running unit tests."""
+        compiler_cmd = self._get_csharp_compiler()
+        if not compiler_cmd:
+            return False, 0, (
+                "C# compiler (csc) not found. Install .NET SDK or set CSC_DLL_PATH / DOTNET_CSC_DLL "
+                "to a valid csc.dll."
+            )
+
+        dotnet_cmd = compiler_cmd[0] if 'dotnet' in os.path.basename(compiler_cmd[0]).lower() else shutil.which('dotnet')
+        if not dotnet_cmd:
+            return False, 0, "dotnet CLI not found. Install the .NET SDK to execute C# code."
+
+        unit_tests_text = problem_data.get('unit_tests') or ''
+        assert_conditions: List[str] = []
+        expected_func_name: Optional[str] = None
+        
+        for raw_line in unit_tests_text.splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith('//'):
+                continue
+            if line.startswith('assert '):
+                condition = line[len('assert '):].rstrip(';')
+                assert_conditions.append(condition)
+            elif line.startswith('assert(') and line.endswith(')'):
+                condition = line[len('assert('):-1].rstrip(';')
+                assert_conditions.append(condition)
+            elif 'assert ' in line:
+                condition = line[line.find('assert ') + len('assert '):].rstrip(';')
+                assert_conditions.append(condition)
+            elif 'assert(' in line:
+                start = line.find('assert(') + len('assert(')
+                end = line.rfind(')')
+                if end > start:
+                    condition = line[start:end].rstrip(';')
+                    assert_conditions.append(condition)
+
+            if expected_func_name is None and assert_conditions:
+                match = re.search(r'([A-Za-z_][A-Za-z0-9_]*)\s*\(', assert_conditions[-1])
+                if match:
+                    candidate = match.group(1)
+                    if candidate.lower() not in {'math', 'console', 'system'}:
+                        expected_func_name = candidate
+        
+        if not assert_conditions:
+            return False, 0, "No assert statements found in C# unit tests."
+        
+        class_match = re.search(r'class\s+([A-Za-z_][A-Za-z0-9_]*)', code)
+        student_class_name = class_match.group(1) if class_match else None
+
+        namespace_match = re.search(r'namespace\s+([A-Za-z_][A-Za-z0-9_\.]*)', code)
+        student_namespace = namespace_match.group(1) if namespace_match else None
+        qualified_class_name = (
+            f"{student_namespace}.{student_class_name}"
+            if student_namespace and student_class_name
+            else student_class_name
+        )
+
+        method_pattern = re.compile(
+            r'(?:public|private|protected|internal)?\s*(static\s+)?[^\s]+\s+(\w+)\s*\(',
+            re.IGNORECASE
+        )
+        student_methods: List[Tuple[str, bool]] = []
+        for match in method_pattern.finditer(code):
+            method_name = match.group(2)
+            if not method_name or method_name.lower() == 'main':
+                continue
+            is_static = bool(match.group(1))
+            student_methods.append((method_name, is_static))
+
+        selected_method = student_methods[0] if student_methods else None
+        replacement_target = expected_func_name
+        replacement_value = selected_method[0] if selected_method else None
+        method_is_static = selected_method[1] if selected_method else False
+
+        needs_instance = False
+        call_prefix = ""
+        if replacement_target and replacement_value:
+            if qualified_class_name:
+                if method_is_static:
+                    call_prefix = f"{qualified_class_name}."
+                else:
+                    call_prefix = "__studentInstance."
+                    needs_instance = True
+
+        normalized_asserts: List[str] = []
+        for condition in assert_conditions:
+            normalized = condition
+            if replacement_target and replacement_value:
+                pattern = rf'\b{re.escape(replacement_target)}\s*\('
+                replacement_call = f"{call_prefix}{replacement_value}("
+                normalized = re.sub(pattern, replacement_call, normalized, flags=re.IGNORECASE)
+            normalized_asserts.append(normalized)
+
+        temp_dir = tempfile.mkdtemp(prefix='csharp_eval_')
+        student_code_path = os.path.join(temp_dir, 'StudentCode.cs')
+        runner_code_path = os.path.join(temp_dir, 'TestRunner.cs')
+        project_path = os.path.join(temp_dir, 'TestRunner.csproj')
+
+        target_framework = self._select_dotnet_target_framework(dotnet_cmd)
+
+        try:
+            with open(project_path, 'w', encoding='utf-8') as proj_file:
+                proj_file.write(
+                    "<Project Sdk=\"Microsoft.NET.Sdk\">\n"
+                    "  <PropertyGroup>\n"
+                    f"    <TargetFramework>{target_framework}</TargetFramework>\n"
+                    "    <OutputType>Exe</OutputType>\n"
+                    "    <ImplicitUsings>disable</ImplicitUsings>\n"
+                    "    <Nullable>disable</Nullable>\n"
+                    "    <LangVersion>latest</LangVersion>\n"
+                    "    <StartupObject>__TestRunner__</StartupObject>\n"
+                    "  </PropertyGroup>\n"
+                    "</Project>\n"
+                )
+
+            with open(student_code_path, 'w', encoding='utf-8') as student_file:
+                student_file.write("using System;\nusing System.Collections.Generic;\nusing System.Linq;\n\n")
+                student_file.write(code.strip())
+                student_file.write("\n")
+
+            with open(runner_code_path, 'w', encoding='utf-8') as runner_file:
+                runner_file.write("using System;\nusing System.Collections.Generic;\n\n")
+                runner_file.write("public static class __TestRunner__ {\n")
+                runner_file.write("    public static void Main(string[] args) {\n")
+                runner_file.write("        int testsPassed = 0;\n")
+                runner_file.write("        int totalTests = 0;\n")
+                runner_file.write("        var errors = new List<string>();\n")
+                if needs_instance and qualified_class_name:
+                    runner_file.write(f"        var __studentInstance = new {qualified_class_name}();\n")
+                runner_file.write("\n")
+                for condition in normalized_asserts:
+                    escaped = condition.replace('\\', '\\\\').replace('"', '\\"')
+                    runner_file.write("        totalTests++;\n")
+                    runner_file.write("        try {\n")
+                    runner_file.write(f"            if ({condition}) {{\n")
+                    runner_file.write("                testsPassed++;\n")
+                    runner_file.write("            } else {\n")
+                    runner_file.write(f"                errors.Add(\"Assertion failed: {escaped}\");\n")
+                    runner_file.write("            }\n")
+                    runner_file.write("        } catch (Exception ex) {\n")
+                    runner_file.write(f"            errors.Add(\"{escaped} -> \" + ex.Message);\n")
+                    runner_file.write("        }\n\n")
+                runner_file.write("        Console.WriteLine($\"{testsPassed}/{totalTests} tests passed\");\n")
+                runner_file.write("        if (errors.Count > 0) {\n")
+                runner_file.write("            foreach (var err in errors) {\n")
+                runner_file.write("                Console.WriteLine(\"ERROR: \" + err);\n")
+                runner_file.write("            }\n")
+                runner_file.write("        }\n")
+                runner_file.write("        Environment.Exit(testsPassed == totalTests ? 0 : 1);\n")
+                runner_file.write("    }\n")
+                runner_file.write("}\n")
+
+            env = os.environ.copy()
+            env.setdefault('DOTNET_CLI_TELEMETRY_OPTOUT', '1')
+            env.setdefault('DOTNET_NOLOGO', '1')
+            env.setdefault('DOTNET_SKIP_FIRST_TIME_EXPERIENCE', '1')
+
+            run_cmd = [dotnet_cmd, 'run', '--project', project_path, '--configuration', 'Release']
+            run_result = subprocess.run(
+                run_cmd,
+                capture_output=True,
+                text=True,
+                timeout=60,
+                env=env
+            )
+
+            stdout = (run_result.stdout or '').strip()
+            stderr = (run_result.stderr or '').strip()
+            combined_output = "\n".join(line for line in [stdout, stderr] if line)
+
+            match = re.search(r'(\d+)/(\d+)\s+tests\s+passed', combined_output)
+            if match:
+                passed = int(match.group(1))
+                total = int(match.group(2))
+                score = self._calculate_score_from_tests(passed, total, problem_data)
+                is_correct = score >= 75
+                feedback_lines = [f"Tests passed: {passed}/{total}"]
+                error_lines = [line for line in combined_output.splitlines() if line.startswith("ERROR:")]
+                if error_lines:
+                    feedback_lines.append("Errors:")
+                    feedback_lines.extend(error_lines[:5])
+                extra_logs = [
+                    line for line in combined_output.splitlines()
+                    if line and not line.startswith("ERROR:") and "tests passed" not in line
+                ]
+                if extra_logs:
+                    feedback_lines.append("\n".join(extra_logs[-5:]))
+                feedback = "\n".join(feedback_lines)
+                return is_correct, score, feedback
+
+            details = combined_output or "Unknown C# execution error"
+            if run_result.returncode != 0:
+                return False, 0, f"C# compilation/execution error:\n{details}"
+
+            score = problem_data['max_score']
+            return True, score, f"All tests passed! Score: {score}/{problem_data['max_score']}"
+
+        except subprocess.TimeoutExpired:
+            return False, 0, "C# code execution timed out"
+        except Exception as e:
+            return False, 0, f"C# evaluation error: {str(e)}"
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
     def _calculate_score_from_tests(self, passed: int, total: int, problem_data: Dict[str, Any]) -> int:
         """Calculate score based on percentage of tests passed with flexible scoring"""
         max_score = int(problem_data['max_score'])
@@ -1391,7 +1753,6 @@ class CodeEvaluator:
             return int(round(0.25 * max_score))  # 25% of max score
         else:  # Less than 20%
             return 0
-
     def _calculate_partial_score(self, error_output: str, problem_data: Dict[str, Any]) -> int:
         """Calculate partial score based on test failures and error analysis"""
         try:
@@ -1412,6 +1773,107 @@ class CodeEvaluator:
                 
         except Exception:
             return 0
+
+    def _select_dotnet_target_framework(self, dotnet_cmd: str) -> str:
+        """Choose the highest available netX.Y target framework for temporary C# projects."""
+        try:
+            dotnet_root = os.path.dirname(os.path.abspath(dotnet_cmd))
+            ref_pack_root = os.path.join(dotnet_root, 'packs', 'Microsoft.NETCore.App.Ref')
+            if not os.path.isdir(ref_pack_root):
+                return 'net8.0'
+            versions = sorted(os.listdir(ref_pack_root), reverse=True)
+            for version in versions:
+                match = re.match(r'(\d+)\.(\d+)', version)
+                if not match:
+                    continue
+                major, minor = match.group(1), match.group(2)
+                return f"net{major}.{minor}"
+        except Exception:
+            pass
+        return 'net8.0'
+
+    def _ai_available(self) -> bool:
+        """Re-check whether LM Studio is reachable each time we evaluate."""
+        global AI_AVAILABLE
+        try:
+            available = ai_evaluator._check_lm_studio_available()
+            if available and not AI_AVAILABLE:
+                print("AI evaluator connection restored - using AI-assisted scoring")
+            AI_AVAILABLE = available
+            return available
+        except Exception:
+            AI_AVAILABLE = False
+            return False
+
+    def _get_csharp_compiler(self) -> Optional[List[str]]:
+        """Locate csc or a dotnet-hosted csc.dll"""
+        csc_path = shutil.which('csc')
+        if csc_path:
+            return [csc_path]
+        
+        dotnet_path = shutil.which('dotnet')
+        if not dotnet_path:
+            return None
+        
+        dll_hint = os.environ.get('CSC_DLL_PATH') or os.environ.get('DOTNET_CSC_DLL')
+        if dll_hint and os.path.exists(dll_hint):
+            return [dotnet_path, dll_hint]
+        
+        dll_path = self._find_csc_dll()
+        if dll_path:
+            return [dotnet_path, dll_path]
+        
+        return None
+
+    def _find_csc_dll(self) -> Optional[str]:
+        """Search common .NET SDK locations for csc.dll"""
+        candidates = []
+        search_dirs = []
+        dotnet_root = os.environ.get('DOTNET_ROOT')
+        if dotnet_root:
+            search_dirs.append(dotnet_root)
+        program_files = os.environ.get('PROGRAMFILES')
+        if program_files:
+            search_dirs.append(os.path.join(program_files, 'dotnet'))
+        program_files_x86 = os.environ.get('PROGRAMFILES(X86)')
+        if program_files_x86:
+            search_dirs.append(os.path.join(program_files_x86, 'dotnet'))
+        search_dirs.append(r"C:\Program Files\dotnet")
+        
+        seen = set()
+        for base in search_dirs:
+            if not base or base in seen or not os.path.exists(base):
+                continue
+            seen.add(base)
+            pattern = os.path.join(base, 'sdk', '*', 'Roslyn', 'bincore', 'csc.dll')
+            candidates.extend(glob.glob(pattern))
+        
+        if not candidates:
+            return None
+        
+        candidates.sort(reverse=True)
+        return candidates[0]
+
+    def _get_java_release(self) -> str:
+        """Best-effort detection of the installed Java release for preview compilation"""
+        try:
+            result = subprocess.run(
+                ['java', '-version'],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            version_output = (result.stderr or result.stdout or "").splitlines()
+            if not version_output:
+                return '21'
+            first_line = version_output[0]
+            # Extract major version number
+            match = re.search(r'version\s+"(\d+)', first_line)
+            if match:
+                return match.group(1)
+        except Exception:
+            pass
+        return '21'
 
 
 # Global evaluator instance

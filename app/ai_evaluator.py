@@ -149,9 +149,37 @@ Avoid generic comments - be specific about the code."""
             if json_match:
                 json_str = json_match.group(0)
                 data = json.loads(json_str)
-                
-                is_correct = data.get("is_correct", False)
-                confidence = data.get("confidence", 0)
+
+                raw_is_correct = data.get("is_correct", None)
+                confidence_raw = data.get("confidence", 0)
+                try:
+                    confidence = int(confidence_raw)
+                except (TypeError, ValueError):
+                    confidence = 0
+
+                # Normalize is_correct, allowing strings like "true"/"yes"
+                if isinstance(raw_is_correct, str):
+                    v = raw_is_correct.strip().lower()
+                    if v in ("true", "yes", "y", "1", "correct"):
+                        is_correct = True
+                    elif v in ("false", "no", "n", "0", "incorrect"):
+                        is_correct = False
+                    else:
+                        is_correct = None
+                elif isinstance(raw_is_correct, bool):
+                    is_correct = raw_is_correct
+                else:
+                    is_correct = None
+
+                # If the model did not set is_correct explicitly, infer it from confidence
+                if is_correct is None:
+                    if confidence >= 80:
+                        is_correct = True
+                    elif confidence <= 40:
+                        is_correct = False
+                    else:
+                        is_correct = False
+
                 feedback = data.get("feedback", "No feedback provided")
                 
                 return is_correct, confidence, feedback
@@ -171,17 +199,35 @@ Avoid generic comments - be specific about the code."""
             # Look for keywords indicating correctness with code-specific focus
             response_lower = response.lower()
             
-            # Positive code indicators
-            positive_keywords = ["correct", "right", "good", "proper", "works", "efficient", "clean", "well-structured", "follows best practices", "optimal"]
-            # Negative code indicators  
-            negative_keywords = ["incorrect", "wrong", "error", "bug", "issue", "inefficient", "poor", "problem", "flaw", "weakness"]
-            
-            if any(word in response_lower for word in positive_keywords):
+            # Positive / minor-issue / negative indicators
+            positive_keywords = [
+                "correct", "works correctly", "fully correct", "meets requirements",
+                "solves the problem", "passes all tests", "no issues found",
+                "good", "proper", "clean", "well-structured", "follows best practices", "optimal"
+            ]
+            variable_issue_keywords = [
+                "variable", "typo", "naming", "style", "minor issue",
+                "cosmetic", "small issue", "rename", "clean up"
+            ]
+            negative_keywords = [
+                "incorrect", "wrong", "error", "bug", "issue", "inefficient",
+                "poor", "problem", "flaw", "weakness", "logic error", "fails case"
+            ]
+
+            has_positive = any(word in response_lower for word in positive_keywords)
+            has_var_issue = any(word in response_lower for word in variable_issue_keywords)
+            has_negative = any(word in response_lower for word in negative_keywords)
+
+            # Map to the same 100 / 90 / 50 rubric used by the scorer
+            if has_positive and not has_negative and not has_var_issue:
                 is_correct = True
-                confidence = 75
-            elif any(word in response_lower for word in negative_keywords):
+                confidence = 100
+            elif has_positive and has_var_issue and not has_negative:
+                is_correct = True
+                confidence = 90
+            elif has_negative:
                 is_correct = False
-                confidence = 75
+                confidence = 50
             else:
                 is_correct = False
                 confidence = 50

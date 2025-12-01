@@ -76,29 +76,13 @@ class AIQuestionGenerator:
                 continue
             
             for _, row in df.iterrows():
-                # For coding questions, prioritize language matching
-                row_language = str(row.get('language', '')).lower().strip()
-                if question_type == 'coding' and language:
-                    # For coding questions, language must match (case-insensitive, flexible)
-                    language_lower = language.lower().strip()
-                    # Normalize language names (python, c, c++, java)
-                    if language_lower == 'python' and 'python' not in row_language:
-                        continue
-                    elif language_lower == 'java' and 'java' not in row_language:
-                        continue
-                    elif language_lower in ['c++', 'cpp', 'cplusplus'] and 'c++' not in row_language and 'cpp' not in row_language:
-                        continue
-                    elif language_lower == 'c' and 'c++' not in row_language and 'cpp' not in row_language:
-                        # For 'c', make sure it's not C++
-                        if 'c++' in row_language or 'cpp' in row_language:
-                            continue
-                        elif 'c' not in row_language:
-                            continue
-                    elif language_lower not in row_language and row_language:
-                        continue
+                # Check if language matches (if specified)
+                row_language = str(row.get('language', '')).lower()
+                if language and row_language and language.lower() not in row_language:
+                    continue
                 
-                # Check relevance based on keywords, language, and question type
-                relevance_score = self._calculate_relevance_for_dataset(row, keywords, prompt_lower, filename, language, question_type)
+                # Check relevance based on keywords
+                relevance_score = self._calculate_relevance_for_dataset(row, keywords, prompt_lower, filename)
                 
                 if relevance_score > 0:
                     # Map dataset columns to standard format
@@ -107,16 +91,8 @@ class AIQuestionGenerator:
                     relevant_examples.append(example)
         
         # Sort by relevance score and return top examples
-        # For coding questions, prioritize examples with matching language
-        if question_type == 'coding' and language:
-            relevant_examples.sort(key=lambda x: (
-                x.get('language', '').lower() == language.lower(),  # Language match first
-                x['relevance_score']  # Then relevance score
-            ), reverse=True)
-        else:
-            relevant_examples.sort(key=lambda x: x['relevance_score'], reverse=True)
-        
-        return relevant_examples[:10]  # Return top 10 most relevant examples for better diversity
+        relevant_examples.sort(key=lambda x: x['relevance_score'], reverse=True)
+        return relevant_examples[:5]  # Return top 5 most relevant examples
     
     def _extract_keywords(self, prompt: str) -> List[str]:
         """Extract relevant keywords from the prompt"""
@@ -193,7 +169,7 @@ class AIQuestionGenerator:
         
         return score
     
-    def _calculate_relevance_for_dataset(self, row: Dict, keywords: List[str], prompt: str, filename: str, language: str = None, question_type: str = 'coding') -> int:
+    def _calculate_relevance_for_dataset(self, row: Dict, keywords: List[str], prompt: str, filename: str) -> int:
         """Calculate relevance score for a dataset row based on actual column names"""
         score = 0
         prompt_lower = prompt.lower()
@@ -216,108 +192,68 @@ class AIQuestionGenerator:
             topic = str(row.get('topic', '')).lower()
         elif 'coding' in filename:
             question_text = str(row.get('problem_statement', '')).lower()
-            topic = ''  # Topic column removed from CSV
+            topic = str(row.get('topic', '')).lower()
         else:
             # Fallback to common column names
             question_text = str(row.get('question', row.get('problem_statement', ''))).lower()
             topic = str(row.get('topic', '')).lower()
         
-        # For coding questions, prioritize language over topic
-        if question_type == 'coding':
-            # Language matching gets highest priority
-            row_language = str(row.get('language', '')).lower().strip()
-            if language:
-                language_lower = language.lower().strip()
-                if language_lower == 'python' and 'python' in row_language:
-                    score += 50  # High priority for language match
-                elif language_lower == 'java' and 'java' in row_language:
-                    score += 50
-                elif language_lower in ['c++', 'cpp', 'cplusplus'] and ('c++' in row_language or 'cpp' in row_language):
-                    score += 50
-                elif language_lower == 'c' and 'c' in row_language and 'c++' not in row_language and 'cpp' not in row_language:
-                    score += 50
-                elif language_lower in row_language:
-                    score += 50
-            
-            # Topic matching gets lower priority for coding questions
-            topic_terms = topic.split()
-            prompt_terms = prompt_lower.split()
-            for pt in prompt_terms:
-                for tt in topic_terms:
-                    # Exact match gets lower score for coding
-                    if pt == tt:
-                        score += 5  # Reduced from 15
-                    # Partial match gets even lower score
-                    elif pt in tt or tt in pt:
-                        score += 2  # Reduced from 8
-            
-            # Score based on keyword matches in question text (not topic for coding)
-            for keyword in keywords:
-                if keyword in question_text:
-                    score += 10
-                # Don't score topic matches for coding questions
-        else:
-            # For non-coding questions, use topic matching as before
-            topic_terms = topic.split()
-            prompt_terms = prompt_lower.split()
-            for pt in prompt_terms:
-                for tt in topic_terms:
-                    # Exact match gets high score
-                    if pt == tt:
-                        score += 15
-                    # Partial match gets lower score
-                    elif pt in tt or tt in pt:
-                        score += 8
-            
-            # Score based on keyword matches in question text and topic
-            for keyword in keywords:
-                if keyword in question_text:
-                    score += 10
-                if keyword in topic:
+        # Topic matching with flexible scoring
+        topic_terms = topic.split()
+        prompt_terms = prompt_lower.split()
+        for pt in prompt_terms:
+            for tt in topic_terms:
+                # Exact match gets high score
+                if pt == tt:
+                    score += 15
+                # Partial match gets lower score
+                elif pt in tt or tt in pt:
                     score += 8
-                if 'identification' in filename and keyword in answer_text:
-                    score += 6
-                elif ('multiple_choice' in filename or 'checkbox' in filename) and keyword in option_text:
-                    score += 6
+        
+        # Score based on keyword matches in question text and topic
+        for keyword in keywords:
+            if keyword in question_text:
+                score += 10
+            if keyword in topic:
+                score += 8  # Increased from 5
+            if keyword in answer_text if 'identification' in filename else keyword in (option_text if 'multiple_choice' in filename or 'checkbox' in filename else ''):
+                score += 6
         
         # Score based on exact phrase matches
         if 'machine learning' in prompt_lower or 'ml' in prompt_lower:
             if any(term in question_text for term in ['machine learning', 'ml', 'neural', 'ai', 'artificial']):
                 score += 25
-            # Only score topic matches for non-coding questions
-            if question_type != 'coding' and any(term in topic for term in ['machine learning', 'ml', 'neural', 'ai', 'artificial']):
+            if any(term in topic for term in ['machine learning', 'ml', 'neural', 'ai', 'artificial']):
                 score += 20
         if 'ai' in prompt_lower or 'artificial' in prompt_lower:
             if any(term in question_text for term in ['ai', 'artificial', 'intelligence']):
                 score += 25
-            # Only score topic matches for non-coding questions
-            if question_type != 'coding' and any(term in topic for term in ['ai', 'artificial', 'intelligence']):
+            if any(term in topic for term in ['ai', 'artificial', 'intelligence']):
                 score += 20
         if 'e-sports' in prompt_lower or 'esports' in prompt_lower:
             if any(term in question_text for term in ['e-sports', 'esports', 'gaming', 'sport']):
                 score += 25
-            # Only score topic matches for non-coding questions
-            if question_type != 'coding' and any(term in topic for term in ['e-sports', 'esports', 'gaming', 'sport']):
+            if any(term in topic for term in ['e-sports', 'esports', 'gaming', 'sport']):
                 score += 20
         
         # Standard programming concepts
-        if 'even' in prompt_lower and 'even' in question_text:
+        if 'even' in prompt and 'even' in question_text:
             score += 20
-        if 'odd' in prompt_lower and 'odd' in question_text:
+        if 'odd' in prompt and 'odd' in question_text:
             score += 20
-        if 'function' in prompt_lower and 'function' in question_text:
+        if 'function' in prompt and 'function' in question_text:
             score += 15
-        if 'loop' in prompt_lower and ('for' in question_text or 'while' in question_text):
+        if 'loop' in prompt and ('for' in question_text or 'while' in question_text):
             score += 15
-        if 'condition' in prompt_lower and ('if' in question_text or 'else' in question_text):
+        if 'condition' in prompt and ('if' in question_text or 'else' in question_text):
             score += 15
-        if 'python' in prompt_lower and 'python' in question_text:
+        if 'python' in prompt and 'python' in question_text:
             score += 15
-        if 'variable' in prompt_lower and 'variable' in question_text:
+        if 'variable' in prompt and 'variable' in question_text:
             score += 15
-        if 'data' in prompt_lower and 'data' in question_text:
+        if 'data' in prompt and 'data' in question_text:
             score += 10
-        if 'type' in prompt_lower and 'type' in question_text:
+        if 'type' in prompt and 'type' in question_text:
             score += 10
         
         # For multiple choice, also check options
@@ -332,29 +268,13 @@ class AIQuestionGenerator:
                 if keyword in answer_text:
                     score += 8
         
-        # Language-specific scoring (additional boost if mentioned in prompt)
-        if question_type == 'coding':
-            # For coding questions, language matching is already heavily weighted above
-            # This is just an additional boost if language is mentioned in the prompt
-            if 'python' in prompt_lower and 'python' in str(row.get('language', '')).lower():
-                score += 20
-            if 'java' in prompt_lower and 'java' in str(row.get('language', '')).lower():
-                score += 20
-            if 'c++' in prompt_lower or 'cpp' in prompt_lower:
-                if 'c++' in str(row.get('language', '')).lower() or 'cpp' in str(row.get('language', '')).lower():
-                    score += 20
-            if ' c ' in prompt_lower or prompt_lower.startswith('c '):
-                row_lang = str(row.get('language', '')).lower()
-                if 'c' in row_lang and 'c++' not in row_lang and 'cpp' not in row_lang:
-                    score += 20
-        else:
-            # For non-coding questions, keep original scoring
-            if 'python' in prompt_lower and 'python' in str(row.get('language', '')).lower():
-                score += 10
-            if 'java' in prompt_lower and 'java' in str(row.get('language', '')).lower():
-                score += 10
-            if 'c++' in prompt_lower and 'c++' in str(row.get('language', '')).lower():
-                score += 10
+        # Language-specific scoring
+        if 'python' in prompt and 'python' in str(row.get('language', '')).lower():
+            score += 10
+        if 'java' in prompt and 'java' in str(row.get('language', '')).lower():
+            score += 10
+        if 'c++' in prompt and 'c++' in str(row.get('language', '')).lower():
+            score += 10
         
         return score
     
@@ -427,13 +347,14 @@ class AIQuestionGenerator:
         elif 'coding' in filename:
             return {
                 'problem_id': row.get('problem_id', ''),
+                'topic': row.get('topic', ''),
                 'language': row.get('language', 'Python'),
                 'problem_statement': row.get('problem_statement', ''),
                 'unit_tests': row.get('unit_tests', ''),
-                'expected_outputs': '',  # Not in CSV anymore, use empty
-                'scoring_criteria': 'Correct implementation: 100 points',  # Default value
-                'max_score': 100,  # Default value
-                'hints': '',  # Not in CSV anymore, use empty
+                'expected_outputs': row.get('expected_outputs', ''),
+                'scoring_criteria': row.get('scoring_criteria', 'Correct implementation: 100 points'),
+                'max_score': row.get('max_score', 100),
+                'hints': row.get('hints', ''),
                 'source_dataset': filename,
                 'question_type': question_type
             }
@@ -494,6 +415,7 @@ INSTRUCTIONS:
 REQUIRED OUTPUT FORMAT (JSON):
 {{
     "question_text": "The main question/problem statement",
+    "sample_code": "Optional sample code or hints",
     "unit_tests": "Unit tests for the question",
     "expected_outputs": "Expected outputs for the unit tests",
     "scoring_criteria": "How the question should be scored",
@@ -515,9 +437,7 @@ Generate a question that follows the patterns from the dataset examples but is u
         
         for i, example in enumerate(context_examples, 1):
             context_section += f"Example {i}:\n"
-            # Only include topic for non-coding question types
-            if question_type != 'coding':
-                context_section += f"Topic: {example['topic']}\n"
+            context_section += f"Topic: {example['topic']}\n"
             context_section += f"Language: {example['language']}\n"
             context_section += f"Problem: {example['problem_statement']}\n"
             
@@ -542,11 +462,13 @@ Generate a question that follows the patterns from the dataset examples but is u
                 'description': 'a coding question',
                 'format': '''{
     "question_text": "The main question/problem statement",
+    "sample_code": "Optional sample code or hints",
     "unit_tests": "Unit tests for the question",
     "expected_outputs": "Expected outputs for the unit tests",
     "scoring_criteria": "How the question should be scored",
     "max_score": 100,
     "hints": "Helpful hints for students",
+    "topic": "Topic category (e.g., Algorithms, Conditionals, Loops)",
     "language": "Python"
 }''',
                 'specific_instructions': [
@@ -645,28 +567,22 @@ Generate a question that follows the patterns from the dataset examples but is u
         type_info = question_type_instructions.get(question_type, question_type_instructions['coding'])
         
         # Create the main prompt
-        language_instruction = ""
-        if question_type == 'coding' and language:
-            language_instruction = f"\nCRITICAL: The question MUST be in {language.upper()}. All examples provided above are in {language.upper()}. Follow the exact language, syntax, and patterns from the {language.upper()} examples."
-        
         prompt = f"""You are an expert programming instructor. Generate {type_info['description']} based on the user's request and the context from existing questions in our dataset.
 
 USER REQUEST: {user_prompt}
 QUESTION TYPE: {question_type.upper()}
-{'TARGET LANGUAGE: ' + language.upper() if question_type == 'coding' and language else ''}
 
 {context_section}
 
 INSTRUCTIONS:
 1. Generate {type_info['description']} that matches the user's request
-2. {'IMPORTANT: For coding questions, you MUST use the SAME LANGUAGE as specified and shown in the examples above. Match the language syntax, style, and patterns exactly from the dataset examples.' if question_type == 'coding' and language else 'IMPORTANT: If the user request is about a specific topic (like "E-sports ML"), generate a question that is DIRECTLY related to that topic, not just a generic question'}
+2. IMPORTANT: If the user request is about a specific topic (like "E-sports ML"), generate a question that is DIRECTLY related to that topic, not just a generic question
 3. Use the dataset examples as a STRICT template for:
    - Question structure and format
    - Difficulty level  
    - Answer patterns
-   {'   - Language syntax and style (CRITICAL for coding questions)' if question_type == 'coding' else '   - Topic categorization'}
+   - Topic categorization
 4. {chr(10).join(f"   - {instruction}" for instruction in type_info['specific_instructions'])}
-{language_instruction}
 
 REQUIRED OUTPUT FORMAT (JSON):
 {type_info['format']}
@@ -791,9 +707,7 @@ Generate a question that follows the EXACT patterns from the dataset examples an
             if context_examples:
                 print(f"Found {len(context_examples)} relevant examples from datasets")
                 for i, example in enumerate(context_examples[:3], 1):
-                    lang_info = f" [{example.get('language', 'N/A')}]" if question_type == 'coding' else ""
-                    topic_info = f" - {example.get('topic', 'N/A')}" if question_type != 'coding' else ""
-                    print(f"  {i}.{lang_info}{topic_info} - {example['problem_statement'][:50]}...")
+                    print(f"  {i}. {example['topic']} - {example['problem_statement'][:50]}...")
             else:
                 print("No relevant examples found in datasets")
             
@@ -883,40 +797,7 @@ Return JSON format based on question type: {question_type}"""
     def _generate_from_datasets(self, prompt: str, context_examples: List[Dict[str, Any]], language: str = None, question_type: str = 'coding') -> Dict[str, Any]:
         """Generate question directly from dataset examples when LM Studio is not available"""
         try:
-            # If we have context examples with unit_tests, use the best matching one
-            if context_examples and question_type == 'coding':
-                # Find the best example matching the language
-                best_example = None
-                if language:
-                    for example in context_examples:
-                        if example.get('language', '').lower() == language.lower():
-                            best_example = example
-                            break
-                
-                # If no language match, use the first example (highest relevance)
-                if not best_example:
-                    best_example = context_examples[0]
-                
-                # Use the example as a template, but modify question text based on prompt
-                question_text = best_example.get('problem_statement', f"Write a {language or 'Python'} function that {prompt.lower()}")
-                
-                result = {
-                    "question_text": question_text,
-                    "sample_code": "",
-                    "unit_tests": best_example.get('unit_tests', ''),
-                    "expected_outputs": "",
-                    "scoring_criteria": "Correct implementation: 100 points",
-                    "max_score": 100,
-                    "hints": "",
-                    "language": language or best_example.get('language', 'Python'),
-                    "question_type": question_type,
-                    "options": [],
-                    "correct_answer": "",
-                    "explanation": ""
-                }
-                return result
-            
-            # Fallback to routes.py function if no context examples
+            # Import the existing dataset generation function
             from app.routes import generate_question_from_datasets
             
             print(f"Using dataset fallback for {question_type} question...")
@@ -925,27 +806,21 @@ Return JSON format based on question type: {question_type}"""
             dataset_result = generate_question_from_datasets(prompt, question_type)
             
             # Convert to the expected format
-            # Note: generate_question_from_datasets returns 'expected_output' which contains unit_tests
-            unit_tests_from_dataset = dataset_result.get('expected_output', '') or dataset_result.get('unit_tests', '')
-            
-            result = {
+            return {
                 "question_text": dataset_result.get('text', ''),
-                "sample_code": dataset_result.get('sample_code', ''),
-                "unit_tests": unit_tests_from_dataset,
+                "sample_code": "",
+                "unit_tests": "",
                 "expected_outputs": "",
                 "scoring_criteria": "Correct answer: 100 points",
                 "max_score": 100,
                 "hints": "",
-                "language": language or dataset_result.get('language', 'Python'),
+                "topic": "Programming",
+                "language": language or "Python",
                 "question_type": question_type,
                 "options": dataset_result.get('options', []),
                 "correct_answer": dataset_result.get('correct_answer', ''),
                 "explanation": dataset_result.get('explanation', '')
             }
-            # Only include topic for non-coding question types
-            if question_type != 'coding':
-                result["topic"] = "Programming"
-            return result
                 
         except Exception as e:
             print(f"Error in dataset generation: {e}")
@@ -1024,7 +899,7 @@ Return JSON format based on question type: {question_type}"""
                 elif question_type in ['identification', 'enumeration']:
                     options = ['Answer field (text input)']
             
-            result = {
+            return {
                 "question_text": question_text,
                 "sample_code": hints or template.get('hints', ''),
                 "unit_tests": unit_tests or template.get('unit_tests', ''),
@@ -1032,16 +907,13 @@ Return JSON format based on question type: {question_type}"""
                 "scoring_criteria": template.get('scoring_criteria', 'Correct implementation: 100 points'),
                 "max_score": template.get('max_score', 100),
                 "hints": hints or template.get('hints', ''),
+                "topic": template.get('topic', 'Programming'),
                 "language": language or template.get('language', 'Python'),
                 "question_type": question_type,
                 "options": options,
                 "correct_answer": correct_answer or template.get('correct_answer', ''),
                 "explanation": ""
             }
-            # Only include topic for non-coding question types
-            if question_type != 'coding':
-                result["topic"] = template.get('topic', 'Programming')
-            return result
             
         except Exception as e:
             print(f"Error creating question from AI response: {e}")
@@ -1057,33 +929,24 @@ Return JSON format based on question type: {question_type}"""
             # Modify the template based on the prompt
             question_text = f"Write a {language or 'Python'} function that {prompt.lower()}"
             
-            # Ensure unit_tests are included from template
-            unit_tests = template.get('unit_tests', '')
-            if not unit_tests and question_type == 'coding':
-                # Try to get from expected_outputs if unit_tests is missing
-                unit_tests = template.get('expected_outputs', '')
-            
-            result = {
+            return {
                 "question_text": question_text,
                 "sample_code": template.get('hints', ''),
-                "unit_tests": unit_tests,
+                "unit_tests": template.get('unit_tests', ''),
                 "expected_outputs": template.get('expected_outputs', ''),
                 "scoring_criteria": template.get('scoring_criteria', 'Correct implementation: 100 points'),
                 "max_score": template.get('max_score', 100),
                 "hints": template.get('hints', ''),
+                "topic": template.get('topic', 'Programming'),
                 "language": language or template.get('language', 'Python'),
                 "question_type": question_type,
                 "options": [],
                 "correct_answer": "",
                 "explanation": ""
             }
-            # Only include topic for non-coding question types
-            if question_type != 'coding':
-                result["topic"] = template.get('topic', 'Programming')
-            return result
         else:
             # Create a basic question
-            result = {
+            return {
                 "question_text": f"Write a {language or 'Python'} function that {prompt.lower()}",
                 "sample_code": "",
                 "unit_tests": "",
@@ -1091,16 +954,13 @@ Return JSON format based on question type: {question_type}"""
                 "scoring_criteria": "Correct implementation: 100 points",
                 "max_score": 100,
                 "hints": "",
+                "topic": "Programming",
                 "language": language or "Python",
                 "question_type": question_type,
                 "options": [],
                 "correct_answer": "",
                 "explanation": ""
             }
-            # Only include topic for non-coding question types
-            if question_type != 'coding':
-                result["topic"] = "Programming"
-            return result
 
 # Create global instance
 ai_question_generator = AIQuestionGenerator()

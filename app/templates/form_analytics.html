@@ -332,7 +332,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                                     <tr>
                                                         <th>Rank</th>
                                                         <th>Student Name</th>
-                                                        <th>Student ID</th>
                                                         <th>Score</th>
                                                         <th>Points Earned</th>
                                                     </tr>
@@ -341,8 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                                     {% for row in rows %}
                                                     <tr>
                                                         <td>{% if loop.first %}<span class="badge bg-warning"><i class="bi bi-trophy"></i></span>{% else %}#{{ loop.index }}{% endif %}</td>
-                                                        <td><strong>{{ row.student_name }}</strong></td>
-                                                        <td>{{ row.submitted_by }}</td>
+                                                        <td><strong>{{ row.submitted_by }}</strong></td>
                                                         <td>
                                                             <div class="progress" style="height:25px;">
                                                                 {% set pct = row.percentage %}

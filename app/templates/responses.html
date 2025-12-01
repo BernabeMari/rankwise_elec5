@@ -29,7 +29,6 @@
                         <tr>
                             <th scope="col">Rank</th>
                             <th scope="col">Student</th>
-                            <th scope="col">Student ID</th>
                             <th scope="col">Earned Points</th>
                             <th scope="col">Percent</th>
                             <th scope="col">Submitted</th>
@@ -51,7 +50,6 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ entry.response.submitted_by }}</td>
                                 <td>{{ entry.earned_points|round(2) }} / {{ total_possible_points|int }}</td>
                                 <td>
                                     <span class="badge bg-{{ entry.percentage >= 80 and 'success' or entry.percentage >= 50 and 'info' or 'secondary' }}">{{ entry.percentage|round(1) }}%</span>
