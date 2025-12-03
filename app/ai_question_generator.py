@@ -1019,17 +1019,25 @@ Return JSON format based on question type: {question_type}"""
             # Use the existing dataset generation function
             dataset_result = generate_question_from_datasets(ds_prompt, question_type)
             
-            # Convert to the expected format
+            # Ensure we always have a non-empty question_text
+            raw_text = dataset_result.get('text') or dataset_result.get('question_text')
+            if not raw_text:
+                raw_text = f"Write a {language or 'Python'} function that {prompt or 'meets the requirements'}."
+            
+            # Convert to the expected format. Dataset-based generation typically
+            # does not include explicit unit tests or hints, so we default those
+            # fields to empty strings to satisfy offline tests and keep the
+            # structure consistent.
             return {
-                "question_text": dataset_result.get('text', ''),
+                "question_text": str(raw_text),
                 "sample_code": "",
-                "unit_tests": "",
-                "expected_outputs": "",
-                "scoring_criteria": "Correct answer: 100 points",
-                "max_score": 100,
-                "hints": "",
-                "topic": "Programming",
-                "language": language or "Python",
+                "unit_tests": str(dataset_result.get('unit_tests') or ""),
+                "expected_outputs": str(dataset_result.get('expected_outputs') or ""),
+                "scoring_criteria": dataset_result.get('scoring_criteria', "Correct answer: 100 points"),
+                "max_score": int(dataset_result.get('max_score') or 100),
+                "hints": str(dataset_result.get('hints') or ""),
+                "topic": dataset_result.get('topic', "Programming"),
+                "language": language or dataset_result.get('language', "Python"),
                 "question_type": question_type,
                 "options": dataset_result.get('options', []),
                 "correct_answer": dataset_result.get('correct_answer', ''),
