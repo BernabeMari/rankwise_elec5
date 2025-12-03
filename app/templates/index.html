@@ -42,7 +42,7 @@ function toggleVisibility(formId) {
                     <i class="bi bi-database"></i> Manage Datasets
                 </a>
                 <a href="{{ url_for('auth.manage_users') }}" class="btn btn-info me-2">
-                    <i class="bi bi-people"></i> Manage Users
+                    <i class="bi bi-people"></i> Users
                 </a>
             {% endif %}
             <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-secondary">
@@ -52,8 +52,15 @@ function toggleVisibility(formId) {
     </div>
 </div>
 
-{% if forms %}
-    <div class="row">
+{% if forms or answered_forms %}
+    {% if forms %}
+    <div class="mb-4">
+        <h3 class="mb-3">
+            <i class="bi bi-file-earmark-text"></i> Available Forms
+        </h3>
+        <p class="text-muted">Forms you haven't answered yet</p>
+    </div>
+    <div class="row mb-5">
         {% for form in forms %}
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card h-100">
@@ -107,14 +114,71 @@ function toggleVisibility(formId) {
                                     <i class="bi bi-trash"></i> Delete
                                 </button>
                             {% endif %}
-
-                            
                         </div>
                     </div>
                 </div>
             </div>
         {% endfor %}
     </div>
+    {% endif %}
+    
+    {% if answered_forms and session.role == 'student' %}
+    <div class="mb-4">
+        <h3 class="mb-3">
+            <i class="bi bi-check-circle-fill text-success"></i> Completed Forms
+        </h3>
+        <p class="text-muted">View your submitted answers and scores (read-only)</p>
+    </div>
+    <div class="row">
+        {% for item in answered_forms %}
+            {% set form = item.form %}
+            {% set response = item.response %}
+            {% set overall_pct = item.overall_pct %}
+            
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 border-success">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <span class="badge bg-light text-success">
+                            <i class="bi bi-check-circle-fill"></i> Completed
+                        </span>
+                        <small>
+                            <i class="bi bi-calendar"></i> {{ response.created_at.strftime('%Y-%m-%d') }}
+                        </small>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ form.title }}</h5>
+                        <p class="card-text text-muted">
+                            {{ form.description or "No description" }}
+                        </p>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold">Score:</span>
+                                <span class="badge {% if overall_pct >= 80 %}bg-success{% elif overall_pct >= 50 %}bg-info{% else %}bg-warning{% endif %}">
+                                    {{ overall_pct|round(1) }}%
+                                </span>
+                            </div>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar {% if overall_pct >= 80 %}bg-success{% elif overall_pct >= 50 %}bg-info{% else %}bg-warning{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ overall_pct }}%;" 
+                                     aria-valuenow="{{ overall_pct }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{ overall_pct|round(1) }}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="{{ url_for('main.view_my_response', response_id=response.id) }}" class="btn btn-success w-100">
+                            <i class="bi bi-eye"></i> View My Submission
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 {% else %}
 {% if session.role == 'admin' %}
     <div class="alert alert-info">

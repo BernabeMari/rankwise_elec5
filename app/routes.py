@@ -99,15 +99,18 @@ def index():
     # Show all forms for admins, only visible forms for regular users
     if session.get('role') == 'admin':
         forms = Form.query.order_by(Form.created_at.desc()).all()
+        answered_forms = []
     else:
-        # For students: show only visible forms they haven't completed yet
+        # For students: show both unanswered and answered forms
         user_id = session.get('user_id')
         
         # Get all visible forms
         visible_forms = Form.query.filter_by(is_visible=True).order_by(Form.created_at.desc()).all()
         
-        # Filter out forms that this student has already answered
+        # Separate forms into answered and unanswered
         forms = []
+        answered_forms = []
+        
         for form in visible_forms:
             # Check if this student has already submitted a response for this form
             existing_response = Response.query.filter_by(
@@ -115,12 +118,31 @@ def index():
                 submitted_by=user_id
             ).first()
             
-            # Only include forms that haven't been answered yet
-            if not existing_response:
+            if existing_response:
+                # Calculate score for this response
+                questions = Question.query.filter_by(form_id=form.id).all()
+                total_possible_points = sum(q.points for q in questions) or 0
+                q_points = {q.id: q.points for q in questions}
+                earned_points = 0.0
+                for ans in existing_response.answers:
+                    pts = q_points.get(ans.question_id, 0)
+                    earned_points += (float(ans.score_percentage or 0) / 100.0) * pts
+                overall_pct = (earned_points / total_possible_points * 100.0) if total_possible_points > 0 else 0.0
+                
+                # Add to answered forms with response info and calculated score
+                answered_forms.append({
+                    'form': form,
+                    'response': existing_response,
+                    'overall_pct': overall_pct,
+                    'earned_points': earned_points,
+                    'total_points': total_possible_points
+                })
+            else:
+                # Add to unanswered forms
                 forms.append(form)
     
     user = get_user(session['user_id'])
-    return render_template('index.html', forms=forms, user=user)
+    return render_template('index.html', forms=forms, answered_forms=answered_forms, user=user)
 
 @main.route('/form/new', methods=['GET', 'POST'])
 @admin_required
@@ -1691,11 +1713,25 @@ def toggle_form_visibility(form_id):
 @main.route('/form/<int:form_id>/view', methods=['GET'])
 def view_form(form_id):
     form = Form.query.get_or_404(form_id)
+    user_id = session.get('user_id')
+    user_role = session.get('role')
     
     # Check if form is visible for non-admin users
-    if not form.is_visible and session.get('role') != 'admin':
+    if not form.is_visible and user_role != 'admin':
         flash('This form is not currently available.', 'warning')
         return redirect(url_for('main.index'))
+    
+    # For students, check if they've already submitted this form
+    if user_role == 'student':
+        existing_response = Response.query.filter_by(
+            form_id=form_id,
+            submitted_by=user_id
+        ).first()
+        
+        if existing_response:
+            # Redirect to view their submission instead
+            flash('You have already submitted this form. Redirecting to your submission...', 'info')
+            return redirect(url_for('main.view_my_response', response_id=existing_response.id))
     
     questions = Question.query.filter_by(form_id=form_id).order_by(Question.order).all()
     # Record start time for speed badge
@@ -1866,7 +1902,11 @@ def submit_form(form_id):
     db.session.commit()
     
     flash('Form submitted successfully!', 'success')
-    return redirect(url_for('main.view_response', response_id=response.id))
+    # Redirect students to their own view page, admins to general view
+    if session.get('role') == 'student':
+        return redirect(url_for('main.view_my_response', response_id=response.id))
+    else:
+        return redirect(url_for('main.view_response', response_id=response.id))
 
 @main.route('/form/<int:form_id>/responses', methods=['GET'])
 @admin_required
@@ -1938,6 +1978,16 @@ def clear_form_responses(form_id):
 def view_response(response_id):
     response = Response.query.get_or_404(response_id)
     form = Form.query.get_or_404(response.form_id)
+    
+    # Check if user is viewing their own response (student) or admin
+    user_id = session.get('user_id')
+    user_role = session.get('role')
+    
+    # Students can only view their own responses
+    if user_role == 'student' and response.submitted_by != user_id:
+        flash('You can only view your own responses.', 'danger')
+        return redirect(url_for('main.index'))
+    
     # Compute overall earned points and percentage
     questions = Question.query.filter_by(form_id=form.id).all()
     total_possible_points = sum(q.points for q in questions) or 0
@@ -2019,6 +2069,86 @@ def manual_mark_answer(answer_id):
         flash(f'Failed to update answer: {e}', 'danger')
 
     return redirect(url_for('main.view_response', response_id=answer.response_id))
+
+@main.route('/my-response/<int:response_id>', methods=['GET'])
+@login_required
+def view_my_response(response_id):
+    """View-only page for students to see their submitted responses"""
+    response = Response.query.get_or_404(response_id)
+    form = Form.query.get_or_404(response.form_id)
+    user_id = session.get('user_id')
+    user_role = session.get('role')
+    
+    # Only allow students to view their own responses
+    if user_role != 'student':
+        flash('This page is only for students.', 'danger')
+        return redirect(url_for('main.index'))
+    
+    # Check if this is the student's own response
+    if response.submitted_by != user_id:
+        flash('You can only view your own responses.', 'danger')
+        return redirect(url_for('main.index'))
+    
+    # Check if form is visible
+    if not form.is_visible and user_role != 'admin':
+        flash('This form is not currently available.', 'warning')
+        return redirect(url_for('main.index'))
+    
+    # Compute overall earned points and percentage
+    questions = Question.query.filter_by(form_id=form.id).all()
+    total_possible_points = sum(q.points for q in questions) or 0
+    q_points = {q.id: q.points for q in questions}
+    earned_points = 0.0
+    for ans in response.answers:
+        pts = q_points.get(ans.question_id, 0)
+        earned_points += (float(ans.score_percentage or 0) / 100.0) * pts
+    overall_pct = (earned_points / total_possible_points * 100.0) if total_possible_points > 0 else 0.0
+    
+    # Determine duration from session if available
+    duration_seconds = session.get(f'response_duration_{response.id}')
+    try:
+        duration_seconds = float(duration_seconds) if duration_seconds is not None else None
+    except Exception:
+        duration_seconds = None
+    
+    # Badge rules
+    badges = []
+    if overall_pct >= 80.0:
+        badges.append({'name': 'High Score', 'image': url_for('static', filename='images/high-score.png')})
+    if overall_pct >= 50.0:
+        badges.append({'name': 'Good Score', 'image': url_for('static', filename='images/average.png')})
+    if overall_pct <= 25.0:
+        badges.append({'name': 'Study More', 'image': url_for('static', filename='images/studymore.png')})
+    
+    # Speed badge calculation
+    if duration_seconds is not None:
+        allowed_time = 0
+        for q in questions:
+            if q.question_type in ['multiple_choice', 'identification', 'true_false', 'checkbox']:
+                allowed_time += 60
+            elif q.question_type == 'coding':
+                allowed_time += 300
+            elif q.question_type == 'enumeration':
+                allowed_time += 120
+        
+        if allowed_time > 0 and duration_seconds <= allowed_time:
+            speed_ratio = duration_seconds / allowed_time
+            if speed_ratio <= 0.5:
+                badges.append({'name': 'Speed', 'image': url_for('static', filename='images/speed.png')})
+    
+    # Get student info
+    student_name = None
+    student_id = response.submitted_by
+    try:
+        from app.models.users import get_all_students
+        for s in get_all_students():
+            if s.student_id == response.submitted_by:
+                student_name = s.fullname or response.submitted_by
+                break
+    except Exception:
+        student_name = response.submitted_by
+    
+    return render_template('view_response.html', form=form, response=response, overall_pct=overall_pct, badges=badges, student_name=student_name, student_id=student_id, is_student_view=True)
 
 def detect_language_from_submission(code_answer: str, question_text: str = "") -> str:
     """Best-effort language detection for coding submissions without relying on user input."""

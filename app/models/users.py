@@ -19,9 +19,106 @@ def initialize_users_file():
         os.makedirs(os.path.dirname(USERS_FILE), exist_ok=True)
         with open(USERS_FILE, 'w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(['username', 'password_hash', 'role'])
-            # Create default admin account
-            writer.writerow(['admin', hash_password('admin'), 'admin'])
+            writer.writerow(['username', 'password_hash', 'role', 'email', 'name', 'verification_code', 'verified'])
+            # Create default admin account (verified by default)
+            writer.writerow(['admin', hash_password('admin'), 'admin', '', '', '', 'True'])
+    else:
+        # Migrate existing users file to include new columns if needed
+        import tempfile
+        import shutil
+        from collections import OrderedDict
+        
+        temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False, newline='')
+        required_fields = ['username', 'password_hash', 'role', 'email', 'name', 'verification_code', 'verified']
+        
+        try:
+            with open(USERS_FILE, 'r', newline='') as csv_file, temp_file:
+                reader = csv.DictReader(csv_file)
+                existing_fieldnames = reader.fieldnames or []
+                
+                # Check if migration is needed
+                if set(existing_fieldnames) != set(required_fields):
+                    writer = csv.DictWriter(temp_file, fieldnames=required_fields)
+                    writer.writeheader()
+                    
+                    for row in reader:
+                        # Ensure all required fields exist
+                        new_row = OrderedDict()
+                        for field in required_fields:
+                            if field in row:
+                                new_row[field] = row[field]
+                            else:
+                                # Set default values for missing fields
+                                if field == 'verified':
+                                    # If it's the default admin, mark as verified
+                                    if row.get('username') == 'admin' and row.get('role') == 'admin':
+                                        new_row[field] = 'True'
+                                    else:
+                                        new_row[field] = 'False'
+                                else:
+                                    new_row[field] = ''
+                        writer.writerow(new_row)
+                    
+                    shutil.move(temp_file.name, USERS_FILE)
+        except Exception:
+            # If migration fails, just ensure the file exists with default admin
+            try:
+                os.unlink(temp_file.name)
+            except:
+                pass
+
+def ensure_admin_verified():
+    """Ensure the default admin account is marked as verified."""
+    if not os.path.exists(USERS_FILE):
+        initialize_users_file()
+        return
+    
+    import csv
+    from tempfile import NamedTemporaryFile
+    import shutil
+    
+    required_fields = ['username', 'password_hash', 'role', 'email', 'name', 'verification_code', 'verified']
+    temp_file = NamedTemporaryFile(mode='w', delete=False, newline='')
+    
+    try:
+        with open(USERS_FILE, 'r', newline='') as csv_file, temp_file:
+            reader = csv.DictReader(csv_file)
+            existing_fieldnames = reader.fieldnames or []
+            
+            # Ensure all required fields exist
+            for field in required_fields:
+                if field not in existing_fieldnames:
+                    existing_fieldnames.append(field)
+            
+            writer = csv.DictWriter(temp_file, fieldnames=existing_fieldnames)
+            writer.writeheader()
+            
+            for row in reader:
+                # Ensure all fields exist
+                for field in required_fields:
+                    if field not in row:
+                        if field == 'verified':
+                            # If it's the default admin, mark as verified
+                            if row.get('username') == 'admin' and row.get('role') == 'admin':
+                                row[field] = 'True'
+                            else:
+                                row[field] = 'False'
+                        else:
+                            row[field] = ''
+                
+                # Explicitly ensure default admin is verified
+                if row.get('username') == 'admin' and row.get('role') == 'admin':
+                    row['verified'] = 'True'
+                
+                writer.writerow(row)
+        
+        shutil.move(temp_file.name, USERS_FILE)
+    except Exception:
+        # Best-effort; on failure leave file unchanged
+        try:
+            os.unlink(temp_file.name)
+        except Exception:
+            pass
 
 def reset_student_passwords_to_default():
     """Reset all student users' passwords to their default (student_id) value.
@@ -39,14 +136,30 @@ def reset_student_passwords_to_default():
     try:
         with open(USERS_FILE, 'r', newline='') as csv_file, temp_file:
             reader = csv.DictReader(csv_file)
-            fieldnames = reader.fieldnames or ['username', 'password_hash', 'role']
+            fieldnames = reader.fieldnames or ['username', 'password_hash', 'role', 'email', 'name', 'verification_code', 'verified']
             writer = csv.DictWriter(temp_file, fieldnames=fieldnames)
             writer.writeheader()
 
             for row in reader:
+                # Ensure all fields exist
+                for field in fieldnames:
+                    if field not in row:
+                        if field == 'verified':
+                            if row.get('username') == 'admin' and row.get('role') == 'admin':
+                                row[field] = 'True'
+                            else:
+                                row[field] = 'False'
+                        else:
+                            row[field] = ''
+                
                 # For student rows, reset password_hash to hash(username)
                 if row.get('role') == 'student' and row.get('username'):
                     row['password_hash'] = hash_password(row['username'])
+                
+                # Ensure default admin is verified
+                if row.get('username') == 'admin' and row.get('role') == 'admin':
+                    row['verified'] = 'True'
+                
                 writer.writerow(row)
 
         shutil.move(temp_file.name, USERS_FILE)
@@ -79,6 +192,10 @@ class User:
     def __init__(self, username, role):
         self.username = username
         self.role = role
+        self.email = ''
+        self.name = ''
+        self.verification_code = ''
+        self.verified = False
         
     def is_admin(self):
         return self.role == 'admin'
@@ -157,7 +274,29 @@ def get_user(username):
         reader = csv.DictReader(file)
         for row in reader:
             if row['username'] == username:
-                return User(row['username'], row['role'])
+                user = User(row['username'], row['role'])
+                user.email = row.get('email', '')
+                user.name = row.get('name', '')
+                user.verification_code = row.get('verification_code', '')
+                user.verified = row.get('verified', 'False').lower() == 'true'
+                return user
+    return None
+
+# Get user by email
+def get_user_by_email(email):
+    if not os.path.exists(USERS_FILE):
+        initialize_users_file()
+        
+    with open(USERS_FILE, 'r', newline='') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if row.get('email', '').lower() == email.lower():
+                user = User(row['username'], row['role'])
+                user.email = row.get('email', '')
+                user.name = row.get('name', '')
+                user.verification_code = row.get('verification_code', '')
+                user.verified = row.get('verified', 'False').lower() == 'true'
+                return user
     return None
 
 # Authenticate user
@@ -169,8 +308,21 @@ def authenticate_user(username, password):
     with open(USERS_FILE, 'r', newline='') as file:
         reader = csv.DictReader(file)
         for row in reader:
-            if row['username'] == username and row['password_hash'] == hash_password(password):
-                return User(row['username'], row['role'])
+            if row['username'] == username:
+                # Check if user is verified (for admins)
+                verified = row.get('verified', 'False').lower() == 'true'
+                if row.get('role') == 'admin' and not verified:
+                    # Admin not verified yet, cannot login with password
+                    continue
+                
+                # Check password
+                if row.get('password_hash') == hash_password(password):
+                    user = User(row['username'], row['role'])
+                    user.email = row.get('email', '')
+                    user.name = row.get('name', '')
+                    user.verification_code = row.get('verification_code', '')
+                    user.verified = verified
+                    return user
     
     # Look through all student sections for matching credentials
     sections = get_all_sections()
@@ -186,7 +338,7 @@ def authenticate_user(username, password):
     return None
 
 # Register a new user
-def register_user(username, password, role='student'):
+def register_user(username, password, role='student', email='', name='', verification_code='', verified='False'):
     if not os.path.exists(USERS_FILE):
         initialize_users_file()
     
@@ -194,10 +346,30 @@ def register_user(username, password, role='student'):
     if get_user(username):
         return False
     
+    # Ensure CSV has all columns
+    fieldnames = ['username', 'password_hash', 'role', 'email', 'name', 'verification_code', 'verified']
+    
+    # Read existing file to check columns
+    with open(USERS_FILE, 'r', newline='') as file:
+        reader = csv.DictReader(file)
+        existing_fieldnames = reader.fieldnames or []
+    
     # Append new user to the CSV
     with open(USERS_FILE, 'a', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow([username, hash_password(password), role])
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        # If file is empty or missing columns, write header
+        if not existing_fieldnames or set(existing_fieldnames) != set(fieldnames):
+            writer.writeheader()
+        
+        writer.writerow({
+            'username': username,
+            'password_hash': hash_password(password) if password else '',
+            'role': role,
+            'email': email,
+            'name': name,
+            'verification_code': verification_code,
+            'verified': verified
+        })
     
     return True
 
@@ -600,6 +772,99 @@ def add_single_student(student_id, fullname, is_irregular, email, grade_level, s
         
     except Exception as e:
         return False, f"Error adding student: {str(e)}"
+
+# Update an existing student
+def update_student(student_id, original_section_name, new_data):
+    """Update an existing student's information. new_data should contain: fullname, is_irregular, email, grade_level, section_name"""
+    try:
+        # Validate required fields
+        if not student_id or not original_section_name:
+            return False, "Student ID and original section name are required"
+        
+        # Find the original section
+        original_section = get_section(original_section_name)
+        if not original_section:
+            return False, f"Original section '{original_section_name}' not found"
+        
+        # Find the student in the original section
+        student_found = False
+        student_data = None
+        
+        for student in original_section.students:
+            if student.student_id == student_id:
+                student_found = True
+                student_data = {
+                    'student_id': student_id,
+                    'fullname': new_data.get('fullname', student.fullname),
+                    'is_irregular': new_data.get('is_irregular', student.is_irregular == 'Yes'),
+                    'email': new_data.get('email', student.email),
+                    'grade_level': new_data.get('grade_level', student.grade_level),
+                    'section_name': new_data.get('section_name', original_section_name)
+                }
+                break
+        
+        if not student_found:
+            return False, f"Student '{student_id}' not found in section '{original_section_name}'"
+        
+        # Check if section changed
+        new_section_name = student_data['section_name']
+        section_changed = new_section_name != original_section_name
+        
+        if section_changed:
+            # Check if new section exists
+            new_section = get_section(new_section_name)
+            if not new_section:
+                return False, f"New section '{new_section_name}' not found"
+            
+            # Check if student ID already exists in new section
+            for student in new_section.students:
+                if student.student_id == student_id:
+                    return False, f"Student ID '{student_id}' already exists in section '{new_section_name}'"
+        
+        # Read original section file
+        original_file_path = os.path.join(STUDENTS_DIR, original_section.file_name)
+        temp_file = os.path.join(STUDENTS_DIR, f'temp_{original_section.file_name}')
+        
+        with open(original_file_path, 'r', newline='') as file, open(temp_file, 'w', newline='') as temp:
+            reader = csv.DictReader(file)
+            fieldnames = reader.fieldnames
+            writer = csv.DictWriter(temp, fieldnames=fieldnames)
+            writer.writeheader()
+            
+            for row in reader:
+                if row['student_id'] == student_id:
+                    # If section changed, skip this row (remove from old section)
+                    if section_changed:
+                        continue
+                    # Otherwise, update the row in place
+                    row['fullname'] = student_data['fullname']
+                    row['is_irregular'] = 'Yes' if student_data['is_irregular'] else 'No'
+                    row['email'] = student_data['email'] or ''
+                    row['grade_level'] = student_data['grade_level'] or ''
+                    writer.writerow(row)
+                else:
+                    writer.writerow(row)
+        
+        # Replace original file
+        os.replace(temp_file, original_file_path)
+        
+        # If section changed, add to new section
+        if section_changed:
+            new_file_path = os.path.join(STUDENTS_DIR, new_section.file_name)
+            with open(new_file_path, 'a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([
+                    student_data['student_id'],
+                    student_data['fullname'],
+                    'Yes' if student_data['is_irregular'] else 'No',
+                    student_data['email'] or '',
+                    student_data['grade_level'] or ''
+                ])
+        
+        return True, f"Student '{student_data['fullname']}' (ID: {student_id}) updated successfully"
+        
+    except Exception as e:
+        return False, f"Error updating student: {str(e)}"
 
 # Decorator for requiring login
 def login_required(f):

@@ -146,6 +146,9 @@
         <p class="text-muted">Upload class lists and manage student records</p>
     </div>
     <div class="col-md-4 text-end">
+        <button class="btn btn-outline-primary ms-2" id="addAdminBtn" type="button">
+            <i class="bi bi-person-plus"></i> Add Admin
+        </button>
         <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Back to Forms
         </a>
@@ -244,8 +247,8 @@
                 </div>
             </div>
             <div class="col-md-4 text-end">
-                <button class="btn btn-outline-light ms-2" id="addStudentBtn">
-                    <i class="bi bi-person-plus"></i> Add Student
+                <button class="btn btn-outline-light ms-2" id="spreadsheetViewBtn" type="button">
+                    <i class="bi bi-table"></i> Spreadsheet View
                 </button>
             </div>
         </div>
@@ -288,7 +291,7 @@
                 <tbody>
                     {% if students %}
                         {% for student in students %}
-                        <tr class="student-row" data-student-id="{{ student.student_id }}" data-student-name="{{ student.fullname }}" data-student-email="{{ student.email }}" style="cursor: pointer;">
+                        <tr class="student-row" data-student-id="{{ student.student_id }}" data-student-name="{{ student.fullname }}" data-student-email="{{ student.email }}" data-student-section="{{ student.section or active_section or '' }}" style="cursor: pointer;">
                             <td>
                                 <div class="form-check">
                                     <input class="form-check-input student-checkbox" type="checkbox" value="{{ student.student_id }}" data-student-name="{{ student.fullname }}">
@@ -444,69 +447,84 @@
     </div>
 </div>
 
-<!-- Add Student Modal -->
-<div class="modal fade" id="addStudentModal" tabindex="-1" aria-labelledby="addStudentModalLabel" aria-hidden="true">
+<!-- Add Admin Modal -->
+<div class="modal fade" id="addAdminModal" tabindex="-1" aria-labelledby="addAdminModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="addStudentModalLabel">Add New Student</h5>
+                <h5 class="modal-title" id="addAdminModalLabel">Add New Admin</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="addStudentForm">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="newStudentId" class="form-label">Student ID *</label>
-                            <input type="text" class="form-control" id="newStudentId" required>
-                            <div class="form-text">Unique identifier for the student</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="newStudentName" class="form-label">Full Name *</label>
-                            <input type="text" class="form-control" id="newStudentName" required>
-                        </div>
+                <form id="addAdminForm">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> A verification code will be sent to the admin's email. They will need to verify their email and create a password to complete registration.
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="newStudentEmail" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="newStudentEmail">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="newStudentGrade" class="form-label">Grade Level</label>
-                            <input type="text" class="form-control" id="newStudentGrade" placeholder="e.g., 1-4">
-                        </div>
+                    <div class="mb-3">
+                        <label for="newAdminName" class="form-label">Full Name *</label>
+                        <input type="text" class="form-control" id="newAdminName" required placeholder="Enter admin's full name">
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="newStudentSection" class="form-label">Section *</label>
-                            <select class="form-select" id="newStudentSection" required>
-                                <option value="">Select section...</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Status</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="newStudentIrregular">
-                                <label class="form-check-label" for="newStudentIrregular">
-                                    Irregular Student
-                                </label>
-                            </div>
-                            <div class="form-text">Irregular students can be moved between sections</div>
-                        </div>
+                    <div class="mb-3">
+                        <label for="newAdminEmail" class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="newAdminEmail" required placeholder="Enter admin's email address">
+                        <div class="form-text">A verification code will be sent to this email</div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" id="confirmAddStudentBtn">
-                    <i class="bi bi-person-plus"></i> Add Student
+                <button type="button" class="btn btn-success" id="confirmAddAdminBtn">
+                    <i class="bi bi-person-plus"></i> Add Admin
                 </button>
             </div>
         </div>
     </div>
+</div>
 
+<!-- Spreadsheet View Modal -->
+<div class="modal fade" id="spreadsheetModal" tabindex="-1" aria-labelledby="spreadsheetModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="spreadsheetModalLabel">
+                    <i class="bi bi-table"></i> Student Spreadsheet View
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div class="p-3 border-bottom bg-light">
+                    <button type="button" class="btn btn-success btn-sm" id="addStudentRowBtn">
+                        <i class="bi bi-plus-circle"></i> Add New Row
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm ms-2" id="saveSpreadsheetBtn">
+                        <i class="bi bi-save"></i> Save Changes
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm ms-2" id="cancelSpreadsheetBtn">
+                        <i class="bi bi-x"></i> Cancel
+                    </button>
+                </div>
+                <div class="table-responsive" style="max-height: calc(100vh - 200px); overflow-y: auto;">
+                    <table class="table table-bordered table-hover mb-0" id="spreadsheetTable">
+                        <thead class="table-light" style="position: sticky; top: 0; z-index: 10; background-color: #f8f9fa !important;">
+                            <tr>
+                                <th style="width: 120px; background-color: #000000;">Student ID</th>
+                                <th style="width: 200px; background-color: #000000;">Full Name</th>
+                                <th style="width: 200px; background-color: #000000;">Email</th>
+                                <th style="width: 100px; background-color: #000000;">Is Irregular</th>
+                                <th style="width: 150px; background-color: #000000;">Section</th>
+                                <th style="width: 100px; background-color: #000000;">Grade Level</th>
+                                <th style="width: 80px; background-color: #000000;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="spreadsheetTableBody">
+                            <!-- Rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
 {% endblock %}
 
@@ -520,8 +538,11 @@
         const studentRows = document.querySelectorAll('.student-row');
         const studentModal = new bootstrap.Modal(document.getElementById('studentModal'));
         const moveStudentModal = new bootstrap.Modal(document.getElementById('moveStudentModal'));
-        const addStudentModal = new bootstrap.Modal(document.getElementById('addStudentModal'));
         const generateVerificationBtn = document.getElementById('generateVerificationBtn');
+        
+        // Initialize modals
+        const addAdminModal = new bootstrap.Modal(document.getElementById('addAdminModal'));
+        const spreadsheetModal = new bootstrap.Modal(document.getElementById('spreadsheetModal'));
         
         // File Upload Functions
         // ====================
@@ -830,93 +851,496 @@
             });
         });
 
-        // Add Student Functionality
-        // =======================
+        // Spreadsheet View Functionality
+        // ==============================
         
-        // Add event listener for add student button
-        document.getElementById('addStudentBtn').addEventListener('click', function() {
-            // Load sections for dropdown
-            loadSectionsForAddStudent();
-            // Show modal
-            addStudentModal.show();
-        });
+        // Note: spreadsheetModal is already initialized above
+        let spreadsheetData = [];
         
-        // Load sections for add student dropdown
-        function loadSectionsForAddStudent() {
-            fetch('/auth/get-sections')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const select = document.getElementById('newStudentSection');
-                        select.innerHTML = '<option value="">Select section...</option>';
-                        
-                        data.sections.forEach(section => {
-                            const option = document.createElement('option');
-                            option.value = section;
-                            option.textContent = section;
-                            select.appendChild(option);
-                        });
-                    } else {
-                        alert('Error loading sections: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error loading sections. Please try again.');
-                });
-        }
+        // Store active section from template
+        const activeSection = '{{ active_section or "" }}';
         
-        // Confirm add student button
-        document.getElementById('confirmAddStudentBtn').addEventListener('click', function() {
-            const studentId = document.getElementById('newStudentId').value.trim();
-            const fullname = document.getElementById('newStudentName').value.trim();
-            const email = document.getElementById('newStudentEmail').value.trim();
-            const gradeLevel = document.getElementById('newStudentGrade').value.trim();
-            const sectionName = document.getElementById('newStudentSection').value;
-            const isIrregular = document.getElementById('newStudentIrregular').checked;
+        // Load all students for spreadsheet view
+        function loadSpreadsheetData() {
+            spreadsheetData = [];
+            const currentStudentRows = document.querySelectorAll('.student-row');
             
-            // Validate required fields
-            if (!studentId || !fullname || !sectionName) {
-                alert('Please fill in all required fields (Student ID, Full Name, and Section).');
+            if (currentStudentRows.length === 0) {
+                console.warn('No student rows found');
+                renderSpreadsheetTable();
                 return;
             }
             
-            // Add student
-            addSingleStudent(studentId, fullname, isIrregular, email, gradeLevel, sectionName);
-        });
+            currentStudentRows.forEach(row => {
+                try {
+                    const studentId = row.dataset.studentId;
+                    const studentName = row.dataset.studentName;
+                    const studentEmail = row.dataset.studentEmail || '';
+                    const studentSection = row.dataset.studentSection || '';
+                    const badgeElement = row.querySelector('.badge');
+                    const isIrregular = badgeElement ? badgeElement.textContent.trim() === 'Irregular' : false;
+                    
+                    // Get section from data attribute first, then try activeSection, then try table cell
+                    let section = studentSection || activeSection;
+                    if (!section) {
+                        // Fallback: Check if there's a section column (8th or 7th column depending on view)
+                        const sectionCell = row.querySelector('td:nth-child(8)') || row.querySelector('td:nth-child(7)');
+                        section = sectionCell ? sectionCell.textContent.trim() : '';
+                    }
+                    
+                    // Get grade level (5th column - after checkbox, student_id, name, status)
+                    const gradeLevelCell = row.querySelector('td:nth-child(5)');
+                    const gradeLevel = gradeLevelCell ? gradeLevelCell.textContent.trim() : '';
+                    
+                    spreadsheetData.push({
+                        id: studentId,
+                        name: studentName,
+                        email: studentEmail,
+                        isIrregular: isIrregular,
+                        section: section,
+                        gradeLevel: gradeLevel,
+                        isNew: false
+                    });
+                } catch (error) {
+                    console.error('Error processing student row:', error);
+                }
+            });
+            renderSpreadsheetTable();
+        }
         
-        // Add single student function
-        function addSingleStudent(studentId, fullname, isIrregular, email, gradeLevel, sectionName) {
-            fetch('/auth/add-single-student', {
+        // Render spreadsheet table
+        function renderSpreadsheetTable() {
+            const tbody = document.getElementById('spreadsheetTableBody');
+            tbody.innerHTML = '';
+            
+            spreadsheetData.forEach((student, index) => {
+                const row = createSpreadsheetRow(student, index);
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Create a spreadsheet row
+        function createSpreadsheetRow(student, index) {
+            const tr = document.createElement('tr');
+            tr.dataset.index = index;
+            if (student.isNew) {
+                tr.classList.add('table-warning');
+            }
+            
+            tr.innerHTML = `
+                <td>
+                    <input type="text" class="form-control form-control-sm" 
+                           value="${student.id || ''}" 
+                           data-field="id" 
+                           ${student.isNew ? '' : 'readonly'}
+                           required>
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm" 
+                           value="${student.name || ''}" 
+                           data-field="name" required>
+                </td>
+                <td>
+                    <input type="email" class="form-control form-control-sm" 
+                           value="${student.email || ''}" 
+                           data-field="email">
+                </td>
+                <td>
+                    <select class="form-select form-select-sm" data-field="isIrregular">
+                        <option value="No" ${!student.isIrregular ? 'selected' : ''}>No</option>
+                        <option value="Yes" ${student.isIrregular ? 'selected' : ''}>Yes</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm" 
+                           value="${student.section || ''}" 
+                           data-field="section" 
+                           required
+                           placeholder="Enter section name">
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm" 
+                           value="${student.gradeLevel || ''}" 
+                           data-field="gradeLevel">
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-danger remove-row-btn" title="${student.isNew ? 'Remove row' : 'Delete student'}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            `;
+            
+            // Add remove row event listener
+            const removeBtn = tr.querySelector('.remove-row-btn');
+            removeBtn.addEventListener('click', function() {
+                if (student.isNew) {
+                    // Remove from array
+                    spreadsheetData.splice(index, 1);
+                    renderSpreadsheetTable();
+                } else {
+                    // Mark for deletion
+                    const sectionName = student.section || active_section || '';
+                    if (confirm(`Are you sure you want to delete student "${student.name}" (${student.id})?`)) {
+                        deleteStudentFromSpreadsheet(student.id, sectionName);
+                    }
+                }
+            });
+            
+            return tr;
+        }
+        
+        // Function to ensure section exists (create if it doesn't)
+        function ensureSectionExists(sectionName) {
+            if (!sectionName || !sectionName.trim()) {
+                return Promise.resolve(false);
+            }
+            
+            return fetch('/auth/ensure-section', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({ section_name: sectionName.trim() }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                return data.success;
+            })
+            .catch(error => {
+                console.error('Error ensuring section exists:', error);
+                return false;
+            });
+        }
+        
+        // Add new row to spreadsheet
+        document.getElementById('addStudentRowBtn').addEventListener('click', function() {
+            spreadsheetData.push({
+                id: '',
+                name: '',
+                email: '',
+                isIrregular: false,
+                section: '',
+                gradeLevel: '',
+                isNew: true
+            });
+            renderSpreadsheetTable();
+            // Scroll to bottom
+            setTimeout(() => {
+                const tbody = document.getElementById('spreadsheetTableBody');
+                tbody.scrollTop = tbody.scrollHeight;
+            }, 100);
+        });
+        
+        // Save spreadsheet changes
+        document.getElementById('saveSpreadsheetBtn').addEventListener('click', function() {
+            // Collect data from all rows
+            const rows = document.querySelectorAll('#spreadsheetTableBody tr');
+            const updatedData = [];
+            const newStudents = [];
+            const errors = [];
+            
+            rows.forEach((row, index) => {
+                const inputs = row.querySelectorAll('input, select');
+                const studentData = {};
+                
+                inputs.forEach(input => {
+                    const field = input.dataset.field;
+                    if (field) {
+                        if (field === 'isIrregular') {
+                            studentData[field] = input.value === 'Yes';
+                        } else {
+                            studentData[field] = input.value.trim();
+                        }
+                    }
+                });
+                
+                // Validate required fields
+                if (!studentData.id || !studentData.name || !studentData.section) {
+                    errors.push(`Row ${index + 1}: Missing required fields (Student ID, Name, or Section)`);
+                    return;
+                }
+                
+                const originalStudent = spreadsheetData[index];
+                if (originalStudent && originalStudent.isNew) {
+                    newStudents.push(studentData);
+                } else if (originalStudent) {
+                    // Normalize data for comparison
+                    const normalizedOriginal = {
+                        id: originalStudent.id,
+                        name: originalStudent.name,
+                        email: originalStudent.email || '',
+                        isIrregular: originalStudent.isIrregular,
+                        section: originalStudent.section || '',
+                        gradeLevel: originalStudent.gradeLevel || ''
+                    };
+                    const normalizedUpdated = {
+                        id: studentData.id,
+                        name: studentData.name,
+                        email: studentData.email || '',
+                        isIrregular: studentData.isIrregular,
+                        section: studentData.section || '',
+                        gradeLevel: studentData.gradeLevel || ''
+                    };
+                    
+                    // Check if data changed
+                    if (JSON.stringify(normalizedOriginal) !== JSON.stringify(normalizedUpdated)) {
+                        updatedData.push({
+                            original: originalStudent,
+                            updated: studentData
+                        });
+                    }
+                }
+            });
+            
+            if (errors.length > 0) {
+                alert('Please fix the following errors:\n' + errors.join('\n'));
+                return;
+            }
+            
+            // Collect unique sections that need to be created
+            const sectionsToCreate = new Set();
+            newStudents.forEach(student => {
+                if (student.section) {
+                    sectionsToCreate.add(student.section);
+                }
+            });
+            updatedData.forEach(update => {
+                if (update.updated.section) {
+                    sectionsToCreate.add(update.updated.section);
+                }
+            });
+            
+            // Ensure all sections exist first
+            const sectionPromises = Array.from(sectionsToCreate).map(sectionName => 
+                ensureSectionExists(sectionName)
+            );
+            
+            Promise.all(sectionPromises)
+                .then(() => {
+                    // Save new students
+                    let savePromises = [];
+                    
+                    newStudents.forEach(student => {
+                        const promise = fetch('/auth/add-single-student', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                student_id: student.id,
+                                fullname: student.name,
+                                is_irregular: student.isIrregular,
+                                email: student.email,
+                                grade_level: student.gradeLevel,
+                                section_name: student.section
+                            }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.success) {
+                                throw new Error(data.message || 'Failed to add student');
+                            }
+                        });
+                        savePromises.push(promise);
+                    });
+                    
+                    // Update existing students
+                    updatedData.forEach(update => {
+                        const promise = fetch('/auth/update-student', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                student_id: update.updated.id,
+                                original_section_name: update.original.section,
+                                fullname: update.updated.name,
+                                is_irregular: update.updated.isIrregular,
+                                email: update.updated.email,
+                                grade_level: update.updated.gradeLevel,
+                                section_name: update.updated.section
+                            }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.success) {
+                                throw new Error(data.message || 'Failed to update student');
+                            }
+                        });
+                        savePromises.push(promise);
+                    });
+                    
+                    // Wait for all saves to complete
+                    if (savePromises.length === 0) {
+                        alert('No changes to save.');
+                        return;
+                    }
+                    
+                    return Promise.all(savePromises);
+                })
+                .then(() => {
+                    const totalChanges = newStudents.length + updatedData.length;
+                    alert(`All changes saved successfully! (${newStudents.length} new, ${updatedData.length} updated)`);
+                    spreadsheetModal.hide();
+                    window.location.reload();
+                })
+                .catch(error => {
+                    alert('Error saving changes: ' + error.message);
+                });
+        });
+        
+        // Cancel spreadsheet changes
+        document.getElementById('cancelSpreadsheetBtn').addEventListener('click', function() {
+            spreadsheetModal.hide();
+        });
+        
+        // Open spreadsheet modal - attach event listener
+        const spreadsheetViewBtn = document.getElementById('spreadsheetViewBtn');
+        if (spreadsheetViewBtn) {
+            // Remove any existing event listeners by cloning the button
+            const newBtn = spreadsheetViewBtn.cloneNode(true);
+            spreadsheetViewBtn.parentNode.replaceChild(newBtn, spreadsheetViewBtn);
+            
+            newBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Spreadsheet view button clicked');
+                
+                // Check if modal element exists
+                const modalElement = document.getElementById('spreadsheetModal');
+                if (!modalElement) {
+                    console.error('Spreadsheet modal element not found');
+                    alert('Error: Spreadsheet modal not found. Please refresh the page.');
+                    return;
+                }
+                
+                // Initialize modal if not already initialized
+                let modal = bootstrap.Modal.getInstance(modalElement);
+                if (!modal) {
+                    modal = new bootstrap.Modal(modalElement);
+                }
+                
+                try {
+                    if (typeof loadSpreadsheetData === 'function') {
+                        loadSpreadsheetData();
+                        modal.show();
+                    } else {
+                        console.error('loadSpreadsheetData function not found');
+                        alert('Error: Spreadsheet function not loaded. Please refresh the page.');
+                    }
+                } catch (error) {
+                    console.error('Error opening spreadsheet view:', error);
+                    alert('Error loading spreadsheet view: ' + error.message);
+                }
+            });
+        } else {
+            console.error('spreadsheetViewBtn not found in DOM');
+        }
+        
+        // Delete student from spreadsheet
+        function deleteStudentFromSpreadsheet(studentId, sectionName) {
+            if (!sectionName) {
+                sectionName = activeSection;
+            }
+            
+            fetch('/auth/delete-student', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
                     student_id: studentId,
-                    fullname: fullname,
-                    is_irregular: isIrregular,
-                    email: email,
-                    grade_level: gradeLevel,
                     section_name: sectionName
                 }),
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Student added successfully!');
-                    addStudentModal.hide();
-                    // Reset form
-                    document.getElementById('addStudentForm').reset();
-                    // Reload page to show new student
-                    window.location.reload();
+                    // Remove from spreadsheet data
+                    spreadsheetData = spreadsheetData.filter(s => s.id !== studentId);
+                    renderSpreadsheetTable();
                 } else {
-                    alert('Error adding student: ' + data.message);
+                    alert('Error deleting student: ' + data.message);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error adding student. Please try again.');
+                alert('Error deleting student. Please try again.');
+            });
+        }
+
+        // Add Admin Functionality
+        // =======================
+        
+        // Note: addAdminModal is already initialized above
+        
+        // Add event listener for add admin button
+        const addAdminBtn = document.getElementById('addAdminBtn');
+        if (addAdminBtn) {
+            addAdminBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                addAdminModal.show();
+            });
+        }
+        
+        // Confirm add admin button
+        document.getElementById('confirmAddAdminBtn').addEventListener('click', function() {
+            const name = document.getElementById('newAdminName').value.trim();
+            const email = document.getElementById('newAdminEmail').value.trim();
+            
+            // Validate required fields
+            if (!name || !email) {
+                alert('Please fill in all required fields (Name and Email).');
+                return;
+            }
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+            
+            // Add admin
+            addAdmin(name, email);
+        });
+        
+        // Add admin function
+        function addAdmin(name, email) {
+            const btn = document.getElementById('confirmAddAdminBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Adding...';
+            btn.disabled = true;
+            
+            fetch('/auth/add-admin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    name: name,
+                    email: email
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Admin added successfully! A verification code has been sent to ' + email);
+                    addAdminModal.hide();
+                    // Reset form
+                    document.getElementById('addAdminForm').reset();
+                } else {
+                    alert('Error adding admin: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error adding admin. Please try again.');
+            })
+            .finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             });
         }
         

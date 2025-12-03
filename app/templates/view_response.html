@@ -7,6 +7,11 @@
     <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary me-3">
         <i class="bi bi-arrow-left"></i> Back to Forms
     </a>
+    {% if is_student_view %}
+    <div class="alert alert-warning mb-3">
+        <i class="bi bi-eye"></i> <strong>View Mode:</strong> You are viewing your submitted response. This is read-only. Any changes made by the admin will be reflected here.
+    </div>
+    {% endif %}
     <div class="col-12 mb-3">
         {% if student_name or student_id %}
             <div class="mb-2">
@@ -353,6 +358,12 @@
                             </div>
                         </div>
                     </form>
+                    {% elif is_student_view %}
+                    <div class="mt-3 p-3 border rounded bg-light">
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle"></i> <strong>Read-Only View:</strong> This is your submitted answer. You cannot edit it, but you can monitor if the admin makes any changes to your score.
+                        </div>
+                    </div>
                     {% endif %}
                 </div>
             {% endfor %}
